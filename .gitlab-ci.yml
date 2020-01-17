@@ -1,0 +1,4 @@
+funcirc:
+  script:
+    - ./setup.cmd
+    - ./build_funcirc.cmd
