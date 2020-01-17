@@ -2,3 +2,8 @@ funcirc:
   script:
     - ./setup.cmd
     - ./build_funcirc.cmd
+
+funcirc_cli:
+  script:
+    - ./setup.cmd
+    - ./run_cli.cmd
