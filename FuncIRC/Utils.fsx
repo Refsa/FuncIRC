@@ -1,16 +1,17 @@
+namespace FuncIRC
+
 module Utils =
+
     let plaintextPort = 6667 // TCP
-    let tlsPort = 6697 // TCP
+    let tlsPort = 6697 // TCP TLS
 
     // Special handling of escape values
-    let escapingValues = 
-        [| 
-            @"\:" // ;
-            @"\s" // SPACE
-            @"\\" // \
-            @"\r" // CR Message Separator
-            @"\n" // LF Message Separator
-        |]
+    let escapingValues =
+        [| @"\:" // ;
+           @"\s" // SPACE
+           @"\\" // \
+           @"\r" // CR Message Separator
+           @"\n" |]
 
     let regularChannelMarker = "#"
     let localChannelMarker = "&"

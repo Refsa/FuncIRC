@@ -6,6 +6,12 @@
     <DebugType>portable</DebugType>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="IRCTestInfo.fsx" />
+
+    <Reference Include="FuncIRC">
+      <HintPath>..\FuncIRC\bin\Debug\netstandard2.0\FuncIRC.dll</HintPath>
+    </Reference>
+
     <Compile Include="FuncIRC_CLI.fsx" />
   </ItemGroup>
   <Import Project="..\.paket\Paket.Restore.targets" />

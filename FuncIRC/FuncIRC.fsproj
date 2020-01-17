@@ -6,9 +6,12 @@
     <DebugType>portable</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="Modes.fsx" />
-    <None Include="NumericReplies.fsx" />
-    <None Include="Utils.fsx" />
+    <Compile Include="Modes.fsx" />
+    <Compile Include="NumericReplies.fsx" />
+    <Compile Include="RegexHelpers.fsx" />
+    <Compile Include="Utils.fsx" />
+    <Compile Include="MessageParser.fsx" />
+
     <None Include="FuncIRC.fsx" />
 
     <Compile Include="Library.fsx" />
