@@ -9,6 +9,7 @@
     <Compile Include="IRCTestInfo.fsx" />
     <Compile Include="GeneralHelpers.fsx" />
     <Compile Include="ConsoleHelpers.fsx" />
+    <Compile Include="Application.fsx" />
     <Compile Include="CLIView.fsx" />
 
     <Reference Include="FuncIRC">

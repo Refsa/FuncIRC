@@ -8,6 +8,26 @@ module CLIView =
     open ConsoleHelpers
     open GeneralHelpers
 
+    /// Base class for creating elements to be placed and interacted with in the console window
+    /// content: String content of the line
+    /// position: x position of the element in the console window
+    /// line: y position of the element in the console window
+    /// foregroundColor: Foreground color of the element
+    /// backgroundColor: Background color of the element
+    type CLIElement(content, position, line, foregroundColor, backgroundColor) =
+        let mutable content = content
+        let mutable position = position
+        let mutable line = line
+        
+        let foregroundColor = foregroundColor
+        let backgroundColor = backgroundColor
+
+        new () = CLIElement ("", 0, 0, ConsoleColor.Green, ConsoleColor.Black)
+
+        member this.SetContent newContent = content <- newContent
+        member this.SetPosition newPosition = position <- newPosition
+        member this.SetLine newLine = line <- newLine
+
     type CLILine =
         {
             Content: Printf.StringFormat<unit, unit>
@@ -15,26 +35,32 @@ module CLIView =
             BackgroundColor: ConsoleColor
         }
 
-    type CLIView (maxLines: int, maxWidth: int) as this =
+    type CLIView (maxLines: int, maxWidth: int) =
         let maxLines = maxLines
         let maxWidth = maxWidth
 
         let mutable cliLines: CLILine array = [||]
 
-        let mutable foregroundColor: ConsoleColor = ConsoleColor.Black
-        let mutable backgroundColor: ConsoleColor = ConsoleColor.Cyan
+        let mutable foregroundColor: ConsoleColor = ConsoleColor.Green
+        let mutable backgroundColor: ConsoleColor = ConsoleColor.Black
+
+        let defaultLine = (buildString " " maxWidth).Remove(maxWidth, 1)
+                                                    .Remove(0, 1)
+                                                    .Insert(0, "|")
+                                                    .Insert(maxWidth, "|")
 
         do
+
             cliLines <- [|
                             for i in 0..maxLines -> 
-                                                {Content = toStringFormat (buildString "#" maxWidth); 
+                                                {Content = toStringFormat defaultLine; 
                                                  ForegroundColor = foregroundColor; 
                                                  BackgroundColor = backgroundColor}
                         |]
 
         member this.SetLine (content: CLILine, line: int) =
             match line with
-            | line when line < maxLines -> cliLines.[line] <- content
+            | line when line <= maxLines -> cliLines.[line] <- content
             | _ -> ()
 
         member this.SetBaseForegroundColor color =
