@@ -18,7 +18,7 @@ module CLIView =
         let mutable content = content
         let mutable position = position
         let mutable line = line
-        
+
         let foregroundColor = foregroundColor
         let backgroundColor = backgroundColor
 
@@ -28,6 +28,7 @@ module CLIView =
         member this.SetPosition newPosition = position <- newPosition
         member this.SetLine newLine = line <- newLine
 
+    /// Represents a line of text in the CLI
     type CLILine =
         {
             Content: Printf.StringFormat<unit, unit>
@@ -35,6 +36,7 @@ module CLIView =
             BackgroundColor: ConsoleColor
         }
 
+    /// Represents the content of the CLI
     type CLIView (maxLines: int, maxWidth: int) =
         let maxLines = maxLines
         let maxWidth = maxWidth
@@ -58,17 +60,21 @@ module CLIView =
                                                  BackgroundColor = backgroundColor}
                         |]
 
+        /// Sets the content of <line> to <content>
         member this.SetLine (content: CLILine, line: int) =
             match line with
             | line when line <= maxLines -> cliLines.[line] <- content
             | _ -> ()
 
+        /// Sets the base foreground color to <color>
         member this.SetBaseForegroundColor color =
             foregroundColor <- color
 
+        /// Sets the base background color to <color>
         member this.SetBaseBackgroundColor color = 
             backgroundColor <- color
 
+        /// Clears the current content of the console and redraws the content in cliLines
         member this.Draw () =
             Console.Clear()
 

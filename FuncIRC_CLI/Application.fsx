@@ -6,6 +6,7 @@ module Application =
     open System
     open CLIView
 
+    /// Entry point for the CLI application
     type Application (cliView: CLIView) =
         let cliView = cliView
 
@@ -13,6 +14,8 @@ module Application =
 
         let mutable stateListener: string -> unit = ignore
 
+        /// Starts the application loop
+        /// TODO: Remove the handling of events from the local space
         member this.Run () =
             let loop =
                 async {
@@ -29,5 +32,6 @@ module Application =
 
             loop |> Async.RunSynchronously
 
+        /// Binds the delegate to listen to changes to the application state
         member this.SetStateListener (listener: string -> unit) =
             stateListener <- listener
