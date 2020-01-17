@@ -6,4 +6,4 @@ funcirc:
 funcirc_cli:
   script:
     - ./setup.cmd
-    - ./run_cli.cmd
+    - ./build_funcirc_cli.cmd
