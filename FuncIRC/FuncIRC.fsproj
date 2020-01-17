@@ -1,12 +1,18 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <OutputType>Library</OutputType>
+    <TargetFramework>netstandard2.0</TargetFramework>
     <DebugType>portable</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="FuncIRC.fs" />
+    <None Include="Modes.fsx" />
+    <None Include="NumericReplies.fsx" />
+    <None Include="Utils.fsx" />
+    <None Include="FuncIRC.fsx" />
+
+    <Compile Include="Library.fsx" />
   </ItemGroup>
+  <Target Name="CheckIfShouldKillVBCSCompiler" />
   <Import Project="..\.paket\Paket.Restore.targets" />
 </Project>
