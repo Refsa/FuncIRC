@@ -3,7 +3,6 @@ module FuncIRC_CLI
 #r "../FuncIRC/bin/Debug/netstandard2.0/FuncIRC.dll"
 #load "IRCTestInfo.fsx"
 
-open FuncIRC
 open FuncIRC.MessageParser
 open IRCTestInfo
 

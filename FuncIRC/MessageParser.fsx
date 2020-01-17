@@ -16,7 +16,7 @@ module MessageParser =
           member this.Print =
             printf "\n\tTags: "
             if this.Tags.IsSome then
-                this.Tags.Value |> List.iter (fun a -> printf "%s " a)
+                printf "%A" this.Tags.Value
             printf "\n\tSource: "
             if this.Source.IsSome then
                 printf "%s" this.Source.Value
