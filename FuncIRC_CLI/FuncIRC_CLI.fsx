@@ -36,11 +36,18 @@ module CLI =
                               ForegroundColor = ConsoleColor.Green;
                               BackgroundColor = ConsoleColor.Black}, 10)
 
+    let applicationStateHandler state =
+        printState state
+        
+        match state with
+        | "Quit" -> app.Stop()
+        | _ -> ()
+
     do
         Console.Title <- "FuncIRC CLI"
         Console.Clear()
 
-        app.SetStateListener printState
+        app.SetStateListener applicationStateHandler
 
         let titleString = "[ FuncIRC CLI ]"
         let title = centerOnString (defaultLine, titleString)
@@ -69,7 +76,7 @@ module CLI =
 
     [<EntryPoint>]
     let main argv =
-        //cprintfn ConsoleColor.Green "----- FuncIRC CLI -----"
+        cprintfn ConsoleColor.Red ConsoleColor.Blue "----- FuncIRC CLI -----"
         
         (app.Run())
 

@@ -9,28 +9,43 @@ module Application =
     /// Entry point for the CLI application
     type Application (cliView: CLIView) =
         let cliView = cliView
+        let mutable running = true
 
         let mutable state = ""
+        let mutable readLineInput = ""
 
         let mutable stateListener: string -> unit = ignore
+
+        let readLine() =
+            let readKey = Console.ReadKey()
+
+            match readKey.Key with
+            | ConsoleKey.Enter -> 
+                    state <- readLineInput
+                    readLineInput <- ""
+            | _ -> 
+                    readLineInput <- readLineInput + (string readKey.KeyChar)
+                    state <- readLineInput
 
         /// Starts the application loop
         /// TODO: Remove the handling of events from the local space
         member this.Run () =
             let loop =
                 async {
-                    let mutable running = true
                     while running do
                         cliView.Draw()
-                        state <- Console.ReadLine ()
+                        readLine()
                         stateListener state
-
-                        match state with
-                        | "quit" -> running <- false
-                        | _ -> ()
                 }
 
             loop |> Async.RunSynchronously
+
+        member this.Stop () =
+            match running with
+            | true ->
+                    cliView.Draw()
+                    running <- false
+            | false -> ()
 
         /// Binds the delegate to listen to changes to the application state
         member this.SetStateListener (listener: string -> unit) =
