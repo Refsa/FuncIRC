@@ -1,9 +1,9 @@
 funcirc:
   script:
-    - ./setup.cmd
+    - paket.exe install
     - ./build_funcirc.cmd
 
 funcirc_cli:
   script:
-    - ./setup.cmd
+    - paket.exe install
     - ./build_funcirc_cli.cmd
