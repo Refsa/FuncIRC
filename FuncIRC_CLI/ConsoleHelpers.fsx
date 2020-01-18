@@ -29,3 +29,12 @@ module ConsoleHelpers =
     let cprintf fc bc str  = Printf.kprintf (fun s -> use c = consoleColor (fc, bc) in printf "%s" s) str
     /// Prints the string <str> with printfn to the console with the given <fc> and <bc>
     let cprintfn fc bc str = Printf.kprintf (fun s -> use c = consoleColor (fc, bc) in printfn "%s" s) str
+
+    /// Checks if given ConsoleKey is one of the arrow keys
+    let (|IsNavigationInput|_|) ck =
+        match ck with
+        | ConsoleKey.UpArrow 
+        | ConsoleKey.DownArrow 
+        | ConsoleKey.LeftArrow 
+        | ConsoleKey.RightArrow -> Some ck
+        | _ -> None

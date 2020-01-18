@@ -36,8 +36,11 @@ module CLIView =
 
         new () = CLIElement ("XXX", CLIPosition (0, 0), CLIColor (ConsoleColor.Green, ConsoleColor.Black), false)
 
-        member this.GetContent = content
-        member this.SetContent newContent = content <- newContent
+        abstract member GetContent: string
+        abstract member SetContent: string -> unit
+
+        default this.GetContent = content
+        default this.SetContent newContent = content <- newContent
 
         member this.GetColor = color
         member this.CanFocus = canFocus
@@ -53,6 +56,26 @@ module CLIView =
 
     type Label (content, position, color) =
         inherit CLIElement (content, position, color, false)
+
+    type TextField (content, position, color) =
+        inherit CLIElement (content, position, color, true)
+
+        let mutable placeholderText = "PLACEHOLDER"
+        let mutable text = ""
+
+        override this.GetContent = 
+            match text with
+            | text when text.Length = 0 -> content.Replace("$t", placeholderText)
+            | _ -> content.Replace ("$t", text)
+
+        override this.SetContent newContent =
+            text <- newContent
+
+        member this.PlaceholderText = placeholderText
+        member this.Text = text
+
+        member this.SetPlaceholderText pt = placeholderText <- pt
+        member this.SetText t = text <- t
 
     /// Represents a line of text in the CLI
     type CLILine =
@@ -115,6 +138,7 @@ module CLIView =
         member this.SetBaseBackgroundColor color = 
             backgroundColor <- color
 
+        /// Draws the <elements> content inline into the <line> content
         member this.DrawLine (line: CLILine, elements: CLIElement list) =
             match elements with
             | elements when elements.Length > 0 ->
