@@ -78,12 +78,14 @@ module CLIView =
                                                     .Insert(0, "|")
                                                     .Insert(maxWidth, "|")
 
-        let sortElements () =
+        /// Sorts the content of cliElements based on position and line
+        let sortElements =
             cliElements <- 
                         cliElements
                         |> List.sortBy (fun x -> ( x.GetPosition ))
                         |> List.sortBy (fun x -> ( x.GetLine ))
 
+        // Constructor
         do
             cliLines <- [| for i in 0..maxLines -> {Content = defaultLine; 
                                                     ForegroundColor = foregroundColor; 
@@ -95,13 +97,15 @@ module CLIView =
             | line when line <= maxLines -> cliLines.[line] <- content
             | _ -> ()
 
+        /// Adds a CLIElement to be drawn with the view
         member this.SetElement (element: CLIElement) =
             cliElements <- element :: cliElements
-            sortElements()
+            sortElements
 
+        /// Adds a range of CLIElements to be drawn with the view
         member this.SetElements (elements: CLIElement list) =
             cliElements <- elements @ cliElements
-            sortElements()
+            sortElements
 
         /// Sets the base foreground color to <color>
         member this.SetBaseForegroundColor color =
@@ -111,6 +115,26 @@ module CLIView =
         member this.SetBaseBackgroundColor color = 
             backgroundColor <- color
 
+        member this.DrawLine (line: CLILine, elements: CLIElement list) =
+            match elements with
+            | elements when elements.Length > 0 ->
+                let firstElementPosition = elements.[0].GetPosition
+                let mutable furtherstElementPosition = 0
+
+                cprintf line.ForegroundColor line.BackgroundColor (toStringFormat (line.Content.[0..firstElementPosition - 1]))
+
+                elements
+                |> List.iter (fun e ->(
+                                        let elementEndPosition = e.GetPosition + e.GetContent.Length
+                                        if elementEndPosition > furtherstElementPosition then furtherstElementPosition <- elementEndPosition
+                                        cprintf e.GetColor.ForegroundColor e.GetColor.BackgroundColor (toStringFormat (e.GetContent))
+                              ))
+
+                cprintf line.ForegroundColor line.BackgroundColor (toStringFormat (line.Content.[furtherstElementPosition..line.Content.Length - 1]))
+                cprintf line.ForegroundColor line.BackgroundColor (toStringFormat "\n")
+            | _ -> 
+                cprintfn line.ForegroundColor line.BackgroundColor (toStringFormat line.Content)
+
         /// Clears the current content of the console and redraws the content in cliLines
         member this.Draw () =
             Console.Clear()
@@ -119,12 +143,9 @@ module CLIView =
             |> Array.iteri 
                     (fun index -> 
                         ( fun line ->
-                            let mutable lineContent = line.Content
-                            
                             cliElements 
                             |> List.where (fun x -> x.GetLine = index)
-                            |> List.iter (fun e -> lineContent <- e.PlaceElement lineContent)
-
-                            cprintfn line.ForegroundColor line.BackgroundColor (toStringFormat lineContent)
+                            |> List.sortBy (fun x -> x.GetPosition)
+                            |> fun e -> this.DrawLine (line, e)
                         )
                     )

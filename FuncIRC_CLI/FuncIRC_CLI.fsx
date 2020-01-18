@@ -19,7 +19,18 @@ module CLI =
     open IRCTestInfo
 
     let consoleSize = {Width = 128; Height = 16}
+
+    // View
     let consoleView = CLIView(consoleSize.Height, consoleSize.Width)
+
+    let defaultColor = CLIColor (ConsoleColor.Green, ConsoleColor.Black)
+    let titleColor = CLIColor (ConsoleColor.Black, ConsoleColor.White)
+
+    let titleString = "[ FuncIRC CLI ]"
+    let titleElement = Label(titleString, CLIPosition(consoleSize.Width / 2 - titleString.Length / 2, 0), titleColor)
+
+    let usernameString = "[ Username: ________________________________ ]"
+    let usernameElement = Label(usernameString, CLIPosition(20, 4), defaultColor)
 
     let defaultLine = (buildString " " consoleSize.Width).Remove(consoleSize.Width, 1)
                                                          .Remove(0, 1)
@@ -28,6 +39,7 @@ module CLI =
 
     let topLine = (buildString "¨" consoleSize.Width)
 
+    // Update
     let app = Application (consoleView)
 
     let printInputStateLine stateLine = 
@@ -49,15 +61,6 @@ module CLI =
 
         app.SetStateListener applicationStateHandler
 
-        let defaultColor = CLIColor (ConsoleColor.Green, ConsoleColor.Black)
-
-        let titleString = "[ FuncIRC CLI ]"
-        let titleElement = Label(titleString, CLIPosition(consoleSize.Width / 2 - titleString.Length / 2, 0), defaultColor)
-
-        let title = centerOnString (defaultLine, titleString)
-
-        let usernameString = "[ Username: ________________________________ ]"
-        let usernameElement = Label(usernameString, CLIPosition(20, 4), defaultColor)
 
         consoleView.SetElement (titleElement)
         consoleView.SetElement (usernameElement)
