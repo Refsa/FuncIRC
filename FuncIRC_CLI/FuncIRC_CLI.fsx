@@ -30,16 +30,16 @@ module CLI =
 
     let app = Application (consoleView)
 
-    let printState stateString = 
-        let state = placeOnString (defaultLine, stateString, 20)
-        consoleView.SetLine ({Content = toStringFormat state;
+    let printInputStateLine stateLine = 
+        let state = placeOnString (defaultLine, stateLine, 20)
+        consoleView.SetLine ({Content = state;
                               ForegroundColor = ConsoleColor.Green;
                               BackgroundColor = ConsoleColor.Black}, 10)
 
     let applicationStateHandler state =
-        printState state
-        
-        match state with
+        printInputStateLine (state.Line + " - Key: " + state.Key.ToString())
+
+        match state.Line with
         | "Quit" -> app.Stop()
         | _ -> ()
 
@@ -49,25 +49,24 @@ module CLI =
 
         app.SetStateListener applicationStateHandler
 
+        let defaultColor = CLIColor (ConsoleColor.Green, ConsoleColor.Black)
+
         let titleString = "[ FuncIRC CLI ]"
+        let titleElement = Label(titleString, CLIPosition(consoleSize.Width / 2 - titleString.Length / 2, 0), defaultColor)
+
         let title = centerOnString (defaultLine, titleString)
 
         let usernameString = "[ Username: ________________________________ ]"
-        let username = placeOnString (defaultLine, usernameString, 20)
+        let usernameElement = Label(usernameString, CLIPosition(20, 4), defaultColor)
 
-        consoleView.SetLine ({Content = toStringFormat title;
-                              ForegroundColor = ConsoleColor.Green;
-                              BackgroundColor = ConsoleColor.Black}, 0)
+        consoleView.SetElement (titleElement)
+        consoleView.SetElement (usernameElement)
 
-        consoleView.SetLine ({Content = toStringFormat (buildString "=" consoleSize.Width);
+        consoleView.SetLine ({Content = (buildString "=" consoleSize.Width);
                               ForegroundColor = ConsoleColor.Red;
                               BackgroundColor = ConsoleColor.Black}, 1)
 
-        consoleView.SetLine ({Content = toStringFormat username;
-                              ForegroundColor = ConsoleColor.Green;
-                              BackgroundColor = ConsoleColor.Black}, 4)
-
-        consoleView.SetLine ({Content = toStringFormat topLine;
+        consoleView.SetLine ({Content = topLine;
                               ForegroundColor = ConsoleColor.Green;
                               BackgroundColor = ConsoleColor.Black}, consoleSize.Height)
 

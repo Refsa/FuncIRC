@@ -8,30 +8,56 @@ module CLIView =
     open ConsoleHelpers
     open GeneralHelpers
 
+    type CLIPosition (x: int, y: int) =
+        let x = x
+        let y = y
+
+        member this.GetPosition () = x
+        member this.GetLine () = y
+
+    type CLIColor (fc: ConsoleColor, bc: ConsoleColor) =
+        let foregroundColor = fc
+        let backgroundColor = bc
+
+        member this.ForegroundColor = foregroundColor
+        member this.BackgroundColor = backgroundColor
+
     /// Base class for creating elements to be placed and interacted with in the console window
     /// content: String content of the line
     /// position: x position of the element in the console window
     /// line: y position of the element in the console window
     /// foregroundColor: Foreground color of the element
     /// backgroundColor: Background color of the element
-    type CLIElement(content, position, line, foregroundColor, backgroundColor) =
+    type CLIElement(content, position, color, canFocus) =
         let mutable content = content
+        let color = color
         let mutable position = position
-        let mutable line = line
+        let canFocus = canFocus
 
-        let foregroundColor = foregroundColor
-        let backgroundColor = backgroundColor
+        new () = CLIElement ("XXX", CLIPosition (0, 0), CLIColor (ConsoleColor.Green, ConsoleColor.Black), false)
 
-        new () = CLIElement ("", 0, 0, ConsoleColor.Green, ConsoleColor.Black)
-
+        member this.GetContent = content
         member this.SetContent newContent = content <- newContent
-        member this.SetPosition newPosition = position <- newPosition
-        member this.SetLine newLine = line <- newLine
+
+        member this.GetColor = color
+        member this.CanFocus = canFocus
+
+        member this.GetPosition = position.GetPosition()
+        member this.SetPosition newPosition = position <- CLIPosition (newPosition, position.GetLine())
+
+        member this.GetLine = position.GetLine()
+        member this.SetLine newLine = position <- CLIPosition(position.GetPosition(), newLine)
+
+        member this.PlaceElement target =
+            placeOnString (target, content, this.GetPosition)
+
+    type Label (content, position, color) =
+        inherit CLIElement (content, position, color, false)
 
     /// Represents a line of text in the CLI
     type CLILine =
         {
-            Content: Printf.StringFormat<unit, unit>
+            Content: string
             ForegroundColor: ConsoleColor
             BackgroundColor: ConsoleColor
         }
@@ -42,6 +68,7 @@ module CLIView =
         let maxWidth = maxWidth
 
         let mutable cliLines: CLILine array = [||]
+        let mutable cliElements: CLIElement list = []
 
         let mutable foregroundColor: ConsoleColor = ConsoleColor.Green
         let mutable backgroundColor: ConsoleColor = ConsoleColor.Black
@@ -51,20 +78,30 @@ module CLIView =
                                                     .Insert(0, "|")
                                                     .Insert(maxWidth, "|")
 
-        do
+        let sortElements () =
+            cliElements <- 
+                        cliElements
+                        |> List.sortBy (fun x -> ( x.GetPosition ))
+                        |> List.sortBy (fun x -> ( x.GetLine ))
 
-            cliLines <- [|
-                            for i in 0..maxLines -> 
-                                                {Content = toStringFormat defaultLine; 
-                                                 ForegroundColor = foregroundColor; 
-                                                 BackgroundColor = backgroundColor}
-                        |]
+        do
+            cliLines <- [| for i in 0..maxLines -> {Content = defaultLine; 
+                                                    ForegroundColor = foregroundColor; 
+                                                    BackgroundColor = backgroundColor} |]
 
         /// Sets the content of <line> to <content>
         member this.SetLine (content: CLILine, line: int) =
             match line with
             | line when line <= maxLines -> cliLines.[line] <- content
             | _ -> ()
+
+        member this.SetElement (element: CLIElement) =
+            cliElements <- element :: cliElements
+            sortElements()
+
+        member this.SetElements (elements: CLIElement list) =
+            cliElements <- elements @ cliElements
+            sortElements()
 
         /// Sets the base foreground color to <color>
         member this.SetBaseForegroundColor color =
@@ -79,7 +116,15 @@ module CLIView =
             Console.Clear()
 
             cliLines
-            |> Array.iter (fun line -> (
-                                        cprintfn line.ForegroundColor line.BackgroundColor line.Content
-                                        )
-                           )
+            |> Array.iteri 
+                    (fun index -> 
+                        ( fun line ->
+                            let mutable lineContent = line.Content
+                            
+                            cliElements 
+                            |> List.where (fun x -> x.GetLine = index)
+                            |> List.iter (fun e -> lineContent <- e.PlaceElement lineContent)
+
+                            cprintfn line.ForegroundColor line.BackgroundColor (toStringFormat lineContent)
+                        )
+                    )

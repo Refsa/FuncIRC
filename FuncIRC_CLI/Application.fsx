@@ -6,15 +6,30 @@ module Application =
     open System
     open CLIView
 
+    type InputState =
+        {
+            Line: string
+            Key: ConsoleKey
+        }
+
+    let getTextInput (input: ConsoleKeyInfo): string =
+        match input with
+        | input when input.Key = ConsoleKey.LeftArrow -> ""
+        | input when input.Key = ConsoleKey.RightArrow -> ""
+        | input when input.Key = ConsoleKey.UpArrow -> ""
+        | input when input.Key = ConsoleKey.DownArrow -> ""
+        | _ -> string input.KeyChar
+
     /// Entry point for the CLI application
     type Application (cliView: CLIView) =
         let cliView = cliView
         let mutable running = true
 
+        let mutable inputState = {Line = ""; Key = ConsoleKey.NoName}
         let mutable state = ""
         let mutable readLineInput = ""
 
-        let mutable stateListener: string -> unit = ignore
+        let mutable stateListener: InputState -> unit = ignore
 
         let readLine() =
             let readKey = Console.ReadKey()
@@ -23,9 +38,18 @@ module Application =
             | ConsoleKey.Enter -> 
                     state <- readLineInput
                     readLineInput <- ""
-            | _ -> 
-                    readLineInput <- readLineInput + (string readKey.KeyChar)
+            | ConsoleKey.Backspace ->
+                    readLineInput <- 
+                        match readLineInput with
+                        | readLineInput when readLineInput.Length > 0 ->
+                            readLineInput.Remove(readLineInput.Length - 1)
+                        | _ -> ""
                     state <- readLineInput
+            | _ -> 
+                    readLineInput <- readLineInput + (getTextInput readKey)
+                    state <- readLineInput
+
+            inputState <- {Line = state; Key = readKey.Key}
 
         /// Starts the application loop
         /// TODO: Remove the handling of events from the local space
@@ -35,7 +59,7 @@ module Application =
                     while running do
                         cliView.Draw()
                         readLine()
-                        stateListener state
+                        stateListener inputState
                 }
 
             loop |> Async.RunSynchronously
@@ -48,5 +72,5 @@ module Application =
             | false -> ()
 
         /// Binds the delegate to listen to changes to the application state
-        member this.SetStateListener (listener: string -> unit) =
+        member this.SetStateListener (listener: InputState -> unit) =
             stateListener <- listener
