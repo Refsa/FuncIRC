@@ -30,8 +30,10 @@ module CLIView =
     /// backgroundColor: Background color of the element
     type CLIElement(content, position, color, canFocus) =
         let mutable content = content
-        let color = color
+        let mutable color = color
         let mutable position = position
+        let mutable executeDelegate: unit -> unit = ignore
+
         let canFocus = canFocus
 
         new () = CLIElement ("XXX", CLIPosition (0, 0), CLIColor (ConsoleColor.Green, ConsoleColor.Black), false)
@@ -42,7 +44,12 @@ module CLIView =
         default this.GetContent = content
         default this.SetContent newContent = content <- newContent
 
+        member this.Execute = executeDelegate
+        member this.SetExecute func = executeDelegate <- func
+
         member this.GetColor = color
+        member this.SetColor newColor = color <- newColor
+
         member this.CanFocus = canFocus
 
         member this.GetPosition = position.GetPosition()
@@ -53,6 +60,11 @@ module CLIView =
 
         member this.PlaceElement target =
             placeOnString (target, content, this.GetPosition)
+
+    type Button (content, position, color) =
+        inherit CLIElement (content, position, color, true)
+
+        override this.SetContent newContent = ()
 
     type Label (content, position, color) =
         inherit CLIElement (content, position, color, false)

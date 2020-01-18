@@ -23,7 +23,7 @@ module Application =
     /// Entry point for the CLI application
     type Application (cliView: CLIView) =
         let cliView = cliView
-        let mutable running = true
+        let mutable running = false
 
         let mutable inputState = {Line = ""; Key = ConsoleKey.NoName}
         let mutable state = ""
@@ -54,6 +54,7 @@ module Application =
         /// Starts the application loop
         /// TODO: Remove the handling of events from the local space
         member this.Run () =
+            running <- true
             let loop =
                 async {
                     while running do
