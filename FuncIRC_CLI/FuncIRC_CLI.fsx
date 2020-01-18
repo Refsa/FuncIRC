@@ -46,7 +46,7 @@ module CLI =
         let title = centerOnString (defaultLine, titleString)
 
         let usernameString = "[ Username: ________________________________ ]"
-        let username = placeOnString (defaultLine, usernameString, 20)
+        let username = placeOnString (defaultLine, usernameString, 20)s
 
         consoleView.SetLine ({Content = toStringFormat title;
                               ForegroundColor = ConsoleColor.Green;
