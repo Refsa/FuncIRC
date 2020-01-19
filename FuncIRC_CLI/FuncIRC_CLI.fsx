@@ -6,6 +6,8 @@
 #load "View/CLIView.fsx"
 #load "Update/Application.fsx"
 #load "Model/ApplicationState.fsx"
+#load "Model/NavigationState.fsx"
+#load "Update/Navigation.fsx"
 
 namespace FuncIRC_CLI
 
@@ -20,18 +22,10 @@ module CLI =
     open FuncIRC.MessageParser
     open GeneralHelpers
     open IRCTestInfo
+    open NavigationState
+    open Navigation
 
     let consoleSize = {Width = 128; Height = 16}
-
-    // Model
-    type Navigation =
-        {
-            Focused: CLIElement
-            Index: int
-        }
-
-    let mutable navigation: Navigation option = None
-    let mutable navigationElements: CLIElement list = []
 
     // View
     let consoleView = CLIView(consoleSize.Height, consoleSize.Width)
@@ -65,6 +59,7 @@ module CLI =
 
     // Update
     let app = Application (consoleView)
+    let navigation = Navigation (defaultColor, inverseColor)
 
     /// Prints out the current InputState content
     let printInputStateLine stateLine = 
@@ -73,55 +68,18 @@ module CLI =
                               ForegroundColor = ConsoleColor.Green;
                               BackgroundColor = ConsoleColor.Black}, 10)
 
-    /// Sets selection color for element and updates the Navigation model state
-    let setFocusedNavigationElement elem index =
-        if navigation.IsSome then
-            navigation.Value.Focused.SetColor defaultColor
-
-        navigation <- Some {Focused = elem; Index = index}
-        navigation.Value.Focused.SetColor inverseColor
-
-    /// Handles ArrowKey navigation input
-    let navigate (state: InputState): InputState =
-        if navigationElements.Length = 0 then state // No elements to navigate
-        else // Handle navigation
-
-        // Check if an element is currently focused
-        match navigation with
-        | None -> 
-            setFocusedNavigationElement navigationElements.[0] 0
-        | Some nav -> // Element is in focus, move to next element based on navigation input
-            match state.Key with
-            | ConsoleKey.DownArrow ->
-                let navElemsEnd = navigationElements.Length - 1
-                let index = nav.Index + 1
-                index |> fun x -> if x > navElemsEnd then 0 else index
-            | ConsoleKey.UpArrow -> 
-                let index = nav.Index - 1
-                index |> fun x -> if x < 0 then navigationElements.Length - 1 else index
-            | _ -> -1
-            |> fun i -> 
-                if i >= 0 then
-                    setFocusedNavigationElement navigationElements.[i] i
-
-        {
-            Line = navigation.Value.Focused.GetText
-            Key = state.Key
-        }
-
     /// Entry point for InputState handler from application
     let applicationStateHandler (state: ApplicationState): ApplicationState =
         // Handle the state and give feedback on changes
         match state.InputState.Key with
         | ConsoleKey.Enter when state.InputState.Line = "Quit" -> {Running = false; InputState = state.InputState}
         | IsNavigationInput ck -> 
-            { Running = true; InputState = navigate state.InputState }
+            { Running = true; InputState = navigation.Navigate state.InputState }
         | _ -> state
         |> fun stateFeedback ->
-            match navigation with
+            match navigation.Focused with
             | Some nav -> nav.Focused.Execute stateFeedback
             | None -> stateFeedback
-
 
     do
         Console.Title <- "FuncIRC CLI"
@@ -138,11 +96,19 @@ module CLI =
 
         exitElement.SetExecuteDelegate exitApp
 
-        navigationElements <- [usernameElement; passwordElement; loginElement; exitElement]
+        let navigationElements = 
+            [
+                usernameElement :> CLIElement; 
+                passwordElement :> CLIElement; 
+                loginElement :> CLIElement; 
+                exitElement :> CLIElement
+            ]
 
         consoleView.SetElement (titleElement)
         consoleView.SetElement (logElement)
         consoleView.SetElements (navigationElements)
+
+        navigation.SetElements navigationElements
 
         consoleView.SetLine ({Content = (buildString "=" consoleSize.Width);
                               ForegroundColor = ConsoleColor.Red;
