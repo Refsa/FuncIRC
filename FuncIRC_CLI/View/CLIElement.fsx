@@ -60,10 +60,13 @@ module CLIElement =
     type Button (content, position, color) =
         inherit CLIElement (content, position, color, true)
 
-        let mutable executeDelegate: ApplicationState -> ApplicationState = 
-            fun a -> {Running = false; InputState = {Line = ""; Key = ConsoleKey.NoName}}
+        let mutable executeDelegate: ApplicationState -> ApplicationState = id
+
+        override this.Execute appState = executeDelegate appState
 
         override this.SetContent newContent = ()
+
+        member this.SetExecuteDelegate func = executeDelegate <- func
 
     type Label (content, position, color) =
         inherit CLIElement (content, position, color, false)

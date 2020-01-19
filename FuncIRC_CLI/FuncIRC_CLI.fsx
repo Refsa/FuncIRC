@@ -112,20 +112,16 @@ module CLI =
     /// Entry point for InputState handler from application
     let applicationStateHandler (state: ApplicationState): ApplicationState =
         // Handle the state and give feedback on changes
-        let stateFeedback =
-            match state.InputState.Key with
-            | ConsoleKey.Enter when state.InputState.Line = "Quit" -> {Running = false; InputState = state.InputState}
-            | IsNavigationInput ck -> 
-                { Running = true; InputState = navigate state.InputState }
-            | _ -> state
-            |> fun stateFeedback ->
-                match navigation with
-                | Some nav -> nav.Focused.Execute stateFeedback
-                | None -> stateFeedback
+        match state.InputState.Key with
+        | ConsoleKey.Enter when state.InputState.Line = "Quit" -> {Running = false; InputState = state.InputState}
+        | IsNavigationInput ck -> 
+            { Running = true; InputState = navigate state.InputState }
+        | _ -> state
+        |> fun stateFeedback ->
+            match navigation with
+            | Some nav -> nav.Focused.Execute stateFeedback
+            | None -> stateFeedback
 
-        //printInputStateLine (stateFeedback.Line + " - Key: " + stateFeedback.Key.ToString())
-
-        stateFeedback
 
     do
         Console.Title <- "FuncIRC CLI"
@@ -133,7 +129,14 @@ module CLI =
 
         app.SetStateListener applicationStateHandler
 
-        //exitElement.SetExecute (app.Stop)
+        let exitApp appState = 
+            appState.InputState.Key
+            |> function
+            | ConsoleKey.Enter ->
+                { Running = false; InputState = appState.InputState }
+            | _ -> appState
+            
+        exitElement.SetExecuteDelegate exitApp
 
         navigationElements <- [usernameElement; passwordElement; loginElement; exitElement]
 
