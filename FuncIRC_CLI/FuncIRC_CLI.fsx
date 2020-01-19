@@ -10,6 +10,7 @@
 #load "Update/Navigation.fsx"
 #load "Update/ButtonFunctions.fsx"
 #load "View/LoginView.fsx"
+#load "View/StartupView.fsx"
 
 namespace FuncIRC_CLI
 
@@ -28,18 +29,16 @@ module CLI =
     open NavigationState
     open Navigation
     open LoginView
+    open StartupView
 
     let consoleSize = {Width = 128; Height = 16}
 
-    let loginView = setupLoginView()
-    let mutable currentView = loginView
+    let loginView = setupLoginView(consoleSize)
+    let startupView = setupStartupView(consoleSize)
 
-    /// Prints out the current InputState content
-    //let printInputStateLine stateLine = 
-    //    let state = placeOnString (defaultLine, stateLine, 20)
-    //    consoleView.SetLine ({Content = state;
-    //                          ForegroundColor = ConsoleColor.Green;
-    //                          BackgroundColor = ConsoleColor.Black}, 10)
+    let views = [startupView; loginView]
+
+    let mutable currentView = startupView
 
     /// Entry point for InputState handler from application
     let applicationStateHandler (state: ApplicationState): ApplicationState =

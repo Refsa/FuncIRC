@@ -8,12 +8,15 @@ module GeneralHelpers =
 
     /// Appends <content> to a string <count> times
     let buildString content count : string =
+        if count = 0 then ""
+        else
+
         let rec buildStringRec (c: string, i: int) : string =
             match i with
             | i when i > 0 -> buildStringRec (c + content, i - 1)
             | _ -> c
 
-        buildStringRec (content, count)
+        buildStringRec (content, count - 1)
 
     /// Converts the input string <content> to Printf.StringFormat<unit, unit>
     let toStringFormat content : Printf.StringFormat<unit, unit> =

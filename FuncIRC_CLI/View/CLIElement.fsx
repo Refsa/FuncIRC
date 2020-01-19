@@ -29,12 +29,14 @@ module CLIElement =
         abstract member GetContent: string
         abstract member SetContent: string -> unit
         abstract member GetText: string
+        abstract member GetWidth: int
         abstract member Draw: unit
         abstract member Execute: ApplicationState -> ApplicationState
 
         default this.GetContent = content
         default this.SetContent newContent = content <- newContent
         default this.GetText = ""
+        default this.GetWidth = this.GetContent.Length
 
         default this.Draw =
             cprintf color.ForegroundColor color.BackgroundColor (toStringFormat this.GetContent)
@@ -101,5 +103,28 @@ module CLIElement =
 
     type PasswordField (content, position, color) =
         inherit TextField (content, position, color)
+
+    type ProgressBar (content, position, color) =
+        inherit CLIElement (content, position, color, false)
         
-        
+        let mutable progress = 0
+        let width = 64
+
+        override this.GetWidth = width + 4
+
+        override this.Draw =
+            let progressString = this.GetContent
+
+            cprintf this.GetColor.ForegroundColor this.GetColor.BackgroundColor (toStringFormat ("[ "))
+            cprintf this.GetColor.ForegroundColor this.GetColor.BackgroundColor (toStringFormat (progressString))
+
+            let restString = buildString "_" (width - progress)
+            cprintf this.GetColor.ForegroundColor this.GetColor.BackgroundColor (toStringFormat (restString + " ]"))
+
+        override this.GetContent =
+            buildString content progress
+
+        override this.Execute appState =
+            progress <- progress + 1
+
+            appState

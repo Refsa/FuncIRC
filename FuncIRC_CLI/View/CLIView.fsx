@@ -29,10 +29,10 @@ module CLIView =
         let mutable foregroundColor: ConsoleColor = ConsoleColor.Green
         let mutable backgroundColor: ConsoleColor = ConsoleColor.Black
 
-        let defaultLine = (buildString " " maxWidth).Remove(maxWidth, 1)
+        let defaultLine = (buildString " " maxWidth).Remove(maxWidth - 1, 1)
                                                     .Remove(0, 1)
                                                     .Insert(0, "|")
-                                                    .Insert(maxWidth, "|")
+                                                    .Insert(maxWidth - 1, "|")
 
         /// Sorts the content of cliElements based on position and line
         let sortElements =
@@ -82,7 +82,7 @@ module CLIView =
 
                 elements
                 |> List.iter (fun e ->(
-                                        let elementEndPosition = e.GetPosition + e.GetContent.Length
+                                        let elementEndPosition = e.GetPosition + e.GetWidth
                                         if elementEndPosition > furtherstElementPosition then furtherstElementPosition <- elementEndPosition
                                         e.Draw
                               ))

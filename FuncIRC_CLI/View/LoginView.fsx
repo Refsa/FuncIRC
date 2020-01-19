@@ -18,15 +18,13 @@ module LoginView =
     open GeneralHelpers
     open ButtonFunctions
 
-    let setupLoginView(): ConsoleView =
-        let loginViewSize = {Width = 128; Height = 16}
-
+    let setupLoginView(viewSize): ConsoleView =
         let defaultColor = CLIColor (ConsoleColor.Green, ConsoleColor.Black)
         let inverseColor = CLIColor (ConsoleColor.Black, ConsoleColor.White)
 
         // Elements
         let titleString = "---~~~~{### FuncIRC CLI ###}~~~~---"
-        let titleElement = Label(titleString, CLIPosition(loginViewSize.Width / 2 - titleString.Length / 2, 1), inverseColor)
+        let titleElement = Label(titleString, CLIPosition(viewSize.Width / 2 - titleString.Length / 2, 1), inverseColor)
 
         let usernameString = "Username: "
         let usernameElement = TextField(usernameString, CLIPosition(20, 4), defaultColor)
@@ -34,23 +32,16 @@ module LoginView =
         let passwordString = "Password: "
         let passwordElement = TextField(passwordString, CLIPosition(20, 5), defaultColor)
 
-        let logElement = TextField ("Log: ", CLIPosition (5, loginViewSize.Height - 3), defaultColor)
+        let logElement = TextField ("Log: ", CLIPosition (5, viewSize.Height - 3), defaultColor)
 
         let loginString = "[Login]"
         let loginElement = Button(loginString, CLIPosition(20, 7), defaultColor)
 
         let exitString = "[Exit]"
-        let exitElement = Button(exitString, CLIPosition(5, loginViewSize.Height - 1), defaultColor)
-
-        let defaultLine = (buildString " " loginViewSize.Width).Remove(loginViewSize.Width, 1)
-                                                             .Remove(0, 1)
-                                                             .Insert(0, "|")
-                                                             .Insert(loginViewSize.Width, "|")
-
-        let topLine = (buildString "¨" loginViewSize.Width)
+        let exitElement = Button(exitString, CLIPosition(5, viewSize.Height - 1), defaultColor)
 
         // View and Navigation
-        let loginView = CLIView (loginViewSize.Height, loginViewSize.Width)
+        let loginView = CLIView (viewSize.Height, viewSize.Width)
         loginView.SetBaseForegroundColor ConsoleColor.Green
         loginView.SetBaseBackgroundColor ConsoleColor.Black
 
@@ -75,17 +66,17 @@ module LoginView =
         loginNavigation.SetElements navigationElements
 
         // ## Title Bar
-        loginView.SetLine ({Content = (buildString "=" loginViewSize.Width);
+        loginView.SetLine ({Content = (buildString "=" viewSize.Width);
                               ForegroundColor = ConsoleColor.Red;
                               BackgroundColor = ConsoleColor.Black}, 0)
 
-        loginView.SetLine ({Content = (buildString "=" loginViewSize.Width);
+        loginView.SetLine ({Content = (buildString "=" viewSize.Width);
                               ForegroundColor = ConsoleColor.Red;
                               BackgroundColor = ConsoleColor.Black}, 2)
 
-        loginView.SetLine ({Content = topLine;
+        loginView.SetLine ({Content = (buildString "¨" viewSize.Width);
                               ForegroundColor = ConsoleColor.Green;
-                              BackgroundColor = ConsoleColor.Black}, loginViewSize.Height)
+                              BackgroundColor = ConsoleColor.Black}, viewSize.Height)
         // ## Title Bar End
 
         {

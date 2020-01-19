@@ -17,6 +17,8 @@
     <Compile Include="View/CLIElement.fsx" />
     <Compile Include="View/CLIView.fsx" />
     <Compile Include="View/ConsoleView.fsx" />
+
+    <Compile Include="View/StartupView.fsx" />
     <Compile Include="View/LoginView.fsx" />
 
     <Compile Include="Update/ButtonFunctions.fsx" />
