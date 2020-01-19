@@ -1,5 +1,5 @@
-#load "../ConsoleHelpers.fsx"
-#load "../GeneralHelpers.fsx"
+#load "../Utils/ConsoleHelpers.fsx"
+#load "../Utils/GeneralHelpers.fsx"
 #load "CLIElement.fsx"
 
 namespace FuncIRC_CLI

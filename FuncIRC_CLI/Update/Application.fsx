@@ -1,5 +1,5 @@
-#load "View/CLIView.fsx"
-#load "ApplicationState.fsx"
+#load "../View/CLIView.fsx"
+#load "../Model/ApplicationState.fsx"
 
 namespace FuncIRC_CLI
 
@@ -17,6 +17,9 @@ module Application =
         | _ -> string input.KeyChar
 
     /// Container class for the core application loop
+    /// TODO: Currently stops from a common state, might be safer to use async cancellation
+    ///       It shouldn't really matter since no other thread should depend on this one (in relation to a CLI App)
+    ///       but to be usable in more contexts a refactor should be made
     type Application (cliView: CLIView) =
         let cliView = cliView
 
@@ -42,9 +45,9 @@ module Application =
 
         /// Starts the application loop, runs it with Async.RunSynchronously
         member this.Run () =
+            // This is the application loop
             let rec loop appState =
                 cliView.Draw()
-
                 {
                     Running = true
                     InputState = readLine appState.InputState
@@ -54,6 +57,7 @@ module Application =
                     if feedbackState.Running then loop feedbackState
                     else this.Stop()
 
+            // This is an async wrapper around the main loop
             let startLoop =
                 async {
                     loop {Running = true; InputState = {Line = ""; Key = ConsoleKey.NoName}}

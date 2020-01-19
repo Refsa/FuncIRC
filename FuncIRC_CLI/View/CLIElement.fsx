@@ -1,6 +1,6 @@
-#load "../ConsoleHelpers.fsx"
-#load "../GeneralHelpers.fsx"
-#load "../ApplicationState.fsx"
+#load "../Utils/ConsoleHelpers.fsx"
+#load "../Utils/GeneralHelpers.fsx"
+#load "../Model/ApplicationState.fsx"
 
 namespace FuncIRC_CLI
 
@@ -57,20 +57,21 @@ module CLIElement =
         member this.PlaceElement target =
             placeOnString (target, content, this.GetPosition)
 
+    /// Can be assigned a custom delegate to run
     type Button (content, position, color) =
         inherit CLIElement (content, position, color, true)
 
         let mutable executeDelegate: ApplicationState -> ApplicationState = id
 
-        override this.Execute appState = executeDelegate appState
-
         override this.SetContent newContent = ()
-
+        override this.Execute appState = executeDelegate appState
         member this.SetExecuteDelegate func = executeDelegate <- func
 
+    /// Simply a direct wrapper around CLIElement. Draws content on elements position
     type Label (content, position, color) =
         inherit CLIElement (content, position, color, false)
 
+    /// TextField has a label stored in content and input text stored in text
     type TextField (content, position, color) =
         inherit CLIElement (content, position, color, true)
 

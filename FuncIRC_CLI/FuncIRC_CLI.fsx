@@ -1,11 +1,11 @@
 
 #r "../FuncIRC/bin/Debug/netstandard2.0/FuncIRC.dll"
 #load "IRCTestInfo.fsx"
-#load "ConsoleHelpers.fsx"
-#load "GeneralHelpers.fsx"
+#load "Utils/ConsoleHelpers.fsx"
+#load "Utils/GeneralHelpers.fsx"
 #load "View/CLIView.fsx"
-#load "Application.fsx"
-#load "ApplicationState.fsx"
+#load "Update/Application.fsx"
+#load "Model/ApplicationState.fsx"
 
 namespace FuncIRC_CLI
 
@@ -135,7 +135,7 @@ module CLI =
             | ConsoleKey.Enter ->
                 { Running = false; InputState = appState.InputState }
             | _ -> appState
-            
+
         exitElement.SetExecuteDelegate exitApp
 
         navigationElements <- [usernameElement; passwordElement; loginElement; exitElement]
