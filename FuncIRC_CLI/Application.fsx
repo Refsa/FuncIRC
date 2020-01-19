@@ -1,16 +1,12 @@
 #load "View/CLIView.fsx"
+#load "ApplicationState.fsx"
 
 namespace FuncIRC_CLI
 
 module Application = 
     open System
+    open ApplicationState
     open CLIView
-
-    type InputState =
-        {
-            Line: string
-            Key: ConsoleKey
-        }
 
     let getTextInput (input: ConsoleKeyInfo): string =
         match input with
@@ -20,21 +16,22 @@ module Application =
         | input when input.Key = ConsoleKey.DownArrow -> ""
         | _ -> string input.KeyChar
 
-    /// Entry point for the CLI application
+    /// Container class for the core application loop
     type Application (cliView: CLIView) =
         let cliView = cliView
 
-        let mutable running = false
-        let mutable stateListener: InputState -> InputState = fun a -> {Line = ""; Key = ConsoleKey.NoName}
+        let mutable stateListener: ApplicationState -> ApplicationState = 
+            fun a -> {Running = false; InputState = {Line = ""; Key = ConsoleKey.NoName}}
 
         /// TODO: Make this more functionally oriented by moving it out of the Application class
         let readLine (state: InputState): InputState =
             let readKey = Console.ReadKey()
 
             match readKey.Key with
+            | ConsoleKey.Enter -> state.Line
             | ConsoleKey.Backspace ->
-                let line = state.Line
-                match line with
+                state.Line |> 
+                function
                 | line when line.Length > 0 ->
                     line.Remove(line.Length - 1)
                 | _ -> ""
@@ -45,39 +42,29 @@ module Application =
 
         /// Starts the application loop, runs it with Async.RunSynchronously
         member this.Run () =
-            running <- true
-
-            let rec loop2 state =
+            let rec loop appState =
                 cliView.Draw()
 
-                let feedbackState = readLine state |> stateListener
+                {
+                    Running = true
+                    InputState = readLine appState.InputState
+                } 
+                |> stateListener
+                |> fun feedbackState ->
+                    if feedbackState.Running then loop feedbackState
+                    else this.Stop()
 
-                if running then loop2 feedbackState
-                else ()
-
-            let loop =
+            let startLoop =
                 async {
-                    loop2 {Line = ""; Key = ConsoleKey.NoName}
+                    loop {Running = true; InputState = {Line = ""; Key = ConsoleKey.NoName}}
                 }
-            loop |> Async.RunSynchronously
 
-            //let loop =
-            //    async {
-            //        while running do
-            //            cliView.Draw()
-            //            let feedbackState = readLine |> stateListener
-            //            readLineInput <- feedbackState.Line
-            //    }
-            //loop |> Async.RunSynchronously
+            startLoop |> Async.RunSynchronously
 
         /// Redraws last frame and stops the application loop if it's running
         member this.Stop () =
-            match running with
-            | true ->
-                    cliView.Draw()
-                    running <- false
-            | false -> ()
+            cliView.Draw()
 
         /// Binds the delegate to listen to changes to the application state
-        member this.SetStateListener listener=
+        member this.SetStateListener listener =
             stateListener <- listener

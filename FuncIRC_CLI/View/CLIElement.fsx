@@ -1,10 +1,12 @@
 #load "../ConsoleHelpers.fsx"
 #load "../GeneralHelpers.fsx"
+#load "../ApplicationState.fsx"
 
 namespace FuncIRC_CLI
 
 module CLIElement =
     open System
+    open ApplicationState
     open ConsoleHelpers
     open GeneralHelpers
     
@@ -13,15 +15,12 @@ module CLIElement =
 
     /// Base class for creating elements to be placed and interacted with in the console window
     /// content: String content of the line
-    /// position: x position of the element in the console window
-    /// line: y position of the element in the console window
-    /// foregroundColor: Foreground color of the element
-    /// backgroundColor: Background color of the element
+    /// position: x and y position of the element
+    /// color: CLIColor record containing foreground and background color
     type CLIElement(content, position, color, canFocus) =
         let mutable content = content
         let mutable color = color
         let mutable position = position
-        let mutable executeDelegate: unit -> unit = ignore
 
         let canFocus = canFocus
 
@@ -30,13 +29,19 @@ module CLIElement =
         abstract member GetContent: string
         abstract member SetContent: string -> unit
         abstract member GetText: string
+        abstract member Draw: unit
+        abstract member Execute: ApplicationState -> ApplicationState
 
         default this.GetContent = content
         default this.SetContent newContent = content <- newContent
         default this.GetText = ""
 
-        member this.Execute = executeDelegate
-        member this.SetExecute func = executeDelegate <- func
+        default this.Draw =
+            cprintf color.ForegroundColor color.BackgroundColor (toStringFormat this.GetContent)
+            
+        default this.Execute appState =
+            this.SetContent appState.InputState.Line
+            appState
 
         member this.GetColor = color
         member this.SetColor newColor = color <- newColor
@@ -55,6 +60,9 @@ module CLIElement =
     type Button (content, position, color) =
         inherit CLIElement (content, position, color, true)
 
+        let mutable executeDelegate: ApplicationState -> ApplicationState = 
+            fun a -> {Running = false; InputState = {Line = ""; Key = ConsoleKey.NoName}}
+
         override this.SetContent newContent = ()
 
     type Label (content, position, color) =
@@ -63,20 +71,26 @@ module CLIElement =
     type TextField (content, position, color) =
         inherit CLIElement (content, position, color, true)
 
-        let placeholderText = "PLACEHOLDER"
+        let placeholderText = "<PLACEHOLDER>"
         let mutable text = ""
+
+        override this.Draw =
+            cprintf this.GetColor.ForegroundColor this.GetColor.BackgroundColor (toStringFormat ("[ " + content))
+            match text with
+            | "" ->
+                cprintf ConsoleColor.DarkGray this.GetColor.BackgroundColor (toStringFormat placeholderText)
+            | _ ->
+                cprintf this.GetColor.ForegroundColor this.GetColor.BackgroundColor (toStringFormat text)
+            cprintf this.GetColor.ForegroundColor this.GetColor.BackgroundColor (toStringFormat " ]")
 
         override this.GetText = text
 
         override this.GetContent = 
             match text with
-            | text when text.Length = 0 -> content.Replace("$t", placeholderText)
-            | _ -> content.Replace ("$t", text)
+            | text when text.Length = 0 -> "[ " + content + placeholderText + " ]"
+            | _ -> "[ " + content + text + " ]"
 
-        override this.SetContent newContent =
-            text <- newContent
-
+        override this.SetContent newContent = newContent |> this.SetText
         member this.PlaceholderText = placeholderText
         member this.Text = text
-
         member this.SetText t = text <- t

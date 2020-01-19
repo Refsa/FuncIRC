@@ -84,7 +84,7 @@ module CLIView =
                 |> List.iter (fun e ->(
                                         let elementEndPosition = e.GetPosition + e.GetContent.Length
                                         if elementEndPosition > furtherstElementPosition then furtherstElementPosition <- elementEndPosition
-                                        cprintf e.GetColor.ForegroundColor e.GetColor.BackgroundColor (toStringFormat (e.GetContent))
+                                        e.Draw
                               ))
 
                 cprintf line.ForegroundColor line.BackgroundColor (toStringFormat (line.Content.[furtherstElementPosition..line.Content.Length - 1]))

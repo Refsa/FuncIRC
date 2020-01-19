@@ -5,6 +5,7 @@
 #load "GeneralHelpers.fsx"
 #load "View/CLIView.fsx"
 #load "Application.fsx"
+#load "ApplicationState.fsx"
 
 namespace FuncIRC_CLI
 
@@ -12,6 +13,7 @@ module CLI =
     open System
 
     open Application
+    open ApplicationState
     open ConsoleHelpers
     open CLIView
     open CLIElement
@@ -40,18 +42,18 @@ module CLI =
     let titleString = "---~~~~{### FuncIRC CLI ###}~~~~---"
     let titleElement = Label(titleString, CLIPosition(consoleSize.Width / 2 - titleString.Length / 2, 1), inverseColor)
 
-    let usernameString = "[ Username: $t ]"
+    let usernameString = "Username: "
     let usernameElement = TextField(usernameString, CLIPosition(20, 4), defaultColor)
 
-    let passwordString = "[ Password: $t ]"
+    let passwordString = "Password: "
     let passwordElement = TextField(passwordString, CLIPosition(20, 5), defaultColor)
 
-    let logElement = TextField ("Log: $t", CLIPosition (5, consoleSize.Height - 3), defaultColor)
+    let logElement = TextField ("Log: ", CLIPosition (5, consoleSize.Height - 3), defaultColor)
 
-    let loginString = "Login"
+    let loginString = "[Login]"
     let loginElement = Button(loginString, CLIPosition(20, 7), defaultColor)
 
-    let exitString = "Exit"
+    let exitString = "[Exit]"
     let exitElement = Button(exitString, CLIPosition(5, consoleSize.Height - 1), defaultColor)
 
     let defaultLine = (buildString " " consoleSize.Width).Remove(consoleSize.Width, 1)
@@ -108,26 +110,20 @@ module CLI =
         }
 
     /// Entry point for InputState handler from application
-    let applicationStateHandler (state: InputState): InputState =
+    let applicationStateHandler (state: ApplicationState): ApplicationState =
         // Handle the state and give feedback on changes
         let stateFeedback =
-            match state.Key with
-            | ConsoleKey.Enter when state.Line = "Quit" -> app.Stop(); state
-            | ConsoleKey.Enter -> 
-                match navigation with
-                | Some nav ->
-                    nav.Focused.Execute(); state
-                | None -> state
-            | IsNavigationInput ck -> navigate state
+            match state.InputState.Key with
+            | ConsoleKey.Enter when state.InputState.Line = "Quit" -> {Running = false; InputState = state.InputState}
+            | IsNavigationInput ck -> 
+                { Running = true; InputState = navigate state.InputState }
             | _ -> state
+            |> fun stateFeedback ->
+                match navigation with
+                | Some nav -> nav.Focused.Execute stateFeedback
+                | None -> stateFeedback
 
-        printInputStateLine (stateFeedback.Line + " - Key: " + stateFeedback.Key.ToString())
-
-        // Update element with text from input state
-        match navigation with
-        | Some nav -> 
-            nav.Focused.SetContent stateFeedback.Line
-        | None -> ()
+        //printInputStateLine (stateFeedback.Line + " - Key: " + stateFeedback.Key.ToString())
 
         stateFeedback
 
@@ -137,7 +133,7 @@ module CLI =
 
         app.SetStateListener applicationStateHandler
 
-        exitElement.SetExecute (app.Stop)
+        //exitElement.SetExecute (app.Stop)
 
         navigationElements <- [usernameElement; passwordElement; loginElement; exitElement]
 
