@@ -3,6 +3,20 @@ namespace FuncIRC_CLI
 module ConsoleHelpers =
     open System
 
+    type CLIPosition (x: int, y: int) =
+        let x = x
+        let y = y
+
+        member this.GetPosition () = x
+        member this.GetLine () = y
+
+    type CLIColor (fc: ConsoleColor, bc: ConsoleColor) =
+        let foregroundColor = fc
+        let backgroundColor = bc
+
+        member this.ForegroundColor = foregroundColor
+        member this.BackgroundColor = backgroundColor
+
     /// Defines the width and height of text in the CLI
     type ConsoleSize =
         {

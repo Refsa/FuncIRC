@@ -3,7 +3,7 @@
 #load "IRCTestInfo.fsx"
 #load "ConsoleHelpers.fsx"
 #load "GeneralHelpers.fsx"
-#load "CLIView.fsx"
+#load "View/CLIView.fsx"
 #load "Application.fsx"
 
 namespace FuncIRC_CLI
@@ -14,6 +14,7 @@ module CLI =
     open Application
     open ConsoleHelpers
     open CLIView
+    open CLIElement
     open FuncIRC.MessageParser
     open GeneralHelpers
     open IRCTestInfo
@@ -37,13 +38,18 @@ module CLI =
     let inverseColor = CLIColor (ConsoleColor.Black, ConsoleColor.White)
 
     let titleString = "---~~~~{### FuncIRC CLI ###}~~~~---"
-    let titleElement = Label(titleString, CLIPosition(consoleSize.Width / 2 - titleString.Length / 2, 0), inverseColor)
+    let titleElement = Label(titleString, CLIPosition(consoleSize.Width / 2 - titleString.Length / 2, 1), inverseColor)
 
     let usernameString = "[ Username: $t ]"
     let usernameElement = TextField(usernameString, CLIPosition(20, 4), defaultColor)
 
     let passwordString = "[ Password: $t ]"
     let passwordElement = TextField(passwordString, CLIPosition(20, 5), defaultColor)
+
+    let logElement = TextField ("Log: $t", CLIPosition (5, consoleSize.Height - 3), defaultColor)
+
+    let loginString = "Login"
+    let loginElement = Button(loginString, CLIPosition(20, 7), defaultColor)
 
     let exitString = "Exit"
     let exitElement = Button(exitString, CLIPosition(5, consoleSize.Height - 1), defaultColor)
@@ -58,6 +64,14 @@ module CLI =
     // Update
     let app = Application (consoleView)
 
+    /// Prints out the current InputState content
+    let printInputStateLine stateLine = 
+        let state = placeOnString (defaultLine, stateLine, 20)
+        consoleView.SetLine ({Content = state;
+                              ForegroundColor = ConsoleColor.Green;
+                              BackgroundColor = ConsoleColor.Black}, 10)
+
+    /// Sets selection color for element and updates the Navigation model state
     let setFocusedNavigationElement elem index =
         if navigation.IsSome then
             navigation.Value.Focused.SetColor defaultColor
@@ -65,68 +79,79 @@ module CLI =
         navigation <- Some {Focused = elem; Index = index}
         navigation.Value.Focused.SetColor inverseColor
 
-    let navigate dir =
-        if navigationElements.Length = 0 then ()
+    /// Handles ArrowKey navigation input
+    let navigate (state: InputState) =
+        if navigationElements.Length = 0 then state
+        else
+            // Check if an element is currently focused
+            match navigation with
+            | None -> 
+                setFocusedNavigationElement navigationElements.[0] 0
+            | Some nav -> // Element is in focus, move to next element based on navigation input
+                match state.Key with
+                | ConsoleKey.DownArrow ->
+                    let navElemsEnd = navigationElements.Length - 1
+                    let index = nav.Index + 1
+                    index |> fun x -> if x > navElemsEnd then 0 else index
+                | ConsoleKey.UpArrow -> 
+                    let index = nav.Index - 1
+                    index |> fun x -> if x < 0 then navigationElements.Length - 1 else index
+                | _ -> -1
+                |> fun i -> 
+                    if i >= 0 then
+                        setFocusedNavigationElement navigationElements.[i] i
 
+            // Give feedback on element if it contains text
+            let currentText = navigation.Value.Focused.GetText
+            {
+                Line = currentText
+                Key = state.Key
+            }
+
+    /// Entry point for InputState handler from application
+    let applicationStateHandler (state: InputState) =
+        let stateFeedback =
+            match state.Key with
+            | ConsoleKey.Enter when state.Line = "Quit" -> app.Stop(); state
+            | ConsoleKey.Enter -> 
+                match navigation with
+                | Some nav ->
+                    nav.Focused.Execute(); state
+                | None -> state
+            | IsNavigationInput ck -> navigate state
+            | _ -> state
+
+        printInputStateLine (stateFeedback.Line + " - Key: " + stateFeedback.Key.ToString())
+
+        /// Update element with text from input state
         match navigation with
-        | None -> 
-            setFocusedNavigationElement navigationElements.[0] 0
         | Some nav -> 
-            match dir with
-            | ConsoleKey.DownArrow ->
-                let navElemsEnd = navigationElements.Length - 1
-                let index = nav.Index + 1
-                index |> fun x -> if x > navElemsEnd then 0 else index
-            | ConsoleKey.UpArrow -> 
-                let index = nav.Index - 1
-                index |> fun x -> if x < 0 then navigationElements.Length - 1 else index
-            | _ -> 0
-            |> fun i -> 
-                setFocusedNavigationElement navigationElements.[i] i
-
-    let printInputStateLine stateLine = 
-        let state = placeOnString (defaultLine, stateLine, 20)
-        consoleView.SetLine ({Content = state;
-                              ForegroundColor = ConsoleColor.Green;
-                              BackgroundColor = ConsoleColor.Black}, 10)
-
-    let applicationStateHandler state =
-        printInputStateLine (state.Line + " - Key: " + state.Key.ToString())
-
-        match navigation with
-        | Some navigation -> 
-            navigation.Focused.SetContent state.Line
+            nav.Focused.SetContent stateFeedback.Line
         | None -> ()
 
-        match state.Key with
-        | ConsoleKey.Enter when state.Line = "Quit" -> app.Stop()
-        | ConsoleKey.Enter -> 
-            match navigation with
-            | Some nav ->
-                nav.Focused.Execute()
-            | None -> ()
-        | IsNavigationInput ck -> navigate ck
-        | _ -> ()
+        stateFeedback
 
     do
         Console.Title <- "FuncIRC CLI"
-        Console.Clear()
+        //Console.TreatControlCAsInput <- true
 
         app.SetStateListener applicationStateHandler
-        //navigation <- Some {Focused = (usernameElement :> CLIElement); Index = 0}
 
         exitElement.SetExecute (app.Stop)
 
-        navigationElements <- [usernameElement; passwordElement; exitElement]
+        navigationElements <- [usernameElement; passwordElement; loginElement; exitElement]
 
         consoleView.SetElement (titleElement)
-        consoleView.SetElement (usernameElement)
-        consoleView.SetElement (passwordElement)
-        consoleView.SetElement (exitElement)
+        consoleView.SetElement (logElement)
+        consoleView.SetElements (navigationElements)
 
         consoleView.SetLine ({Content = (buildString "=" consoleSize.Width);
                               ForegroundColor = ConsoleColor.Red;
-                              BackgroundColor = ConsoleColor.Black}, 1)
+                              BackgroundColor = ConsoleColor.Black}, 0)
+
+        consoleView.SetLine ({Content = (buildString "=" consoleSize.Width);
+                              ForegroundColor = ConsoleColor.Red;
+                              BackgroundColor = ConsoleColor.Black}, 2)
 
         consoleView.SetLine ({Content = topLine;
                               ForegroundColor = ConsoleColor.Green;
@@ -137,8 +162,7 @@ module CLI =
 
     [<EntryPoint>]
     let main argv =
-        cprintfn ConsoleColor.Red ConsoleColor.Blue "----- FuncIRC CLI -----"
-        
+        Console.Clear()
         (app.Run())
 
         //messageSplit testMessage0

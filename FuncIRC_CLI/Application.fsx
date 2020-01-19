@@ -1,4 +1,4 @@
-#load "CLIView.fsx"
+#load "View/CLIView.fsx"
 
 namespace FuncIRC_CLI
 
@@ -29,7 +29,7 @@ module Application =
         let mutable state = ""
         let mutable readLineInput = ""
 
-        let mutable stateListener: InputState -> unit = ignore
+        let mutable stateListener: InputState -> InputState = fun a -> {Line = ""; Key = ConsoleKey.NoName}
 
         let readLine() =
             let readKey = Console.ReadKey()
@@ -52,7 +52,6 @@ module Application =
             inputState <- {Line = state; Key = readKey.Key}
 
         /// Starts the application loop
-        /// TODO: Remove the handling of events from the local space
         member this.Run () =
             running <- true
             let loop =
@@ -60,7 +59,9 @@ module Application =
                     while running do
                         cliView.Draw()
                         readLine()
-                        stateListener inputState
+
+                        inputState <- stateListener inputState
+                        readLineInput <- inputState.Line
                 }
 
             loop |> Async.RunSynchronously
@@ -73,5 +74,5 @@ module Application =
             | false -> ()
 
         /// Binds the delegate to listen to changes to the application state
-        member this.SetStateListener (listener: InputState -> unit) =
+        member this.SetStateListener listener=
             stateListener <- listener

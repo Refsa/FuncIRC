@@ -10,7 +10,8 @@
     <Compile Include="GeneralHelpers.fsx" />
     <Compile Include="ConsoleHelpers.fsx" />
     <Compile Include="Application.fsx" />
-    <Compile Include="CLIView.fsx" />
+    <Compile Include="View/CLIElement.fsx" />
+    <Compile Include="View/CLIView.fsx" />
 
     <Reference Include="FuncIRC">
       <HintPath>..\FuncIRC\bin\Debug\netstandard2.0\FuncIRC.dll</HintPath>
