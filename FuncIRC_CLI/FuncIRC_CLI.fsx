@@ -80,36 +80,36 @@ module CLI =
         navigation.Value.Focused.SetColor inverseColor
 
     /// Handles ArrowKey navigation input
-    let navigate (state: InputState) =
-        if navigationElements.Length = 0 then state
+    let navigate (state: InputState): InputState =
+        if navigationElements.Length = 0 then state // No elements to navigate
         else
-            // Check if an element is currently focused
-            match navigation with
-            | None -> 
-                setFocusedNavigationElement navigationElements.[0] 0
-            | Some nav -> // Element is in focus, move to next element based on navigation input
-                match state.Key with
-                | ConsoleKey.DownArrow ->
-                    let navElemsEnd = navigationElements.Length - 1
-                    let index = nav.Index + 1
-                    index |> fun x -> if x > navElemsEnd then 0 else index
-                | ConsoleKey.UpArrow -> 
-                    let index = nav.Index - 1
-                    index |> fun x -> if x < 0 then navigationElements.Length - 1 else index
-                | _ -> -1
-                |> fun i -> 
-                    if i >= 0 then
-                        setFocusedNavigationElement navigationElements.[i] i
 
-            // Give feedback on element if it contains text
-            let currentText = navigation.Value.Focused.GetText
-            {
-                Line = currentText
-                Key = state.Key
-            }
+        // Check if an element is currently focused
+        match navigation with
+        | None -> 
+            setFocusedNavigationElement navigationElements.[0] 0
+        | Some nav -> // Element is in focus, move to next element based on navigation input
+            match state.Key with
+            | ConsoleKey.DownArrow ->
+                let navElemsEnd = navigationElements.Length - 1
+                let index = nav.Index + 1
+                index |> fun x -> if x > navElemsEnd then 0 else index
+            | ConsoleKey.UpArrow -> 
+                let index = nav.Index - 1
+                index |> fun x -> if x < 0 then navigationElements.Length - 1 else index
+            | _ -> -1
+            |> fun i -> 
+                if i >= 0 then
+                    setFocusedNavigationElement navigationElements.[i] i
+
+        {
+            Line = navigation.Value.Focused.GetText
+            Key = state.Key
+        }
 
     /// Entry point for InputState handler from application
-    let applicationStateHandler (state: InputState) =
+    let applicationStateHandler (state: InputState): InputState =
+        // Handle the state and give feedback on changes
         let stateFeedback =
             match state.Key with
             | ConsoleKey.Enter when state.Line = "Quit" -> app.Stop(); state
@@ -123,7 +123,7 @@ module CLI =
 
         printInputStateLine (stateFeedback.Line + " - Key: " + stateFeedback.Key.ToString())
 
-        /// Update element with text from input state
+        // Update element with text from input state
         match navigation with
         | Some nav -> 
             nav.Focused.SetContent stateFeedback.Line

@@ -25,31 +25,31 @@ module Application =
         let cliView = cliView
         let mutable running = false
 
-        let mutable inputState = {Line = ""; Key = ConsoleKey.NoName}
-        let mutable state = ""
         let mutable readLineInput = ""
 
         let mutable stateListener: InputState -> InputState = fun a -> {Line = ""; Key = ConsoleKey.NoName}
 
+        /// TODO: Make this more functionally oriented by moving it out of the Application class
         let readLine() =
             let readKey = Console.ReadKey()
 
             match readKey.Key with
-            | ConsoleKey.Enter -> 
-                    state <- readLineInput
-                    readLineInput <- ""
+            //| ConsoleKey.Enter ->
+            //        let state = readLineInput
+            //        readLineInput <- ""
+            //        state
             | ConsoleKey.Backspace ->
                     readLineInput <- 
                         match readLineInput with
                         | readLineInput when readLineInput.Length > 0 ->
                             readLineInput.Remove(readLineInput.Length - 1)
                         | _ -> ""
-                    state <- readLineInput
+                    readLineInput
             | _ -> 
                     readLineInput <- readLineInput + (getTextInput readKey)
-                    state <- readLineInput
-
-            inputState <- {Line = state; Key = readKey.Key}
+                    readLineInput
+            |> fun state ->
+                {Line = state; Key = readKey.Key}
 
         /// Starts the application loop
         member this.Run () =
@@ -58,10 +58,9 @@ module Application =
                 async {
                     while running do
                         cliView.Draw()
-                        readLine()
-
-                        inputState <- stateListener inputState
-                        readLineInput <- inputState.Line
+                        
+                        let feedbackState = readLine() |> stateListener
+                        readLineInput <- feedbackState.Line
                 }
 
             loop |> Async.RunSynchronously
