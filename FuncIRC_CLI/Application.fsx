@@ -23,48 +23,54 @@ module Application =
     /// Entry point for the CLI application
     type Application (cliView: CLIView) =
         let cliView = cliView
+
         let mutable running = false
-
-        let mutable readLineInput = ""
-
         let mutable stateListener: InputState -> InputState = fun a -> {Line = ""; Key = ConsoleKey.NoName}
 
         /// TODO: Make this more functionally oriented by moving it out of the Application class
-        let readLine() =
+        let readLine (state: InputState): InputState =
             let readKey = Console.ReadKey()
 
             match readKey.Key with
-            //| ConsoleKey.Enter ->
-            //        let state = readLineInput
-            //        readLineInput <- ""
-            //        state
             | ConsoleKey.Backspace ->
-                    readLineInput <- 
-                        match readLineInput with
-                        | readLineInput when readLineInput.Length > 0 ->
-                            readLineInput.Remove(readLineInput.Length - 1)
-                        | _ -> ""
-                    readLineInput
+                let line = state.Line
+                match line with
+                | line when line.Length > 0 ->
+                    line.Remove(line.Length - 1)
+                | _ -> ""
             | _ -> 
-                    readLineInput <- readLineInput + (getTextInput readKey)
-                    readLineInput
+                state.Line + (getTextInput readKey)
             |> fun state ->
                 {Line = state; Key = readKey.Key}
 
-        /// Starts the application loop
+        /// Starts the application loop, runs it with Async.RunSynchronously
         member this.Run () =
             running <- true
+
+            let rec loop2 state =
+                cliView.Draw()
+
+                let feedbackState = readLine state |> stateListener
+
+                if running then loop2 feedbackState
+                else ()
+
             let loop =
                 async {
-                    while running do
-                        cliView.Draw()
-                        
-                        let feedbackState = readLine() |> stateListener
-                        readLineInput <- feedbackState.Line
+                    loop2 {Line = ""; Key = ConsoleKey.NoName}
                 }
-
             loop |> Async.RunSynchronously
 
+            //let loop =
+            //    async {
+            //        while running do
+            //            cliView.Draw()
+            //            let feedbackState = readLine |> stateListener
+            //            readLineInput <- feedbackState.Line
+            //    }
+            //loop |> Async.RunSynchronously
+
+        /// Redraws last frame and stops the application loop if it's running
         member this.Stop () =
             match running with
             | true ->

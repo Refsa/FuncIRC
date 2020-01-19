@@ -82,7 +82,7 @@ module CLI =
     /// Handles ArrowKey navigation input
     let navigate (state: InputState): InputState =
         if navigationElements.Length = 0 then state // No elements to navigate
-        else
+        else // Handle navigation
 
         // Check if an element is currently focused
         match navigation with
