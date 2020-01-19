@@ -7,12 +7,19 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="IRCTestInfo.fsx" />
+
     <Compile Include="Utils/GeneralHelpers.fsx" />
     <Compile Include="Utils/ConsoleHelpers.fsx" />
+
     <Compile Include="Model/ApplicationState.fsx" />
     <Compile Include="Model/NavigationState.fsx" />
+
     <Compile Include="View/CLIElement.fsx" />
     <Compile Include="View/CLIView.fsx" />
+    <Compile Include="View/ConsoleView.fsx" />
+    <Compile Include="View/LoginView.fsx" />
+
+    <Compile Include="Update/ButtonFunctions.fsx" />
     <Compile Include="Update/Application.fsx" />
     <Compile Include="Update/Navigation.fsx" />
 

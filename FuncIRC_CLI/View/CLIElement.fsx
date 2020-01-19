@@ -98,3 +98,8 @@ module CLIElement =
         member this.PlaceholderText = placeholderText
         member this.Text = text
         member this.SetText t = text <- t
+
+    type PasswordField (content, position, color) =
+        inherit TextField (content, position, color)
+        
+        

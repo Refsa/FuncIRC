@@ -20,11 +20,9 @@ module Application =
     /// TODO: Currently stops from a common state, might be safer to use async cancellation
     ///       It shouldn't really matter since no other thread should depend on this one (in relation to a CLI App)
     ///       but to be usable in more contexts a refactor should be made
-    type Application (cliView: CLIView) =
-        let cliView = cliView
-
-        let mutable stateListener: ApplicationState -> ApplicationState = 
-            fun a -> {Running = false; InputState = {Line = ""; Key = ConsoleKey.NoName}}
+    type Application (viewListener_: unit -> unit, stateListener_: ApplicationState -> ApplicationState) =
+        let stateListener = stateListener_
+        let viewListener = viewListener_
 
         /// TODO: Make this more functionally oriented by moving it out of the Application class
         let readLine (state: InputState): InputState =
@@ -47,7 +45,8 @@ module Application =
         member this.Run () =
             // This is the application loop
             let rec loop appState =
-                cliView.Draw()
+                viewListener ()
+
                 {
                     Running = true
                     InputState = readLine appState.InputState
@@ -67,8 +66,4 @@ module Application =
 
         /// Redraws last frame and stops the application loop if it's running
         member this.Stop () =
-            cliView.Draw()
-
-        /// Binds the delegate to listen to changes to the application state
-        member this.SetStateListener listener =
-            stateListener <- listener
+            ()
