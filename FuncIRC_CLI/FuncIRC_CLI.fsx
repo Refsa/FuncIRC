@@ -57,6 +57,25 @@ module CLI =
 
     let app = Application (applicationViewHandler, applicationStateHandler)
 
+    let testAsyncTask() =
+        let canceller = new Threading.CancellationTokenSource()
+        let rec worker progress =
+            async {
+                Threading.Thread.Sleep (100)
+                match currentView with
+                | currentView when currentView = startupView -> currentView.CLIView.Execute()
+                | _ -> ()
+
+                if progress = 99 then canceller.Cancel()
+                else return! worker (progress + 1)
+            }
+
+        let runner() = worker 0
+        try
+            Async.StartAsTask(runner(), Threading.Tasks.TaskCreationOptions(), canceller.Token) |> ignore
+        with
+            :? OperationCanceledException -> ()
+
     do
         Console.Title <- "FuncIRC CLI"
         //Console.TreatControlCAsInput <- true
@@ -64,5 +83,9 @@ module CLI =
     [<EntryPoint>]
     let main argv =
         Console.Clear()
+
+        testAsyncTask()
+        
         (app.Run())
+
         0 // return an integer exit code

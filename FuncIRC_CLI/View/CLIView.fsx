@@ -1,5 +1,6 @@
 #load "../Utils/ConsoleHelpers.fsx"
 #load "../Utils/GeneralHelpers.fsx"
+#load "../Model/ApplicationState.fsx"
 #load "CLIElement.fsx"
 
 namespace FuncIRC_CLI
@@ -9,6 +10,7 @@ module CLIView =
     open CLIElement
     open ConsoleHelpers
     open GeneralHelpers
+    open ApplicationState
 
     /// Represents a line of text in the CLI
     type CLILine =
@@ -91,6 +93,10 @@ module CLIView =
                 cprintf line.ForegroundColor line.BackgroundColor (toStringFormat "\n")
             | _ -> 
                 cprintfn line.ForegroundColor line.BackgroundColor (toStringFormat line.Content)
+
+        member this.Execute() =
+            cliElements
+            |> List.iter (fun e -> (e.Execute {Running = false; InputState = {Line = ""; Key = ConsoleKey.NoName}} |> ignore))
 
         /// Clears the current content of the console and redraws the content in cliLines
         member this.Draw () =

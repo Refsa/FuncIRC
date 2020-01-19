@@ -22,16 +22,16 @@ module StartupView =
         let defaultColor = CLIColor (ConsoleColor.Green, ConsoleColor.Black)
         let inverseColor = CLIColor (ConsoleColor.Black, ConsoleColor.White)
 
-        let titleString = "---~~~~{### FuncIRC CLI ###}~~~~---"
-        let titleElement = Label(titleString, CLIPosition(viewSize.Width / 2 - titleString.Length / 2, 1), inverseColor)
-
-        let progressBar = ProgressBar("#", CLIPosition (viewSize.Width / 4, viewSize.Height / 2), defaultColor)
-
         let startupView = CLIView (viewSize.Height, viewSize.Width)
         startupView.SetBaseForegroundColor ConsoleColor.Green
         startupView.SetBaseBackgroundColor ConsoleColor.Black
 
         let startupNavigation = Navigation (defaultColor, inverseColor)
+
+        let titleString = "---~~~~{### FuncIRC CLI ###}~~~~---"
+        let titleElement = Label(titleString, CLIPosition(viewSize.Width / 2 - titleString.Length / 2, 1), inverseColor)
+
+        let progressBar = ProgressBar("#", CLIPosition (viewSize.Width / 4, viewSize.Height / 2), defaultColor, startupView.Draw)
 
         startupView.SetElement (progressBar)
         startupView.SetElement (titleElement)

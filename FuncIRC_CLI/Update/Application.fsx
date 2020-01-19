@@ -1,4 +1,4 @@
-#load "../View/CLIView.fsx"
+#load "../View/ConsoleView.fsx"
 #load "../Model/ApplicationState.fsx"
 
 namespace FuncIRC_CLI
@@ -6,7 +6,7 @@ namespace FuncIRC_CLI
 module Application = 
     open System
     open ApplicationState
-    open CLIView
+    open ConsoleView
 
     let getTextInput (input: ConsoleKeyInfo): string =
         match input with
@@ -23,6 +23,8 @@ module Application =
     type Application (viewListener_: unit -> unit, stateListener_: ApplicationState -> ApplicationState) =
         let stateListener = stateListener_
         let viewListener = viewListener_
+
+        let initialState = {Running = true; InputState = {Line = ""; Key = ConsoleKey.NoName}}
 
         /// TODO: Make this more functionally oriented by moving it out of the Application class
         let readLine (state: InputState): InputState =
@@ -43,26 +45,37 @@ module Application =
 
         /// Starts the application loop, runs it with Async.RunSynchronously
         member this.Run () =
+            let loopCanceller = new Threading.CancellationTokenSource()
+
             // This is the application loop
             let rec loop appState =
-                viewListener ()
+                async {
+                    viewListener ()
 
-                {
-                    Running = true
-                    InputState = readLine appState.InputState
-                } 
-                |> stateListener
-                |> fun feedbackState ->
-                    if feedbackState.Running then loop feedbackState
-                    else this.Stop()
+                    let feedbackState =
+                        {
+                            Running = true
+                            InputState = readLine appState.InputState
+                        } 
+                        |> stateListener
+
+                    if feedbackState.Running then return! loop feedbackState
+                    else loopCanceller.Cancel()
+                }
+            
+            let worker() = loop initialState
+
+            try
+                Async.StartImmediateAsTask(worker(), loopCanceller.Token) |> ignore
+            with
+                :? OperationCanceledException -> ()
 
             // This is an async wrapper around the main loop
-            let startLoop =
-                async {
-                    loop {Running = true; InputState = {Line = ""; Key = ConsoleKey.NoName}}
-                }
-
-            startLoop |> Async.RunSynchronously
+            //let startLoop =
+            //    async {
+            //        loop {Running = true; InputState = {Line = ""; Key = ConsoleKey.NoName}}
+            //    }
+            //startLoop |> Async.RunSynchronously
 
         /// Redraws last frame and stops the application loop if it's running
         member this.Stop () =

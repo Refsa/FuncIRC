@@ -21,6 +21,7 @@ module CLIElement =
         let mutable content = content
         let mutable color = color
         let mutable position = position
+        let mutable redrawDelegate: unit -> unit = ignore
 
         let canFocus = canFocus
 
@@ -42,8 +43,8 @@ module CLIElement =
             cprintf color.ForegroundColor color.BackgroundColor (toStringFormat this.GetContent)
             
         default this.Execute appState =
-            this.SetContent appState.InputState.Line
-            appState
+            if not appState.Running then appState
+            else this.SetContent appState.InputState.Line; appState
 
         member this.GetColor = color
         member this.SetColor newColor = color <- newColor
@@ -66,7 +67,10 @@ module CLIElement =
         let mutable executeDelegate: ApplicationState -> ApplicationState = id
 
         override this.SetContent newContent = ()
-        override this.Execute appState = executeDelegate appState
+        override this.Execute appState = 
+            if not appState.Running then appState
+            else executeDelegate appState
+
         member this.SetExecuteDelegate func = executeDelegate <- func
 
     /// Simply a direct wrapper around CLIElement. Draws content on elements position
@@ -101,14 +105,23 @@ module CLIElement =
         member this.Text = text
         member this.SetText t = text <- t
 
+    /// TextField that hides the input
     type PasswordField (content, position, color) =
         inherit TextField (content, position, color)
 
-    type ProgressBar (content, position, color) =
+    /// Progress bar
+    type ProgressBar (content, position, color, _redrawDelegate) =
         inherit CLIElement (content, position, color, false)
         
+        let redrawDelegate = _redrawDelegate
+
         let mutable progress = 0
         let width = 64
+
+        let currentWidth() =
+            float(progress) / 100.0
+            |> fun p ->
+                int(float(width) * p)
 
         override this.GetWidth = width + 4
 
@@ -118,13 +131,15 @@ module CLIElement =
             cprintf this.GetColor.ForegroundColor this.GetColor.BackgroundColor (toStringFormat ("[ "))
             cprintf this.GetColor.ForegroundColor this.GetColor.BackgroundColor (toStringFormat (progressString))
 
-            let restString = buildString "_" (width - progress)
+            let restString = buildString "_" (width - currentWidth())
             cprintf this.GetColor.ForegroundColor this.GetColor.BackgroundColor (toStringFormat (restString + " ]"))
 
         override this.GetContent =
-            buildString content progress
+            buildString content (currentWidth())
 
         override this.Execute appState =
             progress <- progress + 1
+            if progress > 100 then progress <- 0
 
+            redrawDelegate()
             appState
