@@ -19,15 +19,8 @@ module CLI =
 
     open Application
     open ApplicationState
-    open ButtonFunctions
     open ConsoleHelpers
-    open CLIView
-    open CLIElement
-    open FuncIRC.MessageParser
-    open GeneralHelpers
-    open IRCTestInfo
     open NavigationState
-    open Navigation
     open LoginView
     open StartupView
 
@@ -52,21 +45,26 @@ module CLI =
             | Some nav -> nav.Focused.Execute stateFeedback
             | None -> stateFeedback
 
+    /// Entry point for view handler from application
     let applicationViewHandler() =
         currentView.CLIView.Draw()
-
+    
     let app = Application (applicationViewHandler, applicationStateHandler)
 
+    /// Test task to run in the background and update the progress bar on startupView
     let testAsyncTask() =
         let canceller = new Threading.CancellationTokenSource()
         let rec worker progress =
             async {
-                Threading.Thread.Sleep (100)
+                Threading.Thread.Sleep (25)
                 match currentView with
-                | currentView when currentView = startupView -> currentView.CLIView.Execute()
+                | currentView when currentView = startupView -> currentView.CLIView.ExecuteNoState()
                 | _ -> ()
 
-                if progress = 99 then canceller.Cancel()
+                if progress = 99 then 
+                    currentView <- loginView
+                    applicationViewHandler()
+                    canceller.Cancel()
                 else return! worker (progress + 1)
             }
 

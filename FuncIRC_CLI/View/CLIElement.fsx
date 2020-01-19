@@ -27,11 +27,17 @@ module CLIElement =
 
         new () = CLIElement ("XXX", CLIPosition (0, 0), CLIColor (ConsoleColor.Green, ConsoleColor.Black), false)
 
+        /// Should return the content to be displayed in the terminal as a string
         abstract member GetContent: string
+        /// Should set the content of the element that can be changed
         abstract member SetContent: string -> unit
+        /// Should retreive only the part of the elements content that can be changed
         abstract member GetText: string
+        /// Should return the width of the content that is to be displayed
         abstract member GetWidth: int
+        /// Handles drawing the element, buffer should be ready for this element to be drawn in place
         abstract member Draw: unit
+        /// Called on the element to update and signal its internal state
         abstract member Execute: ApplicationState -> ApplicationState
 
         default this.GetContent = content

@@ -1,4 +1,3 @@
-#load "../View/ConsoleView.fsx"
 #load "../Model/ApplicationState.fsx"
 
 namespace FuncIRC_CLI
@@ -6,7 +5,6 @@ namespace FuncIRC_CLI
 module Application = 
     open System
     open ApplicationState
-    open ConsoleView
 
     let getTextInput (input: ConsoleKeyInfo): string =
         match input with
@@ -69,13 +67,6 @@ module Application =
                 Async.StartImmediateAsTask(worker(), loopCanceller.Token) |> ignore
             with
                 :? OperationCanceledException -> ()
-
-            // This is an async wrapper around the main loop
-            //let startLoop =
-            //    async {
-            //        loop {Running = true; InputState = {Line = ""; Key = ConsoleKey.NoName}}
-            //    }
-            //startLoop |> Async.RunSynchronously
 
         /// Redraws last frame and stops the application loop if it's running
         member this.Stop () =

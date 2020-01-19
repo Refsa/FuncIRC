@@ -94,9 +94,11 @@ module CLIView =
             | _ -> 
                 cprintfn line.ForegroundColor line.BackgroundColor (toStringFormat line.Content)
 
-        member this.Execute() =
+        /// Executes all CLIElements in view with ApplicationState as an Empty State
+        member this.ExecuteNoState() =
+            let noState = {Running = false; InputState = {Line = ""; Key = ConsoleKey.NoName}}
             cliElements
-            |> List.iter (fun e -> (e.Execute {Running = false; InputState = {Line = ""; Key = ConsoleKey.NoName}} |> ignore))
+            |> List.iter (fun e -> (e.Execute noState |> ignore))
 
         /// Clears the current content of the console and redraws the content in cliLines
         member this.Draw () =
