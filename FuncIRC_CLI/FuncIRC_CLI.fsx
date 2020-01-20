@@ -25,7 +25,7 @@ module CLI =
     open LoginView
     open StartupView
 
-    let consoleSize = {Width = 128; Height = 16}
+    let consoleSize = {Width = 128; Height = 32}
 
     let loginView = setupLoginView(consoleSize)
     let startupView = setupStartupView(consoleSize)
@@ -78,7 +78,11 @@ module CLI =
     [<EntryPoint>]
     let main argv =
         Console.Title <- "FuncIRC CLI"
+
+        Console.SetWindowSize (consoleSize.Width, consoleSize.Height)
+        Console.SetBufferSize (consoleSize.Width, consoleSize.Height)
         Console.Clear()
+        Console.SetCursorPosition (0, 0)
 
         testAsyncTask()
         (app.Run())

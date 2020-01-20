@@ -5,8 +5,6 @@
 
 namespace FuncIRC_CLI
 
-/// Currently not a functional framework for views, there are ways to refactor this into using Records to store the data
-/// and create functions that work on that data instead.
 module CLIView =
     open System
     open CLIElement
@@ -75,27 +73,6 @@ module CLIView =
         member this.SetBaseBackgroundColor color = 
             backgroundColor <- color
 
-        /// Draws the <elements> content inline into the <line> content
-        member this.DrawLine (line: CLILine, elements: CLIElement list) =
-            match elements with
-            | elements when elements.Length > 0 ->
-                let firstElementPosition = elements.[0].GetPosition
-                let mutable furtherstElementPosition = 0
-
-                cprintf line.ForegroundColor line.BackgroundColor (toStringFormat (line.Content.[0..firstElementPosition - 1]))
-
-                elements
-                |> List.iter (fun e ->(
-                                        let elementEndPosition = e.GetPosition + e.GetWidth
-                                        if elementEndPosition > furtherstElementPosition then furtherstElementPosition <- elementEndPosition
-                                        e.Draw
-                              ))
-
-                cprintf line.ForegroundColor line.BackgroundColor (toStringFormat (line.Content.[furtherstElementPosition..line.Content.Length - 1]))
-                cprintf line.ForegroundColor line.BackgroundColor (toStringFormat "\n")
-            | _ -> 
-                cprintfn line.ForegroundColor line.BackgroundColor (toStringFormat line.Content)
-
         /// Executes all CLIElements in view with ApplicationState as an Empty State
         member this.ExecuteNoState() =
             let noState = {Running = false; InputState = {Line = ""; Key = ConsoleKey.NoName}}
@@ -104,15 +81,17 @@ module CLIView =
 
         /// Clears the current content of the console and redraws the content in cliLines
         member this.Draw () =
-            Console.Clear()
+            Console.SetCursorPosition (0, 0)
+            cliLines 
+            |> Array.iter 
+                (
+                    fun line ->
+                        cprintfn line.ForegroundColor line.BackgroundColor (toStringFormat line.Content)
+                )
 
-            cliLines
-            |> Array.iteri 
-                    (fun index -> 
-                        ( fun line ->
-                            cliElements 
-                            |> List.where (fun x -> x.GetLine = index)
-                            |> List.sortBy (fun x -> x.GetPosition)
-                            |> fun e -> this.DrawLine (line, e)
-                        )
-                    )
+            cliElements
+            |> List.iter
+                (
+                    fun element ->
+                        element.Draw
+                )

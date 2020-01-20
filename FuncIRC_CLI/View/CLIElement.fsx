@@ -4,15 +4,15 @@
 
 namespace FuncIRC_CLI
 
+/// TODO:
+/// Currently not a functional framework for views, there are ways to refactor this into using Records to store the data
+/// and create functions that work on that data instead.
 module CLIElement =
     open System
     open ApplicationState
     open ConsoleHelpers
     open GeneralHelpers
     
-    // TODO:
-    // There are more functional ways to do this but it might overcomplicate the problem at hand
-
     /// Base class for creating elements to be placed and interacted with in the console window
     /// content: String content of the line
     /// position: x and y position of the element
@@ -46,6 +46,7 @@ module CLIElement =
         default this.GetWidth = this.GetContent.Length
 
         default this.Draw =
+            Console.SetCursorPosition (position.GetPosition(), position.GetLine())
             cprintf color.ForegroundColor color.BackgroundColor (toStringFormat this.GetContent)
             
         default this.Execute appState =
@@ -93,6 +94,7 @@ module CLIElement =
         abstract member Text: string
 
         override this.Draw =
+            Console.SetCursorPosition (position.GetPosition(), position.GetLine())
             cprintf this.GetColor.ForegroundColor this.GetColor.BackgroundColor (toStringFormat ("[ " + content))
             match text with
             | "" ->
@@ -137,6 +139,7 @@ module CLIElement =
         override this.GetWidth = width + 4
 
         override this.Draw =
+            Console.SetCursorPosition (position.GetPosition(), position.GetLine())
             let progressString = this.GetContent
 
             cprintf this.GetColor.ForegroundColor this.GetColor.BackgroundColor (toStringFormat ("[ "))

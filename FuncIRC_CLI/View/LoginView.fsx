@@ -37,7 +37,7 @@ module LoginView =
         let loginElement = Button(loginString, CLIPosition(20, 10), defaultColor)
 
         let exitString = "[Exit]"
-        let exitElement = Button(exitString, CLIPosition(5, viewSize.Height - 1), defaultColor)
+        let exitElement = Button(exitString, CLIPosition(60, 10), defaultColor)
 
         // View and Navigation
         let loginView = CLIView (viewSize.Height, viewSize.Width)
