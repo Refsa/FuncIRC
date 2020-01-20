@@ -25,8 +25,8 @@ module MessageParserTest =
             {Input = ":irc.example.com CAP LS * :multi-prefix extended-join sasl"; 
              Output = {Tags = None; Source = Some "irc.example.com"; Verb = Some "CAP LS * :multi-prefix extended-join sasl"; Params = None}};
              
-            //{Input = "@id=234AB :dan!d@localhost PRIVMSG #chan :Hey what's up!"; 
-            // Output = {Tags = Some ["id=234AB"]; Source = Some "dan!d@localhost"; Verb = Some "PRIVMSG #chan :Hey what's up!"; Params = None}};
+            {Input = "@id=234AB :dan!d@localhost PRIVMSG #chan :Hey what's up!"; 
+             Output = {Tags = Some ["id=234AB"]; Source = Some "dan!d@localhost"; Verb = Some "PRIVMSG #chan :Hey what's up!"; Params = None}};
              
             {Input = "CAP REQ :sasl"; 
              Output = {Tags = None; Source = None; Verb = Some "CAP REQ :sasl"; Params = None}};
@@ -51,10 +51,12 @@ module MessageParserTest =
         let parsedMessage: Message = messageSplit messageString
         if parsedMessage = wantedResult then true
         else 
-            printfn "Error on: %s" messageString
-            printf "\t"
+            printfn "\nError on: %s" messageString
+
+            printfn "Parsed Result:"
             parsedMessage.Print
-            printf "\n\t"
+
+            printfn "Wanted Result:"
             wantedResult.Print
             false
 
