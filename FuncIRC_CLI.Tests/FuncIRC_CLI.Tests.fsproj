@@ -18,7 +18,7 @@
       <HintPath>..\FuncIRC_CLI\bin\Debug\netcoreapp2.1\FuncIRC_CLI.dll</HintPath>
     </Reference>
 
-    <Compile Include="UnitTest1.fsx" />
+    <Compile Include="CLIElementTests.fsx" />
     <Compile Include="Program.fsx" />
   </ItemGroup>
 
