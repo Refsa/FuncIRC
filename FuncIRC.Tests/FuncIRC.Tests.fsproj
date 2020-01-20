@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+
+    <IsPackable>false</IsPackable>
+    <GenerateProgramFile>false</GenerateProgramFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="nunit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="FuncIRC">
+      <HintPath>..\FuncIRC\bin\Debug\netstandard2.0\FuncIRC.dll</HintPath>
+    </Reference>
+
+    <Compile Include="FuncIRCTests.fsx" />
+    <Compile Include="Program.fsx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FuncIRC\FuncIRC.fsproj" />
+  </ItemGroup>
+
+</Project>
