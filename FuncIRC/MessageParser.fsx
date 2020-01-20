@@ -55,11 +55,10 @@ module MessageParser =
 
     let extractCommandFromRegex (regex: string list option): string option =
         match regex with
-        | Some regex -> Some(regex.[0])
+        | Some regex -> Some(regex.[0].Trim(' '))
         | None -> None
 
     let messageSplit (message: string) =
-        printfn "Message %s" message
         // Use regex to find the different groups of the IRC string message
         let tagsGroup = matchRegex message tagsRegex
         let sourceGroup = matchRegex message sourceRegex
@@ -77,6 +76,4 @@ module MessageParser =
               Verb = command
               Params = None }
 
-        parsedMessage.Print
-
-        printfn ""
+        parsedMessage
