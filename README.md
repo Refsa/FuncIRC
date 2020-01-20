@@ -18,3 +18,6 @@ See here for information: https://fsprojects.github.io/Paket/
 + It should follow the IRCv3 Client specifications
 + The Library DLL that comes out of the FuncIRC project should be interoperable with Unity Editor
 + It should work as a standalone library on .NET Standard 2.0 and above
+
+## CI/CD
+Currently a local gitlab runner is set up that runs on powershell. It's not the ideal way to handle the pipeline as it requries an active computer with all the required packages set up. Should create a docker image with all the required software setup so it can run on shared runners.
