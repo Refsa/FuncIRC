@@ -9,7 +9,7 @@ funcirc_cli:
     - ./build_funcirc_cli.cmd
 
 funcirc_cli_tests:
-  scripts:
+  script:
     - paket.exe install
     - ./build_funcirc_cli.cmd
     - ./run_cli_tests.cmd
