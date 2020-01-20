@@ -16,6 +16,7 @@ namespace FuncIRC_CLI
 
 module CLI =
     open System
+    open System.IO
 
     open Application
     open ApplicationState
@@ -31,7 +32,7 @@ module CLI =
 
     let views = [startupView; loginView]
 
-    let mutable currentView = startupView
+    let mutable currentView = loginView
 
     /// Entry point for InputState handler from application
     let applicationStateHandler (state: ApplicationState): ApplicationState =
@@ -48,7 +49,7 @@ module CLI =
     /// Entry point for view handler from application
     let applicationViewHandler() =
         currentView.CLIView.Draw()
-    
+
     let app = Application (applicationViewHandler, applicationStateHandler)
 
     /// Test task to run in the background and update the progress bar on startupView
@@ -56,7 +57,7 @@ module CLI =
         let canceller = new Threading.CancellationTokenSource()
         let rec worker progress =
             async {
-                Threading.Thread.Sleep (25)
+                Threading.Thread.Sleep (15)
                 match currentView with
                 | currentView when currentView = startupView -> currentView.CLIView.ExecuteNoState()
                 | _ -> ()
@@ -74,16 +75,12 @@ module CLI =
         with
             :? OperationCanceledException -> ()
 
-    do
-        Console.Title <- "FuncIRC CLI"
-        //Console.TreatControlCAsInput <- true
-
     [<EntryPoint>]
     let main argv =
+        Console.Title <- "FuncIRC CLI"
         Console.Clear()
 
         testAsyncTask()
-        
         (app.Run())
 
         0 // return an integer exit code

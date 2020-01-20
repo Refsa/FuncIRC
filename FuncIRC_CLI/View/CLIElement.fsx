@@ -90,16 +90,19 @@ module CLIElement =
         let placeholderText = "<PLACEHOLDER>"
         let mutable text = ""
 
+        abstract member Text: string
+
         override this.Draw =
             cprintf this.GetColor.ForegroundColor this.GetColor.BackgroundColor (toStringFormat ("[ " + content))
             match text with
             | "" ->
                 cprintf ConsoleColor.DarkGray this.GetColor.BackgroundColor (toStringFormat placeholderText)
             | _ ->
-                cprintf this.GetColor.ForegroundColor this.GetColor.BackgroundColor (toStringFormat text)
+                cprintf this.GetColor.ForegroundColor this.GetColor.BackgroundColor (toStringFormat this.Text)
             cprintf this.GetColor.ForegroundColor this.GetColor.BackgroundColor (toStringFormat " ]")
 
         override this.GetText = text
+        member this.SetText t = text <- t
 
         override this.GetContent = 
             match text with
@@ -108,12 +111,14 @@ module CLIElement =
 
         override this.SetContent newContent = newContent |> this.SetText
         member this.PlaceholderText = placeholderText
-        member this.Text = text
-        member this.SetText t = text <- t
+        default this.Text = text
 
     /// TextField that hides the input
     type PasswordField (content, position, color) =
         inherit TextField (content, position, color)
+
+        override this.Text =
+            buildString "*" this.GetText.Length
 
     /// Progress bar
     type ProgressBar (content, position, color, _redrawDelegate) =

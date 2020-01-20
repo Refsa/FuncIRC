@@ -5,6 +5,8 @@
 
 namespace FuncIRC_CLI
 
+/// Currently not a functional framework for views, there are ways to refactor this into using Records to store the data
+/// and create functions that work on that data instead.
 module CLIView =
     open System
     open CLIElement

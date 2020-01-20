@@ -4,6 +4,7 @@ namespace FuncIRC_CLI
 
 module Application = 
     open System
+    open System.IO
     open ApplicationState
 
     let getTextInput (input: ConsoleKeyInfo): string =

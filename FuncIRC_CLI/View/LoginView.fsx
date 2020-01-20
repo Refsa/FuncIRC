@@ -26,16 +26,15 @@ module LoginView =
         let titleString = "---~~~~{### FuncIRC CLI ###}~~~~---"
         let titleElement = Label(titleString, CLIPosition(viewSize.Width / 2 - titleString.Length / 2, 1), inverseColor)
 
-        let usernameString = "Username: "
-        let usernameElement = TextField(usernameString, CLIPosition(20, 4), defaultColor)
+        let serverElement = TextField("Server: ", CLIPosition(20, 5), defaultColor)
+        let channelElement = TextField("Channel: ", CLIPosition(20, 6), defaultColor)
+        let usernameElement = TextField("Username: ", CLIPosition(20, 7), defaultColor)
+        let passwordElement = PasswordField("Password: ", CLIPosition(20, 8), defaultColor)
 
-        let passwordString = "Password: "
-        let passwordElement = TextField(passwordString, CLIPosition(20, 5), defaultColor)
-
-        let logElement = TextField ("Log: ", CLIPosition (5, viewSize.Height - 3), defaultColor)
+        //let logElement = TextField ("Log: ", CLIPosition (5, viewSize.Height - 3), defaultColor)
 
         let loginString = "[Login]"
-        let loginElement = Button(loginString, CLIPosition(20, 7), defaultColor)
+        let loginElement = Button(loginString, CLIPosition(20, 10), defaultColor)
 
         let exitString = "[Exit]"
         let exitElement = Button(exitString, CLIPosition(5, viewSize.Height - 1), defaultColor)
@@ -53,6 +52,8 @@ module LoginView =
         // Add Elements to View and Navigation
         let navigationElements = 
             [
+                serverElement :> CLIElement;
+                channelElement :> CLIElement;
                 usernameElement :> CLIElement; 
                 passwordElement :> CLIElement; 
                 loginElement :> CLIElement; 
@@ -60,7 +61,6 @@ module LoginView =
             ]
 
         loginView.SetElement(titleElement)
-        loginView.SetElement(logElement)
         loginView.SetElements(navigationElements)
 
         loginNavigation.SetElements navigationElements
