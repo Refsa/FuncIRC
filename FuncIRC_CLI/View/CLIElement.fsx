@@ -50,8 +50,9 @@ module CLIElement =
             cprintf color.ForegroundColor color.BackgroundColor (toStringFormat this.GetContent)
             
         default this.Execute appState =
-            if not appState.Running then appState
-            else this.SetContent appState.InputState.Line; appState
+            if appState.Running then
+                this.SetContent appState.InputState.Line; 
+            appState
 
         member this.GetColor = color
         member this.SetColor newColor = color <- newColor
@@ -63,9 +64,6 @@ module CLIElement =
 
         member this.GetLine = position.GetLine()
         member this.SetLine newLine = position <- CLIPosition(position.GetPosition(), newLine)
-
-        member this.PlaceElement target =
-            placeOnString (target, content, this.GetPosition)
 
     /// Can be assigned a custom delegate to run
     type Button (content, position, color) =
@@ -92,6 +90,11 @@ module CLIElement =
         let mutable text = ""
 
         abstract member Text: string
+        default this.Text = text
+
+        override this.Execute appState =
+            Console.SetCursorPosition (this.GetPosition + this.GetWidth + 3, this.GetLine)
+            base.Execute appState
 
         override this.Draw =
             Console.SetCursorPosition (position.GetPosition(), position.GetLine())
@@ -113,7 +116,6 @@ module CLIElement =
 
         override this.SetContent newContent = newContent |> this.SetText
         member this.PlaceholderText = placeholderText
-        default this.Text = text
 
     /// TextField that hides the input
     type PasswordField (content, position, color) =
@@ -155,5 +157,5 @@ module CLIElement =
             progress <- progress + 1
             if progress > 100 then progress <- 0
 
-            redrawDelegate()
+            this.Draw
             appState

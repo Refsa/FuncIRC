@@ -60,8 +60,8 @@ module LoginView =
                 exitElement :> CLIElement
             ]
 
-        loginView.SetElement(titleElement)
-        loginView.SetElements(navigationElements)
+        loginView.AddElement(titleElement)
+        loginView.AddElements(navigationElements)
 
         loginNavigation.SetElements navigationElements
 

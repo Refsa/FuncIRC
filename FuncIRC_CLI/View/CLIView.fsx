@@ -56,12 +56,12 @@ module CLIView =
             | _ -> ()
 
         /// Adds a CLIElement to be drawn with the view
-        member this.SetElement (element: CLIElement) =
+        member this.AddElement (element: CLIElement) =
             cliElements <- element :: cliElements
             sortElements
 
         /// Adds a range of CLIElements to be drawn with the view
-        member this.SetElements (elements: CLIElement list) =
+        member this.AddElements (elements: CLIElement list) =
             cliElements <- elements @ cliElements
             sortElements
 

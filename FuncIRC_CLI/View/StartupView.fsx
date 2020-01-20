@@ -33,8 +33,8 @@ module StartupView =
 
         let progressBar = ProgressBar("#", CLIPosition (viewSize.Width / 4, viewSize.Height / 2), defaultColor, startupView.Draw)
 
-        startupView.SetElement (progressBar)
-        startupView.SetElement (titleElement)
+        startupView.AddElement (progressBar)
+        startupView.AddElement (titleElement)
 
         // ## Title Bar
         startupView.SetLine ({Content = (buildString "=" viewSize.Width);

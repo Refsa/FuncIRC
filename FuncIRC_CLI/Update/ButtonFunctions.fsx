@@ -7,8 +7,9 @@ module ButtonFunctions =
     open ApplicationState
 
     let exitApp appState = 
-            appState.InputState.Key
-            |> function
-            | ConsoleKey.Enter ->
-                { Running = false; InputState = appState.InputState }
-            | _ -> appState
+        appState.InputState.Key
+        |> function
+        | ConsoleKey.Enter ->
+            Console.Clear()
+            { Running = false; InputState = appState.InputState }
+        | _ -> appState

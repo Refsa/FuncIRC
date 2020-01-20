@@ -32,7 +32,7 @@ module CLI =
 
     let views = [startupView; loginView]
 
-    let mutable currentView = loginView
+    let mutable currentView = startupView
 
     /// Entry point for InputState handler from application
     let applicationStateHandler (state: ApplicationState): ApplicationState =
@@ -79,8 +79,11 @@ module CLI =
     let main argv =
         Console.Title <- "FuncIRC CLI"
 
-        Console.SetWindowSize (consoleSize.Width, consoleSize.Height)
-        Console.SetBufferSize (consoleSize.Width, consoleSize.Height)
+        consoleSize
+        |> fun cs ->
+            Console.SetWindowSize (cs.Width, cs.Height)
+            Console.SetBufferSize (cs.Width, cs.Height)
+
         Console.Clear()
         Console.SetCursorPosition (0, 0)
 
