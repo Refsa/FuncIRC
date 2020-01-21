@@ -47,6 +47,23 @@ module MessageParserTest =
              Output = {Tags = None; Source = Some "dan!d@localhost"; Verb = Some "PRIVMSG #chan Hey!"; Params = None}};
         ]
 
+    /// Function to print out content of a message to console
+    let printMessage message =
+        printf "\tTags: "
+        if message.Tags.IsSome then
+            printf "%A" message.Tags.Value
+        printf "\n\tSource: "
+        if message.Source.IsSome then
+            printf "%s" message.Source.Value
+        printf "\n\tVerb: "
+        if message.Verb.IsSome then
+            printf "%s" message.Verb.Value
+        printf "\n\tParams: "
+        if message.Params.IsSome then
+            message.Params.Value |> List.iter (fun a -> printf "%s " a)
+        printfn ""
+
+    /// Verifies that a message parsed with messageSplit is correct
     let verifyMessageParser (messageString: string, wantedResult: Message) =
         let parsedMessage: Message = messageSplit messageString
         if parsedMessage = wantedResult then true
@@ -54,10 +71,10 @@ module MessageParserTest =
             printfn "\nError on: %s" messageString
 
             printfn "Parsed Result:"
-            parsedMessage.Print
+            printMessage parsedMessage
 
             printfn "Wanted Result:"
-            wantedResult.Print
+            printMessage wantedResult
             false
 
     [<Test>]

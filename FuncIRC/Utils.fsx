@@ -1,5 +1,6 @@
 namespace FuncIRC
 
+/// General values related to IRCv3 protocol
 module Utils =
 
     let plaintextPort = 6667 // TCP

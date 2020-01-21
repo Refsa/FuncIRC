@@ -11,22 +11,7 @@ module MessageParser =
         { Tags: string list option
           Source: string option
           Verb: string option
-          Params: string list option } with
-
-          member this.Print =
-            printf "\tTags: "
-            if this.Tags.IsSome then
-                printf "%A" this.Tags.Value
-            printf "\n\tSource: "
-            if this.Source.IsSome then
-                printf "%s" this.Source.Value
-            printf "\n\tVerb: "
-            if this.Verb.IsSome then
-                printf "%s" this.Verb.Value
-            printf "\n\tParams: "
-            if this.Params.IsSome then
-                this.Params.Value |> List.iter (fun a -> printf "%s " a)
-            printfn ""
+          Params: string list option }
 
     type Key =
         { Key: string
@@ -63,30 +48,36 @@ module MessageParser =
         | None -> None
 
     /// Uses regex to find the different groups of the IRC string message
+    /// TODO:
+    ///     Refactor into a more functional approach not using regex
+    ///     FParsec library is a good candidate
     let messageSplit (message: string) =
+        // Find tags if there are any
         let tagsGroup = matchRegex message tagsRegex
         let tagsString = 
             match tagsGroup with
             | Some tg -> tg.[0]
             | None -> ""
 
+        // Find source if there is one
         let sourceGroup = 
-            match tagsString with
+            match tagsString with // Remove tags from parsing if there were any
             | "" -> matchRegex message sourceRegex
             | _ -> matchRegex (message.Replace(tagsString, "")) sourceRegex
         let sourceString =
             match sourceGroup with
             | Some sg -> sg.[0]
             | None -> ""
-            
+        
+        // Find command if there is one
         let commandGroup = 
-            match tagsString with
+            match tagsString with // Check if there were any tags
             | "" ->
-                match sourceString with
+                match sourceString with // Check if there was a source
                 | "" -> matchRegex message commandRegex
                 | _ -> matchRegex (message.Replace(sourceString, "")) commandRegex
             | _ -> 
-                match sourceString with
+                match sourceString with // Check if there was a source
                 | "" -> matchRegex (message.Replace(tagsString, "")) commandRegex
                 | _ -> matchRegex (message.Replace(tagsString, "").Replace(sourceString, "")) commandRegex
 
