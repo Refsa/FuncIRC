@@ -20,31 +20,31 @@ module MessageParserTest =
     let testMessages =
         [
             {Input = "@aaa=bbb;ccc;example.com/ddd=eee :nick!ident@host.com PRIVMSG me :Hello"; 
-             Output = {Tags = Some ["aaa=bbb"; "ccc"; "example.com/ddd=eee"]; Source = Some "nick!ident@host.com"; Verb = Some "PRIVMSG me :Hello"; Params = None}};
+             Output = {Tags = Some ["aaa=bbb"; "ccc"; "example.com/ddd=eee"]; Source = Some "nick!ident@host.com"; Verb = Some "PRIVMSG"; Params = Some ["me"; "Hello"]}};
              
             {Input = ":irc.example.com CAP LS * :multi-prefix extended-join sasl"; 
-             Output = {Tags = None; Source = Some "irc.example.com"; Verb = Some "CAP LS * :multi-prefix extended-join sasl"; Params = None}};
+             Output = {Tags = None; Source = Some "irc.example.com"; Verb = Some "CAP"; Params = Some ["LS"; "*"; "multi-prefix extended-join sasl"]}};
              
             {Input = "@id=234AB :dan!d@localhost PRIVMSG #chan :Hey what's up!"; 
-             Output = {Tags = Some ["id=234AB"]; Source = Some "dan!d@localhost"; Verb = Some "PRIVMSG #chan :Hey what's up!"; Params = None}};
+             Output = {Tags = Some ["id=234AB"]; Source = Some "dan!d@localhost"; Verb = Some "PRIVMSG"; Params = Some ["#chan"; "Hey what's up!"]}};
              
             {Input = "CAP REQ :sasl"; 
-             Output = {Tags = None; Source = None; Verb = Some "CAP REQ :sasl"; Params = None}};
+             Output = {Tags = None; Source = None; Verb = Some "CAP"; Params = Some ["REQ"; "sasl"]}};
              
             {Input = ":irc.example.com CAP * LIST :"; 
-             Output = {Tags = None; Source = Some "irc.example.com"; Verb = Some "CAP * LIST :"; Params = None}};
+             Output = {Tags = None; Source = Some "irc.example.com"; Verb = Some "CAP"; Params = Some ["*"; "LIST"]}};
              
             {Input = "CAP * LS :multi-prefix sasl"; 
-             Output = {Tags = None; Source = None; Verb = Some "CAP * LS :multi-prefix sasl"; Params = None}};
+             Output = {Tags = None; Source = None; Verb = Some "CAP"; Params = Some ["*"; "LS"; "multi-prefix sasl"]}};
              
             {Input = "CAP REQ :sasl message-tags foo"; 
-             Output = {Tags = None; Source = None; Verb = Some "CAP REQ :sasl message-tags foo"; Params = None}};
+             Output = {Tags = None; Source = None; Verb = Some "CAP"; Params = Some ["REQ"; "sasl message-tags foo"]}};
              
             {Input = ":dan!d@localhost PRIVMSG #chan :Hey" ; 
-             Output = {Tags = None; Source = Some "dan!d@localhost"; Verb = Some "PRIVMSG #chan :Hey"; Params = None}};
+             Output = {Tags = None; Source = Some "dan!d@localhost"; Verb = Some "PRIVMSG"; Params = Some ["#chan"; "Hey"]}};
 
             {Input = ":dan!d@localhost PRIVMSG #chan Hey!"; 
-             Output = {Tags = None; Source = Some "dan!d@localhost"; Verb = Some "PRIVMSG #chan Hey!"; Params = None}};
+             Output = {Tags = None; Source = Some "dan!d@localhost"; Verb = Some "PRIVMSG"; Params = Some ["#chan"; "Hey!"]}};
         ]
 
     /// Function to print out content of a message to console
@@ -60,7 +60,7 @@ module MessageParserTest =
             printf "%s" message.Verb.Value
         printf "\n\tParams: "
         if message.Params.IsSome then
-            message.Params.Value |> List.iter (fun a -> printf "%s " a)
+            printf "%A" message.Params.Value
         printfn ""
 
     /// Verifies that a message parsed with messageSplit is correct
