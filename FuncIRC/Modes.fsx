@@ -1,5 +1,6 @@
 namespace FuncIRC
 
+/// All modes that users and channels can have
 module Modes =
 
     type UserMode =

@@ -3,6 +3,12 @@ funcirc:
     - paket.exe install
     - ./build_funcirc.cmd
 
+funcirc_tests:
+  script:
+    - paket.exe install
+    - ./build_funcirc.cmd
+    - ./run_funcirc_tests.cmd
+
 funcirc_cli:
   script:
     - paket.exe install

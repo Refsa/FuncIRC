@@ -1,5 +1,6 @@
 namespace FuncIRC
 
+/// All Numerics names mapped to their numeric values
 module NumericReplies =
 
     type NumericsReplies =
