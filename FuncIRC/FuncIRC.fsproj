@@ -8,8 +8,11 @@
   <ItemGroup>
     <Compile Include="Modes.fsx" />
     <Compile Include="NumericReplies.fsx" />
+
+    <Compile Include="StringHelpers.fsx" />
     <Compile Include="RegexHelpers.fsx" />
     <Compile Include="Utils.fsx" />
+    
     <Compile Include="MessageParser.fsx" />
 
     <None Include="FuncIRC.fsx" />

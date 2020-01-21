@@ -1,11 +1,13 @@
 namespace FuncIRC
 #load "Utils.fsx"
 #load "RegexHelpers.fsx"
+#load "StringHelpers.fsx"
 
 module MessageParser =
 
     open Utils
     open RegexHelpers
+    open StringHelpers
 
     type Message =
         { Tags: string list option
@@ -99,6 +101,8 @@ module MessageParser =
             | "" -> ""
             | _ -> commandString.Split(' ').[0].TrimStart(' ')
 
+        /// Message Split
+        /// TODO: Should refactor this so it's more readable 
         let parameters =
             match verbString with
             | "" -> None
@@ -106,17 +110,17 @@ module MessageParser =
                 let paramsString = commandString.Replace (verbString, "") // Only parse params part of message
                 let paramsSplit = paramsString.Split(':') // Find trailing params
                 match paramsSplit.Length with // Check how many trailing params it has
-                | 0 -> None
+                | 0 | 1 when paramsSplit.[0] = " " || paramsSplit.[0] = "" -> None // No params
                 | 1 -> // Trailing params marker is optional
                     let subSplit = paramsSplit.[0].TrimStart(' ').Split(' ') |> Array.where (fun x -> x <> "")
                     match subSplit.Length with
-                    | 1 -> Some [ paramsSplit.[0] ] 
+                    | 1 | 0 -> Some [ paramsSplit.[0] ] 
                     | _ -> // More than one param found
                         let primary = paramsSplit.[0].Replace(subSplit.[0], "").Split(' ') |> Array.where (fun x -> x <> "") |> Array.toList
                         Some ([ subSplit.[0] ] @ primary)
                 | _ -> // Found trialing params marker
                     let primary = ((paramsSplit.[0].Split(' ') |> Array.where (fun x -> x <> "")) |> Array.toList)
-                    let secondary = paramsString.Replace(paramsSplit.[0], "").TrimStart(':')
+                    let secondary = paramsString.Replace(paramsSplit.[0], "") |> fun x -> stringTrimFirstIf (x, ':')
                     match secondary with
                     | "" -> Some primary
                     | _ -> Some (primary @ [secondary])
@@ -124,7 +128,6 @@ module MessageParser =
         // Extract information from regex groups
         let tags = extractTagsFromRegex (tagsGroup)
         let source = extractSourceFromRegex (sourceGroup)
-        //let command = extractCommandFromRegex (commandGroup)
         let verb =
             match verbString with
             | "" -> None

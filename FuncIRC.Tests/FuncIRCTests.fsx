@@ -57,6 +57,51 @@ module MessageParserTest =
 
             {Input = ":gravel.mozilla.org 432  #momo :Erroneous Nickname: Illegal characters"; 
              Output = {Tags = None; Source = Some "gravel.mozilla.org"; Verb = Some "432"; Params = Some ["#momo"; "Erroneous Nickname: Illegal characters"]}};
+
+            {Input = ":gravel.mozilla.org MODE #tckk +n ";
+             Output = {Tags = None; Source = Some "gravel.mozilla.org"; Verb = Some "MODE"; Params = Some ["#tckk"; "+n"]}};
+
+            {Input = ":gravel.mozilla.org MODE :#tckk";
+             Output = {Tags = None; Source = Some "gravel.mozilla.org"; Verb = Some "MODE"; Params = Some ["#tckk"]}};
+            
+            {Input = ":services.esper.net MODE #foo-bar +o foobar  ";
+             Output = {Tags = None; Source = Some "services.esper.net"; Verb = Some "MODE"; Params = Some ["#foo-bar"; "+o"; "foobar"]}};
+
+            {Input = ":SomeOp MODE #channel :+i"; 
+             Output = {Tags = None; Source = Some "SomeOp"; Verb = Some "MODE"; Params = Some ["#channel"; "+i"]}};
+
+            {Input = ":SomeOp MODE #channel +oo SomeUser :AnotherUser"; 
+             Output = {Tags = None; Source = Some "SomeOp"; Verb = Some "MODE"; Params = Some ["#channel"; "+oo"; "SomeUser"; "AnotherUser"]}};
+            
+            {Input = ":irc.example.com COMMAND param1 param2 :param3 param3"; 
+             Output = {Tags = None; Source = Some "irc.example.com"; Verb = Some "COMMAND"; Params = Some ["param1"; "param2"; "param3 param3"]}};
+
+            {Input = "@tag1=value1;tag2;vendor1/tag3=value2;vendor2/tag4 COMMAND param1 param2 :param3 param3"; 
+             Output = {Tags = Some ["tag1=value1";"tag2";"vendor1/tag3=value2";"vendor2/tag4"]; Source = None; Verb = Some "COMMAND"; Params = Some ["param1"; "param2"; "param3 param3"]}};
+
+            {Input = "@tag1=value1;tag2;vendor1/tag3=value2;vendor2/tag4= :irc.example.com COMMAND param1 param2 :param3 param3"; 
+             Output = {Tags = Some ["tag1=value1";"tag2";"vendor1/tag3=value2";"vendor2/tag4="]; Source = Some "irc.example.com"; Verb = Some "COMMAND"; Params = Some ["param1"; "param2"; "param3 param3"]}};            
+
+            {Input = ":src AWAY"; 
+             Output = {Tags = None; Source = Some "src"; Verb = Some "AWAY"; Params = None}};
+
+            {Input = ":src AWAY "; 
+             Output = {Tags = None; Source = Some "src"; Verb = Some "AWAY"; Params = None}};
+
+            {Input = ":coolguy foo bar baz :  "; 
+             Output = {Tags = None; Source = Some "coolguy"; Verb = Some "foo"; Params = Some ["bar"; "baz"; "  "]}};
+
+            {Input = "@a=b;c=32;k;rt=ql7 foo"; 
+             Output = {Tags = Some ["a=b";"c=32";"k";"rt=ql7"]; Source = None; Verb = Some "foo"; Params = None}};
+
+            {Input = ":coolguy foo bar baz :  asdf quux "; 
+             Output = {Tags = None; Source = Some "coolguy"; Verb = Some "foo"; Params = Some ["bar"; "baz"; "  asdf quux "]}};
+
+            {Input = "foo bar baz ::asdf"; 
+             Output = {Tags = None; Source = None; Verb = Some "foo"; Params = Some ["bar"; "baz"; ":asdf"]}};
+
+            {Input = @":coolguy!ag@net\x035w\x03ork.admin PRIVMSG foo :bar baz"; 
+             Output = {Tags = None; Source = Some @"coolguy!ag@net\x035w\x03ork.admin"; Verb = Some "PRIVMSG"; Params = Some ["foo"; "bar baz"]}};
         ]
 
     /// Function to print out content of a message to console
