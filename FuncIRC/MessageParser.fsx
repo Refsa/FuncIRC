@@ -9,15 +9,32 @@ module MessageParser =
     open RegexHelpers
     open StringHelpers
 
+    type Tag =
+        { Key: string
+          Value: string }
+
+    type Source =
+        { Nick: string
+          User: string
+          Host: string }
+
+    type Command =
+        { Verb: string
+          Params: string list option}
+
     type Message =
-        { Tags: string list option
+        { Tags: Tag list option
           Source: string option
           Verb: string option
           Params: string list option }
 
-    type Key =
-        { Key: string
-          Value: string option }
+    let messageEquals msg1 msg2 =
+        match (msg1, msg2) with
+        | _ when msg1.Tags   <> msg2.Tags   -> printfn "Tags not equal";   false
+        | _ when msg1.Source <> msg2.Source -> printfn "Source not equal"; false
+        | _ when msg1.Verb   <> msg2.Verb   -> printfn "Verb not equal";   false
+        | _ when msg1.Params <> msg2.Params -> printfn "Params not equal"; false
+        | _ -> true
 
     let tagsRegex = @"^(@\S+)"
     let sourceRegex = @"^(:[\S.]+)" //@"^(:\S+[@.]+\S+)"
@@ -57,6 +74,46 @@ module MessageParser =
         match regex with
         | Some regex -> Some (extractCommand regex.[0])
         | None -> None
+
+    let parseTags (tagSplit: string list option): Tag list option =
+        match tagSplit with
+        | None -> None
+        | Some tagSplit ->
+            Some 
+                [
+                    for tag in tagSplit -> 
+                        tag.Split('=') 
+                        |> fun kvp -> 
+                            match kvp.Length with
+                            | 1 -> {Key = kvp.[0]; Value = ""}
+                            | 2 -> {Key = kvp.[0]; Value = kvp.[1]}
+                            | _ -> {Key = "FAILURE"; Value = "FAILURE"}
+                ]
+
+    let parseSource (sourceString: string option): Source option =
+        match sourceString with
+        | None -> None
+        | Some sourceString ->
+            sourceString.Split('!').[0]
+            |> fun nick ->
+                (match nick with
+                | "" -> stringTrimFirstIf(sourceString, '!')
+                | _ -> sourceString.Replace(nick, "")
+                , nick)
+            |> fun (rest, nick) -> 
+                let host = rest.Split('@').[1]
+                (match host with
+                | "" -> stringTrimLastIf(rest, '@')
+                | _ -> rest.Replace(host, "")
+                , nick, host)
+            |> fun (rest, nick, host) -> 
+                Some {Nick = nick; User = rest; Host = host}
+
+
+    let parseCommand (commandString: string option): Command option =
+        match commandString with
+        | None -> None
+        | Some commandString -> None
 
     /// Uses regex to find the different groups of the IRC string message
     /// TODO:
@@ -135,7 +192,7 @@ module MessageParser =
 
         // Prepare the information for execution
         let parsedMessage =
-            { Tags = tags
+            { Tags = parseTags tags
               Source = source
               Verb = verb
               Params = parameters }
