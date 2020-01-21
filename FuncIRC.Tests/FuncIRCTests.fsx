@@ -45,6 +45,18 @@ module MessageParserTest =
 
             {Input = ":dan!d@localhost PRIVMSG #chan Hey!"; 
              Output = {Tags = None; Source = Some "dan!d@localhost"; Verb = Some "PRIVMSG"; Params = Some ["#chan"; "Hey!"]}};
+
+            {Input = ""; 
+             Output = {Tags = None; Source = None; Verb = None; Params = None}};
+
+            {Input = ":coolguy foo bar baz :asdf quux"; 
+             Output = {Tags = None; Source = Some "coolguy"; Verb = Some "foo"; Params = Some ["bar"; "baz"; "asdf quux"]}};
+
+            {Input = ":coolguy PRIVMSG bar :lol :) "; 
+             Output = {Tags = None; Source = Some "coolguy"; Verb = Some "PRIVMSG"; Params = Some ["bar"; "lol :) "]}};
+
+            {Input = ":gravel.mozilla.org 432  #momo :Erroneous Nickname: Illegal characters"; 
+             Output = {Tags = None; Source = Some "gravel.mozilla.org"; Verb = Some "432"; Params = Some ["#momo"; "Erroneous Nickname: Illegal characters"]}};
         ]
 
     /// Function to print out content of a message to console

@@ -17,26 +17,25 @@ module MessageParser =
         { Key: string
           Value: string option }
 
-    let tagsRegex = @"(^@\S+)"
-    let sourceRegex = @"(:\S+[@.]+\S+)"
-    let commandRegex = @"\s?([A-Z]+.+)"
-    let verbRegex = @"^(\S+)"
+    let tagsRegex = @"^(@\S+)"
+    let sourceRegex = @"^(:[\S.]+)" //@"^(:\S+[@.]+\S+)"
+    let commandRegex = @"^([a-zA-Z0-9]+.+)" //@"\s?([A-Z]+.+)"
 
     // TODO: Currently doesnt work with .NET regex but works with Javascript/PHP implementation
     let messageSplitRegex = @"(^@\S+)?(:\S+[@.]+\S+)?\s([A-Z]+.+)?$"
 
     let extractTags (tagsString: string) =
-        ((tagsString.TrimStart('@').Trim(' ').Split(';')) |> Array.toList)
+        ((tagsString.TrimStart('@').TrimStart(' ').Split(';')) |> Array.toList)
 
     let extractSource (sourceString: string) =
-        (sourceString.TrimStart(':').Trim(' '))
+        (sourceString.TrimStart(':').TrimStart(' '))
 
     let extractCommand (commandString: string) =
-        (commandString.Trim(' '))
+        (commandString.TrimStart(' '))
 
     let extractRegexGroup (regex: string list option, group: int): string option =
         match regex with
-        | Some regex -> Some (regex.[group].Trim(' '))
+        | Some regex -> Some (regex.[group].TrimStart(' '))
         | None -> None
 
     /// Prepares the tags part from a regex match
@@ -73,7 +72,7 @@ module MessageParser =
         let sourceGroup = 
             match tagsString with // Remove tags from parsing if there were any
             | "" -> matchRegex message sourceRegex
-            | _ -> matchRegex (message.Replace(tagsString, "")) sourceRegex
+            | _ -> matchRegex (message.Replace(tagsString, "").TrimStart(' ')) sourceRegex
         let sourceString =
             match sourceGroup with
             | Some sg -> sg.[0]
@@ -85,11 +84,11 @@ module MessageParser =
             | "" ->
                 match sourceString with // Check if there was a source
                 | "" -> matchRegex message commandRegex
-                | _ -> matchRegex (message.Replace(sourceString, "")) commandRegex
+                | _ -> matchRegex (message.Replace(sourceString, "").TrimStart(' ')) commandRegex
             | _ -> 
                 match sourceString with // Check if there was a source
-                | "" -> matchRegex (message.Replace(tagsString, "")) commandRegex
-                | _ -> matchRegex (message.Replace(tagsString, "").Replace(sourceString, "")) commandRegex
+                | "" -> matchRegex (message.Replace(tagsString, "").TrimStart(' ')) commandRegex
+                | _ -> matchRegex (message.Replace(tagsString, "").Replace(sourceString, "").TrimStart(' ')) commandRegex
         let commandString = 
             match commandGroup with
             | Some cg -> extractCommand cg.[0]
@@ -98,28 +97,29 @@ module MessageParser =
         let verbString =
             match commandString with
             | "" -> ""
-            | _ -> commandString.Split(' ').[0].Trim(' ')
+            | _ -> commandString.Split(' ').[0].TrimStart(' ')
 
         let parameters =
             match verbString with
             | "" -> None
             | _ ->
-                let paramsString = commandString.Replace (verbString, "")
-                let paramsSplit = paramsString.Split(':')
-                match paramsSplit.Length with
+                let paramsString = commandString.Replace (verbString, "") // Only parse params part of message
+                let paramsSplit = paramsString.Split(':') // Find trailing params
+                match paramsSplit.Length with // Check how many trailing params it has
                 | 0 -> None
-                | 1 -> 
-                    let subSplit = paramsSplit.[0].Trim(' ').Split(' ') |> Array.where (fun x -> x <> "")
+                | 1 -> // Trailing params marker is optional
+                    let subSplit = paramsSplit.[0].TrimStart(' ').Split(' ') |> Array.where (fun x -> x <> "")
                     match subSplit.Length with
-                    | 1 -> Some [ paramsSplit.[0] ]
-                    | _ ->
+                    | 1 -> Some [ paramsSplit.[0] ] 
+                    | _ -> // More than one param found
                         let primary = paramsSplit.[0].Replace(subSplit.[0], "").Split(' ') |> Array.where (fun x -> x <> "") |> Array.toList
                         Some ([ subSplit.[0] ] @ primary)
-                | _ -> 
+                | _ -> // Found trialing params marker
                     let primary = ((paramsSplit.[0].Split(' ') |> Array.where (fun x -> x <> "")) |> Array.toList)
-                    match paramsSplit.[1] with
+                    let secondary = paramsString.Replace(paramsSplit.[0], "").TrimStart(':')
+                    match secondary with
                     | "" -> Some primary
-                    | _ -> Some (primary @ [paramsSplit.[1]])
+                    | _ -> Some (primary @ [secondary])
 
         // Extract information from regex groups
         let tags = extractTagsFromRegex (tagsGroup)
