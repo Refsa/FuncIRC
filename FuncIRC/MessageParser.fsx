@@ -41,37 +41,16 @@ module MessageParser =
     let extractCommand (commandString: string) =
         (commandString.TrimStart(' '))
 
+    /// Factory function to extract a string list from a <string option> type
     let extractList (target: string option, method: string -> string list) =
         match target with
         | Some t -> Some (method t)
         | None -> None
 
+    /// Factory function to extract string from a <string option> type
     let extractString (target: string option, method: string -> string) =
         match target with
         | Some t -> Some (method t)
-        | None -> None
-
-    let extractRegexGroup (regex: string list option, group: int): string option =
-        match regex with
-        | Some regex -> Some (regex.[group].TrimStart(' '))
-        | None -> None
-
-    /// Prepares the tags part from a regex match
-    let extractTagsFromRegex (regex: string list option): string list option =
-        match regex with
-        | Some regex -> Some (extractTags regex.[0])
-        | None -> None
-
-    /// Prepares the source part from a regex match
-    let extractSourceFromRegex (regex: string list option): string option =
-        match regex with
-        | Some regex -> Some (extractSource regex.[0])
-        | None -> None
-
-    /// Prepares the command part from a regex match to a string
-    let extractCommandFromRegex (regex: string list option): string option =
-        match regex with
-        | Some regex -> Some (extractCommand regex.[0])
         | None -> None
 
     /// Takes the list of tags extracted in messageSplit and creates a list of Tag Records from them
@@ -93,24 +72,26 @@ module MessageParser =
     
     /// Takes the source extracted in messageSplit and creates a Source record from it
     let parseSource (sourceString: string option): Source option =
-        match sourceString with
-        | None -> None
-        | Some sourceString ->
-            sourceString.Split('!').[0]
-            |> fun nick ->
-                (match nick with
-                | "" -> stringTrimFirstIf(sourceString, '!')
-                | _ -> sourceString.Replace(nick, "")
-                , nick)
-            |> fun (rest, nick) -> 
-                let host = rest.Split('@').[1]
-                (match host with
-                | "" -> stringTrimLastIf(rest, '@')
-                | _ -> rest.Replace(host, "")
-                , nick, host)
-            |> fun (rest, nick, host) -> 
-                Some {Nick = nick; User = rest; Host = host}
+        if sourceString = None then None
+        else
+        let sourceString = sourceString.Value
 
+        sourceString.Split('!').[0]
+        |> fun nick ->
+            (match nick with
+            | "" -> stringTrimFirstIf(sourceString, '!')
+            | _ -> sourceString.Replace(nick, "")
+            , nick)
+        |> fun (rest, nick) -> 
+            let host = rest.Split('@').[1]
+            (match host with
+            | "" -> stringTrimLastIf(rest, '@')
+            | _ -> rest.Replace(host, "")
+            , nick, host)
+        |> fun (rest, nick, host) -> 
+            Some {Nick = nick; User = rest; Host = host}
+
+    /// Parses the parameters of a message string from just the parameters part 
     let parseParameters (parametersString: string option): string list option =
         if parametersString.IsNone then None
         else
@@ -135,59 +116,44 @@ module MessageParser =
             | "" -> Some primary
             | _ -> Some (primary @ [secondary])
 
-
-    /// TODO: Command is currently parsed in messageSplit, it should be done here
-    let parseCommand (commandString: string option): Command option =
-        match commandString with
-        | None -> None
-        | Some commandString -> None
-
     /// Uses regex to find the different groups of the IRC string message
-    /// TODO:
-    ///     Refactor into a more functional approach not using regex
-    ///     FParsec library is a good candidate
+    /// TODO: Look into using FParsec
     let messageSplit (message: string) =
-        let tags, source, verb, parameters =
-            message
-            |> fun message ->
-                let tags = matchRegexFirst message tagsRegex
-                (match tags with
+        message
+        |> fun message -> // Extract Tags
+            let tags = matchRegexFirst message tagsRegex
+            ( // Return Value
+                match tags with
                 | Some tags -> message.Replace(tags, "").TrimStart(' ')
                 | None -> message
-                , tags)
-            |> fun (message, tags) ->
-                let source = matchRegexFirst message sourceRegex
-                (match source with
+                , tags
+            )
+        |> fun (message, tags) -> // Extract Source
+            let source = matchRegexFirst message sourceRegex
+            ( // Return value
+                match source with
                 | Some source -> message.Replace(source, "").TrimStart(' ')
                 | None -> message
-                , tags, source)
-            |> fun (message, tags, source) ->
-                let command = extractString((matchRegexFirst message commandRegex), extractCommand)
-                match command with
-                | None -> (tags, source, None, None)
-                | Some command -> 
-                    let verb = command.Split(' ').[0].TrimStart(' ')
-                    (
-                        tags, 
-                        source, 
-                        Some verb,
-                        match verb with
-                        | "" -> None
-                        | _ -> Some (command.Replace(verb, "").TrimStart(' '))
-                    )
-            |> fun (tags, source, verb, parameters) ->
-                (
-                    extractList (tags, extractTags),
-                    extractString (source, extractSource),
-                    verb,
-                    parseParameters parameters
+                , tags, source
+            )
+        |> fun (message, tags, source) -> // Extract Command
+            let command = extractString((matchRegexFirst message commandRegex), extractCommand)
+            match command with
+            | None -> (tags, source, None, None)
+            | Some command -> 
+                let verb = command.Split(' ').[0].TrimStart(' ')
+                ( // Return Value
+                    tags, 
+                    source, 
+                    Some verb,
+                    match verb with
+                    | "" -> None
+                    | _ -> Some (command.Replace(verb, "").TrimStart(' '))
                 )
-
-        // Prepare the information for execution
-        let parsedMessage =
-            { Tags = parseTags tags
-              Source = source
-              Verb = verb
-              Params = parameters }
-
-        parsedMessage
+        |> fun (tags, source, verb, parameters) -> // Digest all parts of the message
+            { // Construct Message Record
+                Tags = parseTags (extractList (tags, extractTags));
+                Source = extractString (source, extractSource);
+                Verb = verb;
+                Params = parseParameters parameters
+            }
