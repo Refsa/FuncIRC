@@ -90,6 +90,32 @@ module MessageParser =
                     Host = Some hostSplit.[1];
                 }
 
+    /// Checks the length of the split parameters string to find out if it has trailing parameters or not
+    let (|NoParams|HasTrailing|NoTrailing|) (paramSplit: string array) =
+        match paramSplit.Length with
+        | 0                  -> NoParams
+        | 1 when paramSplit.[0] = " " -> NoTrailing
+        | 1                  -> NoTrailing
+        | _                  -> HasTrailing
+
+    /// Picks out the params when there were no trailing marker
+    let getParamsNoTrailing (paramsSplit: string array) =
+        let subSplit = arrayRemove (paramsSplit.[0].TrimStart(' ').Split(' ')) stringIsEmpty
+        match subSplit.Length with
+        | 1 | 0 -> Some (Parameters [ Parameter paramsSplit.[0] ])
+        | _ -> // More than one param found
+            let primary = arrayRemove (paramsSplit.[0].Replace(subSplit.[0], "").Split(' ')) stringIsEmpty |> Array.toList
+            Some (toParameters ([ subSplit.[0] ] @ primary))
+
+    /// Picks out the parameters when a trailing marker was found
+    let getParamsWithTrailing (paramsSplit: string array, parametersString: string) = 
+        let primary = arrayRemove (paramsSplit.[0].Split(' ')) stringIsEmpty |> Array.toList
+        let secondary = parametersString.Replace(paramsSplit.[0], "") |> fun x -> stringTrimFirstIf (x, ':')
+
+        match secondary with
+        | "" -> Some (toParameters primary)
+        | _ -> Some (toParameters (primary @ [secondary]))
+
     /// Parses the parameters of a message string from just the parameters part
     /// TODO: Look into using FParsec
     let parseParameters (parametersString: string option): Parameters option =
@@ -99,24 +125,11 @@ module MessageParser =
 
         let paramsSplit = arrayRemove (parametersString.Split(':')) stringIsEmpty
 
-        match paramsSplit.Length with // Check how many trailing params it has
-        | 0  -> None // No Params
-        | 1 when paramsSplit.[0] = " " -> None // No params
-        | 1 -> // Trailing params marker is optional
-            let subSplit = arrayRemove (paramsSplit.[0].TrimStart(' ').Split(' ')) stringIsEmpty
-            match subSplit.Length with
-            | 1 | 0 -> Some (Parameters [ Parameter paramsSplit.[0] ])
-            | _ -> // More than one param found
-                let primary = arrayRemove (paramsSplit.[0].Replace(subSplit.[0], "").Split(' ')) stringIsEmpty |> Array.toList
-                
-                Some (toParameters ([ subSplit.[0] ] @ primary))
-        | _ -> // Found trialing params marker
-            let primary = arrayRemove (paramsSplit.[0].Split(' ')) stringIsEmpty |> Array.toList
-            let secondary = parametersString.Replace(paramsSplit.[0], "") |> fun x -> stringTrimFirstIf (x, ':')
-
-            match secondary with
-            | "" -> Some (toParameters primary)
-            | _ -> Some (toParameters (primary @ [secondary]))
+        match paramsSplit with // Check how many trailing params it has
+        | NoParams   -> None
+        | NoTrailing -> getParamsNoTrailing paramsSplit
+        | HasTrailing -> getParamsWithTrailing (paramsSplit, parametersString)
+            
 
     /// Uses regex to find the different groups of the IRC string message
     /// TODO: Look into using FParsec
