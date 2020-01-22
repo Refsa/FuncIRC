@@ -28,6 +28,13 @@ module MessageParser =
     let extractCommand (commandString: string) =
         (commandString.TrimStart(' '))
 
+    /// Tages a string collection length to check if it's valid, contains key or key and value
+    let (|IsTagKeyOnly|IsTagKeyValue|IsTagNone|) keyLen =
+        match keyLen with
+        | 1 -> IsTagKeyOnly
+        | 2 -> IsTagKeyValue
+        | _ -> IsTagNone
+
     /// Takes the list of tags extracted in messageSplit and creates a list of Tag Records from them
     let parseTags (tagSplit: string list option): Tag list option =
         match tagSplit with
@@ -40,11 +47,13 @@ module MessageParser =
                         |> Array.where (fun x -> x <> "")
                         |> fun kvp -> 
                             match kvp.Length with
-                            | 1                   -> {Key = kvp.[0]; Value = None}
-                            | 2                   -> {Key = kvp.[0]; Value = Some kvp.[1]}
-                            | _                   -> {Key = "FAILURE"; Value = None}
+                            | IsTagKeyOnly  -> {Key = kvp.[0];   Value = None}
+                            | IsTagKeyValue -> {Key = kvp.[0];   Value = Some kvp.[1]}
+                            | IsTagNone     -> {Key = "FAILURE"; Value = None}
                 ]
-    
+
+    /// Takes the nick split, host split and if the source string has 
+    ///  punctiation marks to find the correct combination of nick, user and host
     let (|IsNick|IsHost|IsNickUser|IsUserHost|IsNickHost|IsNickUserHost|) (nickSplit, hostSplit, hasPunct) =
         let nickSingle = Array.length nickSplit = 1
         let hostSingle = Array.length hostSplit = 1
@@ -68,16 +77,11 @@ module MessageParser =
         let hostSplit = arrayRemove (sourceString.Split('@')) stringIsEmpty
 
         match (nickSplit, hostSplit, (sourceString.IndexOf('.') <> -1)) with
-        | IsHost -> 
-            Some {Nick = None; User = None; Host = Some sourceString}
-        | IsNick -> 
-            Some {Nick = Some sourceString; User = None; Host = None}
-        | IsUserHost -> 
-            Some {Nick = None; User = Some (hostSplit.[0].Trim('!')); Host = Some (hostSplit.[1])}
-        | IsNickUser -> 
-            Some {Nick = Some nickSplit.[0]; User = Some nickSplit.[1]; Host = None}
-        | IsNickHost ->
-            Some {Nick = Some hostSplit.[0]; User = None; Host = Some hostSplit.[1]}
+        | IsHost         -> Some {Nick = None;               User = None;                           Host = Some sourceString}
+        | IsNick         -> Some {Nick = Some sourceString;  User = None;                           Host = None}
+        | IsUserHost     -> Some {Nick = None;               User = Some (hostSplit.[0].Trim('!')); Host = Some (hostSplit.[1])}
+        | IsNickUser     -> Some {Nick = Some nickSplit.[0]; User = Some nickSplit.[1];             Host = None}
+        | IsNickHost     -> Some {Nick = Some hostSplit.[0]; User = None;                           Host = Some hostSplit.[1]}
         | IsNickUserHost -> 
             Some
                 {
