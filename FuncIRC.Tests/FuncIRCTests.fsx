@@ -262,7 +262,7 @@ module MessageParserTest =
 
     /// Verifies that a message parsed with messageSplit is correct
     let verifyMessageParser (messageString: string, wantedResult: Message) =
-        let parsedMessage: Message = messageSplit messageString
+        let parsedMessage: Message = parseMessageString messageString
 
         if (messageEquals parsedMessage wantedResult) then
             true

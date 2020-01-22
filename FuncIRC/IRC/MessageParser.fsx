@@ -131,50 +131,56 @@ module MessageParser =
         | NoTrailing  -> getParamsNoTrailing paramsSplit
         | HasTrailing -> getParamsWithTrailing (paramsSplit, parametersString)
     
-    /// Takes the full string received in the IRC message 
-    /// return the tags only string if they exist and the remainder of the original string
-    let extractTagsFromString (message: string) =
-        let tags = matchRegexFirst message tagsRegex
-        let rest = 
-            match tags with
-            | Some tags -> message.Replace(tags, "").TrimStart(' ')
-            | None      -> message
+    /// Takes the full IRC message as a string and splits it into (tags, source, verb, params)
+    let messageSplit (message: string) =
+        /// Takes the full string received in the IRC message 
+        /// return the tags only string if they exist and the remainder of the original string
+        let extractTagsFromString (message: string) =
+            let tags = matchRegexFirst message tagsRegex
+            let rest = 
+                match tags with
+                | Some tags -> message.Replace(tags, "").TrimStart(' ')
+                | None      -> message
 
-        ( rest, tags )
+            ( rest, tags )
 
-    /// Takes the IRC message string with tags part removed
-    /// returns the source only string if it exists and the remainder of the input string
-    let extractSourceFromString (message: string) =
-        let source = matchRegexFirst message sourceRegex
-        let rest   = 
-            match source with
-            | Some source -> message.Replace(source, "").TrimStart(' ')
-            | None        -> message
+        /// Takes the IRC message string with tags part removed
+        /// returns the source only string if it exists and the remainder of the input string
+        let extractSourceFromString (message: string) =
+            let source = matchRegexFirst message sourceRegex
+            let rest   = 
+                match source with
+                | Some source -> message.Replace(source, "").TrimStart(' ')
+                | None        -> message
 
-        ( rest, source )
+            ( rest, source )
 
-    /// Takes the IRC message string with tags and source removed
-    /// returns the verb and the parameters if there were any
-    let extractCommandFromString (message: string) =
-        let command = extractString((matchRegexFirst message commandRegex), extractCommand)
+        /// Takes the IRC message string with tags and source removed
+        /// returns the verb and the parameters if there were any
+        let extractCommandFromString (message: string) =
+            let command = extractString((matchRegexFirst message commandRegex), extractCommand)
 
-        match command with
-        | None         -> (None, None)
-        | Some command -> 
-            let verb       = command.Split(' ').[0].TrimStart(' ')
-            let parameters = 
-                match verb with
-                | "" -> None
-                | _  -> Some (command.Replace(verb, "").TrimStart(' '))
-            ( Some verb, parameters )
+            match command with
+            | None         -> (None, None)
+            | Some command -> 
+                let verb       = command.Split(' ').[0].TrimStart(' ')
+                let parameters = 
+                    match verb with
+                    | "" -> None
+                    | _  -> Some (command.Replace(verb, "").TrimStart(' '))
+                ( Some verb, parameters )
+
+        let rest, tags       = extractTagsFromString (message)
+        let rest, source     = extractSourceFromString (rest)
+        let verb, parameters = extractCommandFromString (rest)
+
+        (tags, source, verb, parameters)
 
     /// Uses regex to find the different groups of the IRC string message
     /// Parse individual parts of the groupings
     /// TODO: Look into using FParsec
-    let messageSplit (message: string) =
-        let rest, tags       = extractTagsFromString (message)
-        let rest, source     = extractSourceFromString (rest)
-        let verb, parameters = extractCommandFromString (rest)
+    let parseMessageString (message: string) =
+        let tags, source, verb, parameters = messageSplit message
 
         { // Construct Message Record
             Tags   = parseTags       (extractList   (tags, extractTags));
