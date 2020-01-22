@@ -15,10 +15,12 @@ module MessageParserTest =
         { Input: string
           Output: Message }
 
+    /// Some tests from: https://github.com/ircdocs/parser-tests/tree/master/tests
+    /// Some messages from the official IRVv3 docs
     let testMessages =
         [ { Input = "@aaa=bbb;ccc;example.com/ddd=eee :nick!ident@host.com PRIVMSG me :Hello"
             Output =
-                { Tags = Some [{Key = "aaa"; Value = "bbb"}; {Key = "ccc"; Value = ""}; {Key = "example.com/ddd"; Value = "eee"}] 
+                { Tags = Some [{Key = "aaa"; Value = Some "bbb"}; {Key = "ccc"; Value = None}; {Key = "example.com/ddd"; Value = Some "eee"}] 
                   Source = Some "nick!ident@host.com"
                   Verb = Some "PRIVMSG"
                   Params = Some [ "me"; "Hello" ] } }
@@ -32,7 +34,7 @@ module MessageParserTest =
 
           { Input = "@id=234AB :dan!d@localhost PRIVMSG #chan :Hey what's up!"
             Output =
-                { Tags = Some [ {Key = "id"; Value = "234AB"} ]
+                { Tags = Some [ {Key = "id"; Value = Some "234AB"} ]
                   Source = Some "dan!d@localhost"
                   Verb = Some "PRIVMSG"
                   Params = Some [ "#chan"; "Hey what's up!" ] } }
@@ -151,7 +153,7 @@ module MessageParserTest =
 
           { Input = "@tag1=value1;tag2;vendor1/tag3=value2;vendor2/tag4 COMMAND param1 param2 :param3 param3"
             Output =
-                { Tags = Some [ {Key = "tag1"; Value = "value1"}; {Key = "tag2"; Value = ""}; {Key = "vendor1/tag3"; Value = "value2"}; {Key = "vendor2/tag4"; Value = ""} ] 
+                { Tags = Some [ {Key = "tag1"; Value = Some "value1"}; {Key = "tag2"; Value = None}; {Key = "vendor1/tag3"; Value = Some "value2"}; {Key = "vendor2/tag4"; Value = None} ] 
                   Source = None
                   Verb = Some "COMMAND"
                   Params = Some [ "param1"; "param2"; "param3 param3" ] } }
@@ -159,7 +161,7 @@ module MessageParserTest =
           { Input =
                 "@tag1=value1;tag2;vendor1/tag3=value2;vendor2/tag4= :irc.example.com COMMAND param1 param2 :param3 param3"
             Output =
-                { Tags = Some [ {Key = "tag1"; Value = "value1"}; {Key = "tag2"; Value = ""}; {Key = "vendor1/tag3"; Value = "value2"}; {Key = "vendor2/tag4"; Value = ""} ] 
+                { Tags = Some [ {Key = "tag1"; Value = Some "value1"}; {Key = "tag2"; Value = None}; {Key = "vendor1/tag3"; Value = Some "value2"}; {Key = "vendor2/tag4"; Value = None} ] 
                   Source = Some "irc.example.com"
                   Verb = Some "COMMAND"
                   Params = Some [ "param1"; "param2"; "param3 param3" ] } }
@@ -187,7 +189,7 @@ module MessageParserTest =
 
           { Input = "@a=b;c=32;k;rt=ql7 foo"
             Output =
-                { Tags = Some [ {Key = "a"; Value = "b"}; {Key = "c"; Value = "32"}; {Key = "k"; Value = ""}; {Key = "rt"; Value = "ql7"} ] 
+                { Tags = Some [ {Key = "a"; Value = Some "b"}; {Key = "c"; Value = Some "32"}; {Key = "k"; Value = None}; {Key = "rt"; Value = Some "ql7"} ] 
                   Source = None
                   Verb = Some "foo"
                   Params = None } }
@@ -213,16 +215,29 @@ module MessageParserTest =
                   Verb = Some "PRIVMSG"
                   Params = Some [ "foo"; "bar baz" ] } } ]
 
+    /// Expanded equality comparison between two Message Records
+    let messageEquals msg1 msg2 =
+        match (msg1, msg2) with
+        | _ when msg1.Tags   <> msg2.Tags   -> printfn "Tags not equal";   false
+        | _ when msg1.Source <> msg2.Source -> printfn "Source not equal"; false
+        | _ when msg1.Verb   <> msg2.Verb   -> printfn "Verb not equal";   false
+        | _ when msg1.Params <> msg2.Params -> printfn "Params not equal"; false
+        | _ -> true
+
     /// Function to print out content of a message to console
     let printMessage message =
         printf "\tTags: "
-        if message.Tags.IsSome then printf "%A" message.Tags.Value
+        if message.Tags.IsSome then 
+            printf "%A" message.Tags.Value
         printf "\n\tSource: "
-        if message.Source.IsSome then printf "%s" message.Source.Value
+        if message.Source.IsSome then 
+            printf "%s" message.Source.Value
         printf "\n\tVerb: "
-        if message.Verb.IsSome then printf "%s" message.Verb.Value
+        if message.Verb.IsSome then 
+            printf "%s" message.Verb.Value
         printf "\n\tParams: "
-        if message.Params.IsSome then printf "%A" message.Params.Value
+        if message.Params.IsSome then 
+            printf "%A" message.Params.Value
         printfn ""
 
     /// Verifies that a message parsed with messageSplit is correct
@@ -243,4 +258,8 @@ module MessageParserTest =
 
     [<Test>]
     let ``message parser should extract tags source verb and params``() =
-        testMessages |> List.iter (fun tm -> Assert.True(verifyMessageParser (tm.Input, tm.Output)))
+        testMessages 
+        |> List.iter 
+            (fun tm -> 
+                Assert.True(verifyMessageParser (tm.Input, tm.Output)
+            ))

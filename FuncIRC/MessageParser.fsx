@@ -11,7 +11,7 @@ module MessageParser =
 
     type Tag =
         { Key: string
-          Value: string }
+          Value: string option }
 
     type Source =
         { Nick: string
@@ -28,20 +28,9 @@ module MessageParser =
           Verb: string option
           Params: string list option }
 
-    let messageEquals msg1 msg2 =
-        match (msg1, msg2) with
-        | _ when msg1.Tags   <> msg2.Tags   -> printfn "Tags not equal";   false
-        | _ when msg1.Source <> msg2.Source -> printfn "Source not equal"; false
-        | _ when msg1.Verb   <> msg2.Verb   -> printfn "Verb not equal";   false
-        | _ when msg1.Params <> msg2.Params -> printfn "Params not equal"; false
-        | _ -> true
-
     let tagsRegex = @"^(@\S+)"
-    let sourceRegex = @"^(:[\S.]+)" //@"^(:\S+[@.]+\S+)"
-    let commandRegex = @"^([a-zA-Z0-9]+.+)" //@"\s?([A-Z]+.+)"
-
-    // TODO: Currently doesnt work with .NET regex but works with Javascript/PHP implementation
-    let messageSplitRegex = @"(^@\S+)?(:\S+[@.]+\S+)?\s([A-Z]+.+)?$"
+    let sourceRegex = @"^(:[\S.]+)"
+    let commandRegex = @"^([a-zA-Z0-9]+.+)"
 
     let extractTags (tagsString: string) =
         ((tagsString.TrimStart('@').TrimStart(' ').Split(';')) |> Array.toList)
@@ -75,6 +64,7 @@ module MessageParser =
         | Some regex -> Some (extractCommand regex.[0])
         | None -> None
 
+    /// Takes the list of tags extracted in messageSplit and creates a list of Tag Records from them
     let parseTags (tagSplit: string list option): Tag list option =
         match tagSplit with
         | None -> None
@@ -85,11 +75,13 @@ module MessageParser =
                         tag.Split('=') 
                         |> fun kvp -> 
                             match kvp.Length with
-                            | 1 -> {Key = kvp.[0]; Value = ""}
-                            | 2 -> {Key = kvp.[0]; Value = kvp.[1]}
-                            | _ -> {Key = "FAILURE"; Value = "FAILURE"}
+                            | 1                   -> {Key = kvp.[0]; Value = None}
+                            | 2 when kvp.[1] = "" -> {Key = kvp.[0]; Value = None}
+                            | 2                   -> {Key = kvp.[0]; Value = Some kvp.[1]}
+                            | _                   -> {Key = "FAILURE"; Value = None}
                 ]
-
+    
+    /// Takes the source extracted in messageSplit and creates a Source record from it
     let parseSource (sourceString: string option): Source option =
         match sourceString with
         | None -> None
@@ -109,7 +101,7 @@ module MessageParser =
             |> fun (rest, nick, host) -> 
                 Some {Nick = nick; User = rest; Host = host}
 
-
+    /// TODO: Command is currently parsed in messageSplit, it should be done here
     let parseCommand (commandString: string option): Command option =
         match commandString with
         | None -> None
