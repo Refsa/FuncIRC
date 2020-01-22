@@ -21,13 +21,13 @@ module MessageParser =
     type Parameters = Parameters of Parameter list
 
     type Source =
-        { Nick: string
-          User: string
-          Host: string }
+        { Nick: string option
+          User: string option
+          Host: string option }
 
     type Message =
         { Tags: Tag list option
-          Source: string option
+          Source: Source option
           Verb: Verb option
           Params: Parameters option }
 
@@ -74,7 +74,7 @@ module MessageParser =
         if sourceString = None then None
         else
         let sourceString = sourceString.Value
-
+        
         sourceString.Split('!').[0]
         |> fun nick ->
             (match nick with
@@ -88,7 +88,7 @@ module MessageParser =
             | _ -> rest.Replace(host, "")
             , nick, host)
         |> fun (rest, nick, host) -> 
-            Some {Nick = nick; User = rest; Host = host}
+            Some {Nick = Some nick; User = Some rest; Host = Some host}
 
     /// Parses the parameters of a message string from just the parameters part 
     let parseParameters (parametersString: string option): Parameters option =
@@ -154,7 +154,7 @@ module MessageParser =
         |> fun (tags, source, verb, parameters) -> // Digest all parts of the message
             { // Construct Message Record
                 Tags = parseTags (extractList (tags, extractTags));
-                Source = source;
+                Source = parseSource source;
                 Verb = verb;
                 Params = parseParameters parameters
             }
