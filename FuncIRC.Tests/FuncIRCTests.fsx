@@ -22,64 +22,64 @@ module MessageParserTest =
             Output =
                 { Tags = Some [{Key = "aaa"; Value = Some "bbb"}; {Key = "ccc"; Value = None}; {Key = "example.com/ddd"; Value = Some "eee"}] 
                   Source = Some "nick!ident@host.com"
-                  Verb = Some "PRIVMSG"
-                  Params = Some [ "me"; "Hello" ] } }
+                  Verb = Some (Verb "PRIVMSG")
+                  Params = Some (toParameters [ "me"; "Hello" ]) } }
 
           { Input = ":irc.example.com CAP LS * :multi-prefix extended-join sasl"
             Output =
                 { Tags = None
                   Source = Some "irc.example.com"
-                  Verb = Some "CAP"
-                  Params = Some [ "LS"; "*"; "multi-prefix extended-join sasl" ] } }
+                  Verb = Some (Verb "CAP")
+                  Params = Some (toParameters [ "LS"; "*"; "multi-prefix extended-join sasl" ]) } }
 
           { Input = "@id=234AB :dan!d@localhost PRIVMSG #chan :Hey what's up!"
             Output =
                 { Tags = Some [ {Key = "id"; Value = Some "234AB"} ]
                   Source = Some "dan!d@localhost"
-                  Verb = Some "PRIVMSG"
-                  Params = Some [ "#chan"; "Hey what's up!" ] } }
+                  Verb = Some (Verb "PRIVMSG")
+                  Params = Some (toParameters [ "#chan"; "Hey what's up!" ]) } }
 
           { Input = "CAP REQ :sasl"
             Output =
                 { Tags = None
                   Source = None
-                  Verb = Some "CAP"
-                  Params = Some [ "REQ"; "sasl" ] } }
+                  Verb = Some (Verb "CAP")
+                  Params = Some (toParameters [ "REQ"; "sasl" ]) } }
 
           { Input = ":irc.example.com CAP * LIST :"
             Output =
                 { Tags = None
                   Source = Some "irc.example.com"
-                  Verb = Some "CAP"
-                  Params = Some [ "*"; "LIST" ] } }
+                  Verb = Some (Verb "CAP")
+                  Params = Some (toParameters [ "*"; "LIST" ]) } }
 
           { Input = "CAP * LS :multi-prefix sasl"
             Output =
                 { Tags = None
                   Source = None
-                  Verb = Some "CAP"
-                  Params = Some [ "*"; "LS"; "multi-prefix sasl" ] } }
+                  Verb = Some (Verb "CAP")
+                  Params = Some (toParameters [ "*"; "LS"; "multi-prefix sasl" ]) } }
 
           { Input = "CAP REQ :sasl message-tags foo"
             Output =
                 { Tags = None
                   Source = None
-                  Verb = Some "CAP"
-                  Params = Some [ "REQ"; "sasl message-tags foo" ] } }
+                  Verb = Some (Verb "CAP")
+                  Params = Some (toParameters [ "REQ"; "sasl message-tags foo" ]) } }
 
           { Input = ":dan!d@localhost PRIVMSG #chan :Hey"
             Output =
                 { Tags = None
                   Source = Some "dan!d@localhost"
-                  Verb = Some "PRIVMSG"
-                  Params = Some [ "#chan"; "Hey" ] } }
+                  Verb = Some (Verb "PRIVMSG")
+                  Params = Some (toParameters [ "#chan"; "Hey" ]) } }
 
           { Input = ":dan!d@localhost PRIVMSG #chan Hey!"
             Output =
                 { Tags = None
                   Source = Some "dan!d@localhost"
-                  Verb = Some "PRIVMSG"
-                  Params = Some [ "#chan"; "Hey!" ] } }
+                  Verb = Some (Verb "PRIVMSG")
+                  Params = Some (toParameters [ "#chan"; "Hey!" ]) } }
 
           { Input = ""
             Output =
@@ -92,128 +92,129 @@ module MessageParserTest =
             Output =
                 { Tags = None
                   Source = Some "coolguy"
-                  Verb = Some "foo"
-                  Params = Some [ "bar"; "baz"; "asdf quux" ] } }
+                  Verb = Some (Verb "foo")
+                  Params = Some (toParameters [ "bar"; "baz"; "asdf quux" ]) } }
 
           { Input = ":coolguy PRIVMSG bar :lol :) "
             Output =
                 { Tags = None
                   Source = Some "coolguy"
-                  Verb = Some "PRIVMSG"
-                  Params = Some [ "bar"; "lol :) " ] } }
+                  Verb = Some (Verb "PRIVMSG")
+                  Params = Some (toParameters [ "bar"; "lol :) " ]) } }
 
           { Input = ":gravel.mozilla.org 432  #momo :Erroneous Nickname: Illegal characters"
             Output =
                 { Tags = None
                   Source = Some "gravel.mozilla.org"
-                  Verb = Some "432"
-                  Params = Some [ "#momo"; "Erroneous Nickname: Illegal characters" ] } }
+                  Verb = Some (Verb "432")
+                  Params = Some (toParameters [ "#momo"; "Erroneous Nickname: Illegal characters" ]) } }
 
           { Input = ":gravel.mozilla.org MODE #tckk +n "
             Output =
                 { Tags = None
                   Source = Some "gravel.mozilla.org"
-                  Verb = Some "MODE"
-                  Params = Some [ "#tckk"; "+n" ] } }
+                  Verb = Some (Verb "MODE")
+                  Params = Some (toParameters [ "#tckk"; "+n" ]) } }
 
           { Input = ":gravel.mozilla.org MODE :#tckk"
             Output =
                 { Tags = None
                   Source = Some "gravel.mozilla.org"
-                  Verb = Some "MODE"
-                  Params = Some [ "#tckk" ] } }
+                  Verb = Some (Verb "MODE")
+                  Params = Some (toParameters [ "#tckk" ]) } }
 
           { Input = ":services.esper.net MODE #foo-bar +o foobar  "
             Output =
                 { Tags = None
                   Source = Some "services.esper.net"
-                  Verb = Some "MODE"
-                  Params = Some [ "#foo-bar"; "+o"; "foobar" ] } }
+                  Verb = Some (Verb "MODE")
+                  Params = Some (toParameters [ "#foo-bar"; "+o"; "foobar" ]) } }
 
           { Input = ":SomeOp MODE #channel :+i"
             Output =
                 { Tags = None
                   Source = Some "SomeOp"
-                  Verb = Some "MODE"
-                  Params = Some [ "#channel"; "+i" ] } }
+                  Verb = Some (Verb "MODE")
+                  Params = Some (toParameters [ "#channel"; "+i" ]) } }
 
           { Input = ":SomeOp MODE #channel +oo SomeUser :AnotherUser"
             Output =
                 { Tags = None
                   Source = Some "SomeOp"
-                  Verb = Some "MODE"
-                  Params = Some [ "#channel"; "+oo"; "SomeUser"; "AnotherUser" ] } }
+                  Verb = Some (Verb "MODE")
+                  Params = Some (toParameters [ "#channel"; "+oo"; "SomeUser"; "AnotherUser" ]) } }
 
           { Input = ":irc.example.com COMMAND param1 param2 :param3 param3"
             Output =
                 { Tags = None
                   Source = Some "irc.example.com"
-                  Verb = Some "COMMAND"
-                  Params = Some [ "param1"; "param2"; "param3 param3" ] } }
+                  Verb = Some (Verb "COMMAND")
+                  Params = Some (toParameters [ "param1"; "param2"; "param3 param3" ]) } }
 
           { Input = "@tag1=value1;tag2;vendor1/tag3=value2;vendor2/tag4 COMMAND param1 param2 :param3 param3"
             Output =
                 { Tags = Some [ {Key = "tag1"; Value = Some "value1"}; {Key = "tag2"; Value = None}; {Key = "vendor1/tag3"; Value = Some "value2"}; {Key = "vendor2/tag4"; Value = None} ] 
                   Source = None
-                  Verb = Some "COMMAND"
-                  Params = Some [ "param1"; "param2"; "param3 param3" ] } }
+                  Verb = Some (Verb "COMMAND")
+                  Params = Some (toParameters [ "param1"; "param2"; "param3 param3" ]) } }
 
           { Input =
                 "@tag1=value1;tag2;vendor1/tag3=value2;vendor2/tag4= :irc.example.com COMMAND param1 param2 :param3 param3"
             Output =
                 { Tags = Some [ {Key = "tag1"; Value = Some "value1"}; {Key = "tag2"; Value = None}; {Key = "vendor1/tag3"; Value = Some "value2"}; {Key = "vendor2/tag4"; Value = None} ] 
                   Source = Some "irc.example.com"
-                  Verb = Some "COMMAND"
-                  Params = Some [ "param1"; "param2"; "param3 param3" ] } }
+                  Verb = Some (Verb "COMMAND")
+                  Params = Some (toParameters [ "param1"; "param2"; "param3 param3" ]) } }
 
           { Input = ":src AWAY"
             Output =
                 { Tags = None
                   Source = Some "src"
-                  Verb = Some "AWAY"
+                  Verb = Some (Verb "AWAY")
                   Params = None } }
 
           { Input = ":src AWAY "
             Output =
                 { Tags = None
                   Source = Some "src"
-                  Verb = Some "AWAY"
+                  Verb = Some (Verb "AWAY")
                   Params = None } }
 
           { Input = ":coolguy foo bar baz :  "
             Output =
                 { Tags = None
                   Source = Some "coolguy"
-                  Verb = Some "foo"
-                  Params = Some [ "bar"; "baz"; "  " ] } }
+                  Verb = Some (Verb "foo")
+                  Params = Some (toParameters [ "bar"; "baz"; "  " ]) } }
 
           { Input = "@a=b;c=32;k;rt=ql7 foo"
             Output =
                 { Tags = Some [ {Key = "a"; Value = Some "b"}; {Key = "c"; Value = Some "32"}; {Key = "k"; Value = None}; {Key = "rt"; Value = Some "ql7"} ] 
                   Source = None
-                  Verb = Some "foo"
+                  Verb = Some (Verb "foo")
                   Params = None } }
 
           { Input = ":coolguy foo bar baz :  asdf quux "
             Output =
                 { Tags = None
                   Source = Some "coolguy"
-                  Verb = Some "foo"
-                  Params = Some [ "bar"; "baz"; "  asdf quux " ] } }
+                  Verb = Some (Verb "foo")
+                  Params = Some (toParameters [ "bar"; "baz"; "  asdf quux " ]) } }
 
           { Input = "foo bar baz ::asdf"
             Output =
                 { Tags = None
                   Source = None
-                  Verb = Some "foo"
-                  Params = Some [ "bar"; "baz"; ":asdf" ] } }
+                  Verb = Some (Verb "foo")
+                  Params = Some (toParameters [ "bar"; "baz"; ":asdf" ]) } }
 
           { Input = @":coolguy!ag@net\x035w\x03ork.admin PRIVMSG foo :bar baz"
             Output =
                 { Tags = None
                   Source = Some @"coolguy!ag@net\x035w\x03ork.admin"
-                  Verb = Some "PRIVMSG"
-                  Params = Some [ "foo"; "bar baz" ] } } ]
+                  Verb = Some (Verb "PRIVMSG")
+                  Params = Some (toParameters [ "foo"; "bar baz" ]) } }
+        ]
 
     /// Expanded equality comparison between two Message Records
     let messageEquals msg1 msg2 =
@@ -234,7 +235,7 @@ module MessageParserTest =
             printf "%s" message.Source.Value
         printf "\n\tVerb: "
         if message.Verb.IsSome then 
-            printf "%s" message.Verb.Value
+            printf "%s" (string message.Verb.Value)
         printf "\n\tParams: "
         if message.Params.IsSome then 
             printf "%A" message.Params.Value

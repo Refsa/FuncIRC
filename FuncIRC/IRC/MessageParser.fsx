@@ -15,20 +15,29 @@ module MessageParser =
         { Key: string
           Value: string option }
 
+    type Verb = Verb of string
+
+    type Parameter = Parameter of string
+    type Parameters = Parameters of Parameter list
+
     type Source =
         { Nick: string
           User: string
           Host: string }
 
-    type Command =
-        { Verb: string
-          Params: string list option}
-
     type Message =
         { Tags: Tag list option
           Source: string option
-          Verb: string option
-          Params: string list option }
+          Verb: Verb option
+          Params: Parameters option }
+
+    let toVerb input =
+        match input with
+        | Some input -> Some (Verb input)
+        | None -> None
+
+    let toParameters input =
+        Parameters [ for s in input -> Parameter s ]
 
     let tagsRegex = @"^(@\S+)"
     let sourceRegex = @"^(:[\S.]+)"
@@ -82,7 +91,7 @@ module MessageParser =
             Some {Nick = nick; User = rest; Host = host}
 
     /// Parses the parameters of a message string from just the parameters part 
-    let parseParameters (parametersString: string option): string list option =
+    let parseParameters (parametersString: string option): Parameters option =
         if parametersString.IsNone then None
         else
         let parametersString = parametersString.Value
@@ -95,16 +104,18 @@ module MessageParser =
         | 1 -> // Trailing params marker is optional
             let subSplit = paramsSplit.[0].TrimStart(' ').Split(' ') |> Array.where (fun x -> x <> "")
             match subSplit.Length with
-            | 1 | 0 -> Some [ paramsSplit.[0] ] 
+            | 1 | 0 -> Some (Parameters [ Parameter paramsSplit.[0] ])
             | _ -> // More than one param found
                 let primary = paramsSplit.[0].Replace(subSplit.[0], "").Split(' ') |> Array.where (fun x -> x <> "") |> Array.toList
-                Some ([ subSplit.[0] ] @ primary)
+                
+                Some (toParameters ([ subSplit.[0] ] @ primary))
         | _ -> // Found trialing params marker
             let primary = ((paramsSplit.[0].Split(' ') |> Array.where (fun x -> x <> "")) |> Array.toList)
             let secondary = parametersString.Replace(paramsSplit.[0], "") |> fun x -> stringTrimFirstIf (x, ':')
+
             match secondary with
-            | "" -> Some primary
-            | _ -> Some (primary @ [secondary])
+            | "" -> Some (toParameters primary)
+            | _ -> Some (toParameters (primary @ [secondary]))
 
     /// Uses regex to find the different groups of the IRC string message
     /// TODO: Look into using FParsec
@@ -133,9 +144,9 @@ module MessageParser =
             | Some command -> 
                 let verb = command.Split(' ').[0].TrimStart(' ')
                 ( // Return Value
-                    tags, 
-                    source, 
-                    Some verb,
+                    tags,
+                    extractString (source, extractSource),
+                    Some (Verb verb),
                     match verb with
                     | "" -> None
                     | _ -> Some (command.Replace(verb, "").TrimStart(' '))
@@ -143,7 +154,7 @@ module MessageParser =
         |> fun (tags, source, verb, parameters) -> // Digest all parts of the message
             { // Construct Message Record
                 Tags = parseTags (extractList (tags, extractTags));
-                Source = extractString (source, extractSource);
+                Source = source;
                 Verb = verb;
                 Params = parseParameters parameters
             }
