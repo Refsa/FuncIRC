@@ -216,13 +216,16 @@ module MessageParserTest =
                   Params = Some (toParameters [ "foo"; "bar baz" ]) } }
         ]
 
+    /// Prints contents of a Source type
     let printSource (source: Source) =
+        printf "[ "
         if source.Nick.IsSome then
-            printf "Nick = %s " source.Nick.Value
+            printf "Nick = %s; " source.Nick.Value
         if source.User.IsSome then
-            printf "User = %s " source.User.Value
+            printf "User = %s; " source.User.Value
         if source.Host.IsSome then
-            printf "Host = %s " source.Host.Value                
+            printf "Host = %s; " source.Host.Value                
+        printf " ]"
 
     /// Expanded equality comparison between two Message Records
     let messageEquals msg1 msg2 =

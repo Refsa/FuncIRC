@@ -31,11 +31,13 @@ module MessageParser =
           Verb: Verb option
           Params: Parameters option }
 
+    /// Takes a string option and transforms it to a Verb type
     let toVerb input =
         match input with
         | Some input -> Some (Verb input)
         | None -> None
 
+    /// transforms a collection of strings into a Parameters type
     let toParameters input =
         Parameters [ for s in input -> Parameter s ]
 
@@ -43,12 +45,15 @@ module MessageParser =
     let sourceRegex = @"^(:[\S.]+)"
     let commandRegex = @"^([a-zA-Z0-9]+.+)"
 
+    /// Trims the tags string of extranous characters and splits it with ';' character
     let extractTags (tagsString: string) =
         ((tagsString.TrimStart('@').TrimStart(' ').Split(';')) |> Array.toList)
 
+    /// Trims the source string of extraneous characters
     let extractSource (sourceString: string) =
         (sourceString.TrimStart(':').TrimStart(' '))
 
+    /// Trims the command string of extraneous characters
     let extractCommand (commandString: string) =
         (commandString.TrimStart(' '))
 
@@ -61,15 +66,16 @@ module MessageParser =
                 [
                     for tag in tagSplit -> 
                         tag.Split('=') 
+                        |> Array.where (fun x -> x <> "")
                         |> fun kvp -> 
                             match kvp.Length with
                             | 1                   -> {Key = kvp.[0]; Value = None}
-                            | 2 when kvp.[1] = "" -> {Key = kvp.[0]; Value = None}
                             | 2                   -> {Key = kvp.[0]; Value = Some kvp.[1]}
                             | _                   -> {Key = "FAILURE"; Value = None}
                 ]
     
     /// Takes the source extracted in messageSplit and creates a Source record from it
+    /// TODO: Look into using FParsec
     let parseSource (sourceString: string option): Source option =
         if sourceString = None then None
         else
@@ -81,8 +87,6 @@ module MessageParser =
         let noNickSplit = Array.length nickSplit = 1
         let noHostSplit = Array.length hostSplit = 1
 
-        printfn "ns: %b - hs: %b" noNickSplit noHostSplit
-
         match sourceString with
         | ss when noNickSplit && noNickSplit = noHostSplit -> // @ and ! was not present, it's either Host or Nick
             match ss with
@@ -90,9 +94,9 @@ module MessageParser =
                 Some {Nick = None; User = None; Host = Some ss}
             | _ -> // Nick
                 Some {Nick = Some ss; User = None; Host = None}
-        | ss when noNickSplit -> // User and Host
+        | _ when noNickSplit -> // User and Host
             Some {Nick = None; User = Some (hostSplit.[0].Trim('!')); Host = Some (hostSplit.[1])}
-        | ss when noHostSplit -> // Nick and User
+        | _ when noHostSplit -> // Nick and User
             Some {Nick = Some nickSplit.[0]; User = Some nickSplit.[1]; Host = None}
         | _ -> // Nick, User and Host
             Some
@@ -102,7 +106,8 @@ module MessageParser =
                     Host = Some hostSplit.[1];
                 }
 
-    /// Parses the parameters of a message string from just the parameters part 
+    /// Parses the parameters of a message string from just the parameters part
+    /// TODO: Look into using FParsec
     let parseParameters (parametersString: string option): Parameters option =
         if parametersString.IsNone then None
         else
@@ -111,7 +116,7 @@ module MessageParser =
         let paramsSplit = parametersString.Split(':') |> Array.where (fun x -> x <> "")
 
         match paramsSplit.Length with // Check how many trailing params it has
-        | 0  -> None
+        | 0  -> None // No Params
         | 1 when paramsSplit.[0] = " " -> None // No params
         | 1 -> // Trailing params marker is optional
             let subSplit = paramsSplit.[0].TrimStart(' ').Split(' ') |> Array.where (fun x -> x <> "")
@@ -133,32 +138,32 @@ module MessageParser =
     /// TODO: Look into using FParsec
     let messageSplit (message: string) =
         message
-        |> fun message -> // Extract Tags
-            let tags = matchRegexFirst message tagsRegex
+        |> fun rest -> // Extract Tags
+            let tags = matchRegexFirst rest tagsRegex
             ( // Return Value
                 match tags with
-                | Some tags -> message.Replace(tags, "").TrimStart(' ')
-                | None -> message
+                | Some tags -> rest.Replace(tags, "").TrimStart(' ')
+                | None -> rest
                 , tags
             )
-        |> fun (message, tags) -> // Extract Source
-            let source = matchRegexFirst message sourceRegex
+        |> fun (rest, tags) -> // Extract Source
+            let source = matchRegexFirst rest sourceRegex
             ( // Return value
                 match source with
-                | Some source -> message.Replace(source, "").TrimStart(' ')
-                | None -> message
+                | Some source -> rest.Replace(source, "").TrimStart(' ')
+                | None -> rest
                 , tags, source
             )
-        |> fun (message, tags, source) -> // Extract Command
-            let command = extractString((matchRegexFirst message commandRegex), extractCommand)
+        |> fun (rest, tags, source) -> // Extract Command (Verb and Params)
+            let command = extractString((matchRegexFirst rest commandRegex), extractCommand)
             match command with
             | None -> (tags, source, None, None)
             | Some command -> 
                 let verb = command.Split(' ').[0].TrimStart(' ')
                 ( // Return Value
                     tags,
-                    extractString (source, extractSource),
-                    Some (Verb verb),
+                    source,
+                    Some verb,
                     match verb with
                     | "" -> None
                     | _ -> Some (command.Replace(verb, "").TrimStart(' '))
@@ -166,7 +171,7 @@ module MessageParser =
         |> fun (tags, source, verb, parameters) -> // Digest all parts of the message
             { // Construct Message Record
                 Tags = parseTags (extractList (tags, extractTags));
-                Source = parseSource source;
-                Verb = verb;
+                Source = parseSource (extractString (source, extractSource));
+                Verb = toVerb verb;
                 Params = parseParameters parameters
             }
