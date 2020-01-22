@@ -211,10 +211,18 @@ module MessageParserTest =
           { Input = @":coolguy!ag@net\x035w\x03ork.admin PRIVMSG foo :bar baz"
             Output =
                 { Tags = None
-                  Source = Some {Nick = Some "coolguy"; User = Some "a"; Host = Some @"net\x035w\x03ork.admin"}
+                  Source = Some {Nick = Some "coolguy"; User = Some "ag"; Host = Some @"net\x035w\x03ork.admin"}
                   Verb = Some (Verb "PRIVMSG")
                   Params = Some (toParameters [ "foo"; "bar baz" ]) } }
         ]
+
+    let printSource (source: Source) =
+        if source.Nick.IsSome then
+            printf "Nick = %s " source.Nick.Value
+        if source.User.IsSome then
+            printf "User = %s " source.User.Value
+        if source.Host.IsSome then
+            printf "Host = %s " source.Host.Value                
 
     /// Expanded equality comparison between two Message Records
     let messageEquals msg1 msg2 =
@@ -231,9 +239,8 @@ module MessageParserTest =
         if message.Tags.IsSome then 
             printf "%A" message.Tags.Value
         printf "\n\tSource: "
-        if message.Source.IsSome then 
-            //printf "%s" message.Source.Value
-            printf "Source was wrong"
+        if message.Source.IsSome then
+            printSource message.Source.Value
         printf "\n\tVerb: "
         if message.Verb.IsSome then 
             printf "%s" (string message.Verb.Value)

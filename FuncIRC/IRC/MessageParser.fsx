@@ -74,21 +74,33 @@ module MessageParser =
         if sourceString = None then None
         else
         let sourceString = sourceString.Value
-        
-        sourceString.Split('!').[0]
-        |> fun nick ->
-            (match nick with
-            | "" -> stringTrimFirstIf(sourceString, '!')
-            | _ -> sourceString.Replace(nick, "")
-            , nick)
-        |> fun (rest, nick) -> 
-            let host = rest.Split('@').[1]
-            (match host with
-            | "" -> stringTrimLastIf(rest, '@')
-            | _ -> rest.Replace(host, "")
-            , nick, host)
-        |> fun (rest, nick, host) -> 
-            Some {Nick = Some nick; User = Some rest; Host = Some host}
+
+        let nickSplit = sourceString.Split('!') |> Array.where (fun x -> x <> "")
+        let hostSplit = sourceString.Split('@') |> Array.where (fun x -> x <> "")
+
+        let noNickSplit = Array.length nickSplit = 1
+        let noHostSplit = Array.length hostSplit = 1
+
+        printfn "ns: %b - hs: %b" noNickSplit noHostSplit
+
+        match sourceString with
+        | ss when noNickSplit && noNickSplit = noHostSplit -> // @ and ! was not present, it's either Host or Nick
+            match ss with
+            | ss when ss.IndexOf('.') <> -1 -> // Host
+                Some {Nick = None; User = None; Host = Some ss}
+            | _ -> // Nick
+                Some {Nick = Some ss; User = None; Host = None}
+        | ss when noNickSplit -> // User and Host
+            Some {Nick = None; User = Some (hostSplit.[0].Trim('!')); Host = Some (hostSplit.[1])}
+        | ss when noHostSplit -> // Nick and User
+            Some {Nick = Some nickSplit.[0]; User = Some nickSplit.[1]; Host = None}
+        | _ -> // Nick, User and Host
+            Some
+                {
+                    Nick = Some nickSplit.[0];
+                    User = Some (nickSplit.[1].Replace(hostSplit.[1], "").Trim('@'));
+                    Host = Some hostSplit.[1];
+                }
 
     /// Parses the parameters of a message string from just the parameters part 
     let parseParameters (parametersString: string option): Parameters option =
