@@ -5,6 +5,7 @@ namespace FuncIRC.Tests
 open NUnit.Framework
 open FuncIRC
 open FuncIRC.MessageParser
+open FuncIRC.MessageTypes
 
 module MessageParserTest =
     let testIRCServerAddress = "testnet.inspircd.org"

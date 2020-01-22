@@ -8,6 +8,7 @@
   <ItemGroup>
     <Compile Include="IRC/Modes.fsx" />
     <Compile Include="IRC/NumericReplies.fsx" />
+    <Compile Include="IRC/MessageTypes.fsx" />
 
     <Compile Include="Utils/StringHelpers.fsx" />
     <Compile Include="Utils/RegexHelpers.fsx" />

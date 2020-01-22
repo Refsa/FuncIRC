@@ -1,45 +1,16 @@
 namespace FuncIRC
 #load "IrcUtils.fsx"
+#load "MessageTypes.fsx"
 #load "../Utils/RegexHelpers.fsx"
 #load "../Utils/StringHelpers.fsx"
 #load "../Utils/GeneralHelpers.fsx"
 
 module MessageParser =
-
+    open GeneralHelpers
     open IrcUtils
+    open MessageTypes
     open RegexHelpers
     open StringHelpers
-    open GeneralHelpers
-
-    type Tag =
-        { Key: string
-          Value: string option }
-
-    type Verb = Verb of string
-
-    type Parameter = Parameter of string
-    type Parameters = Parameters of Parameter list
-
-    type Source =
-        { Nick: string option
-          User: string option
-          Host: string option }
-
-    type Message =
-        { Tags: Tag list option
-          Source: Source option
-          Verb: Verb option
-          Params: Parameters option }
-
-    /// Takes a string option and transforms it to a Verb type
-    let toVerb input =
-        match input with
-        | Some input -> Some (Verb input)
-        | None -> None
-
-    /// transforms a collection of strings into a Parameters type
-    let toParameters input =
-        Parameters [ for s in input -> Parameter s ]
 
     let tagsRegex = @"^(@\S+)"
     let sourceRegex = @"^(:[\S.]+)"
@@ -81,8 +52,8 @@ module MessageParser =
         else
         let sourceString = sourceString.Value
 
-        let nickSplit = sourceString.Split('!') |> Array.where (fun x -> x <> "")
-        let hostSplit = sourceString.Split('@') |> Array.where (fun x -> x <> "")
+        let nickSplit = stringArrayRemoveEmpty (sourceString.Split('!'))
+        let hostSplit = stringArrayRemoveEmpty (sourceString.Split('@'))
 
         let noNickSplit = Array.length nickSplit = 1
         let noHostSplit = Array.length hostSplit = 1
@@ -113,21 +84,21 @@ module MessageParser =
         else
         let parametersString = parametersString.Value
 
-        let paramsSplit = parametersString.Split(':') |> Array.where (fun x -> x <> "")
+        let paramsSplit = stringArrayRemoveEmpty (parametersString.Split(':'))
 
         match paramsSplit.Length with // Check how many trailing params it has
         | 0  -> None // No Params
         | 1 when paramsSplit.[0] = " " -> None // No params
         | 1 -> // Trailing params marker is optional
-            let subSplit = paramsSplit.[0].TrimStart(' ').Split(' ') |> Array.where (fun x -> x <> "")
+            let subSplit = stringArrayRemoveEmpty (paramsSplit.[0].TrimStart(' ').Split(' '))
             match subSplit.Length with
             | 1 | 0 -> Some (Parameters [ Parameter paramsSplit.[0] ])
             | _ -> // More than one param found
-                let primary = paramsSplit.[0].Replace(subSplit.[0], "").Split(' ') |> Array.where (fun x -> x <> "") |> Array.toList
+                let primary = stringArrayRemoveEmpty (paramsSplit.[0].Replace(subSplit.[0], "").Split(' ')) |> Array.toList
                 
                 Some (toParameters ([ subSplit.[0] ] @ primary))
         | _ -> // Found trialing params marker
-            let primary = ((paramsSplit.[0].Split(' ') |> Array.where (fun x -> x <> "")) |> Array.toList)
+            let primary = stringArrayRemoveEmpty (paramsSplit.[0].Split(' ')) |> Array.toList
             let secondary = parametersString.Replace(paramsSplit.[0], "") |> fun x -> stringTrimFirstIf (x, ':')
 
             match secondary with

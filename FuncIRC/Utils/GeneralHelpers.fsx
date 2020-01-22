@@ -12,3 +12,10 @@ module GeneralHelpers =
         match target with
         | Some t -> Some (method t)
         | None -> None
+
+    let stringArrayRemoveEmpty (stringArray: string array) =
+        stringArray
+        |> Array.where 
+            (fun x ->
+                x <> ""
+            )
