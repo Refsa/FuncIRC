@@ -5,9 +5,3 @@
 #load "RegexHelpers.fsx"
 
 namespace FuncIRC
-
-open MessageParser
-open Modes
-open NumericReplies
-open RegexHelpers
-open Utils

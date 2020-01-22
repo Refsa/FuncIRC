@@ -1,13 +1,15 @@
 namespace FuncIRC
-#load "Utils.fsx"
-#load "RegexHelpers.fsx"
-#load "StringHelpers.fsx"
+#load "IrcUtils.fsx"
+#load "../Utils/RegexHelpers.fsx"
+#load "../Utils/StringHelpers.fsx"
+#load "../Utils/GeneralHelpers.fsx"
 
 module MessageParser =
 
-    open Utils
+    open IrcUtils
     open RegexHelpers
     open StringHelpers
+    open GeneralHelpers
 
     type Tag =
         { Key: string
@@ -40,18 +42,6 @@ module MessageParser =
 
     let extractCommand (commandString: string) =
         (commandString.TrimStart(' '))
-
-    /// Factory function to extract a string list from a <string option> type
-    let extractList (target: string option, method: string -> string list) =
-        match target with
-        | Some t -> Some (method t)
-        | None -> None
-
-    /// Factory function to extract string from a <string option> type
-    let extractString (target: string option, method: string -> string) =
-        match target with
-        | Some t -> Some (method t)
-        | None -> None
 
     /// Takes the list of tags extracted in messageSplit and creates a list of Tag Records from them
     let parseTags (tagSplit: string list option): Tag list option =
