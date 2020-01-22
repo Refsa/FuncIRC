@@ -52,8 +52,8 @@ module MessageParser =
         else
         let sourceString = sourceString.Value
 
-        let nickSplit = stringArrayRemoveEmpty (sourceString.Split('!'))
-        let hostSplit = stringArrayRemoveEmpty (sourceString.Split('@'))
+        let nickSplit = arrayRemove (sourceString.Split('!')) stringIsEmpty
+        let hostSplit = arrayRemove (sourceString.Split('@')) stringIsEmpty
 
         let noNickSplit = Array.length nickSplit = 1
         let noHostSplit = Array.length hostSplit = 1
@@ -84,21 +84,21 @@ module MessageParser =
         else
         let parametersString = parametersString.Value
 
-        let paramsSplit = stringArrayRemoveEmpty (parametersString.Split(':'))
+        let paramsSplit = arrayRemove (parametersString.Split(':')) stringIsEmpty
 
         match paramsSplit.Length with // Check how many trailing params it has
         | 0  -> None // No Params
         | 1 when paramsSplit.[0] = " " -> None // No params
         | 1 -> // Trailing params marker is optional
-            let subSplit = stringArrayRemoveEmpty (paramsSplit.[0].TrimStart(' ').Split(' '))
+            let subSplit = arrayRemove (paramsSplit.[0].TrimStart(' ').Split(' ')) stringIsEmpty
             match subSplit.Length with
             | 1 | 0 -> Some (Parameters [ Parameter paramsSplit.[0] ])
             | _ -> // More than one param found
-                let primary = stringArrayRemoveEmpty (paramsSplit.[0].Replace(subSplit.[0], "").Split(' ')) |> Array.toList
+                let primary = arrayRemove (paramsSplit.[0].Replace(subSplit.[0], "").Split(' ')) stringIsEmpty |> Array.toList
                 
                 Some (toParameters ([ subSplit.[0] ] @ primary))
         | _ -> // Found trialing params marker
-            let primary = stringArrayRemoveEmpty (paramsSplit.[0].Split(' ')) |> Array.toList
+            let primary = arrayRemove (paramsSplit.[0].Split(' ')) stringIsEmpty |> Array.toList
             let secondary = parametersString.Replace(paramsSplit.[0], "") |> fun x -> stringTrimFirstIf (x, ':')
 
             match secondary with

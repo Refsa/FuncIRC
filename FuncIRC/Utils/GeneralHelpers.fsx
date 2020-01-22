@@ -13,6 +13,10 @@ module GeneralHelpers =
         | Some t -> Some (method t)
         | None -> None
 
+    let stringIsEmpty (target: string) = target = ""
+
+    let arrayRemove arr method = arr |> Array.where (method >> not)
+
     let stringArrayRemoveEmpty (stringArray: string array) =
         stringArray
         |> Array.where 
