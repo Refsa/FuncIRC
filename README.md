@@ -21,3 +21,42 @@ See here for information: https://fsprojects.github.io/Paket/
 
 ## CI/CD
 Currently a local gitlab runner is set up that runs on powershell. It's not the ideal way to handle the pipeline as it requries an active computer with all the required packages set up. Should create a docker image with all the required software setup so it can run on shared runners.
+
+## Commit Messages
+Structure: \[prefix\]: <issue> <ms> <snippet> (\[message\]) <mention>
++ \[\] - Required
++ <> - Optional
+
+Description of semantics used below:
++ may - Optional
++ should - Required
+
+#### Prefix
+Each commit message should start with a prefix describing its purpose
++ project/ - related to project structure, should not contain any changes in functionality
++ irc/ - related to the FuncIRC client library
++ cli/ - Related to the CLI frontend for the irc library
++ refactor/ - When refactoring a piece of code, should not contain any changes in functionality
++ feature/ - A new feature that was added. Linked to issue and described in message
++ test/ - A new test case was added
+
+Prefixes should be compunded together as such when it's appropriate:
++ irc/feature/:
++ cli/refactor/:
++ irc/project/:
++ irc/test/:
+
+#### Issue
+After the prefix the issue related to the commit may appear
+
+#### Milestone
+After the issue a milestone tag may appear
+
+#### Snippet
+After the milestone tag the reference to a snippet may appear
+
+#### Message
+After the snippet reference the message should appear. It prefarable should be kept between two parantheses "(Message)"
+
+#### Mention
+At the end of the commit message any mentions may appear
