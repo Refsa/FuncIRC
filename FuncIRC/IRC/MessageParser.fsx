@@ -45,16 +45,17 @@ module MessageParser =
                             | _                   -> {Key = "FAILURE"; Value = None}
                 ]
     
-    let (|IsNick|IsHost|IsNickUser|IsUserHost|IsNickUserHost|) (nickSplit, hostSplit, hasPunct) =
+    let (|IsNick|IsHost|IsNickUser|IsUserHost|IsNickHost|IsNickUserHost|) (nickSplit, hostSplit, hasPunct) =
         let nickSingle = Array.length nickSplit = 1
         let hostSingle = Array.length hostSplit = 1
            
         match () with
         | _ when nickSingle && hostSingle && hasPunct -> IsHost
         | _ when nickSingle && hostSingle -> IsNick
-        | _ when nickSingle -> IsUserHost
-        | _ when hostSingle -> IsNickUser
-        | _ -> IsNickUserHost
+        | _ when nickSingle && not hostSingle -> IsNickHost
+        | _ when hostSingle && not nickSingle -> IsNickUser
+        | _ when not hostSingle && not nickSingle -> IsNickUserHost
+        | _ -> IsUserHost
 
     /// Takes the source extracted in messageSplit and creates a Source record from it
     /// TODO: Look into using FParsec
@@ -67,10 +68,16 @@ module MessageParser =
         let hostSplit = arrayRemove (sourceString.Split('@')) stringIsEmpty
 
         match (nickSplit, hostSplit, (sourceString.IndexOf('.') <> -1)) with
-        | IsHost -> Some {Nick = None; User = None; Host = Some sourceString}
-        | IsNick -> Some {Nick = Some sourceString; User = None; Host = None}
-        | IsUserHost -> Some {Nick = None; User = Some (hostSplit.[0].Trim('!')); Host = Some (hostSplit.[1])}
-        | IsNickUser -> Some {Nick = Some nickSplit.[0]; User = Some nickSplit.[1]; Host = None}
+        | IsHost -> 
+            Some {Nick = None; User = None; Host = Some sourceString}
+        | IsNick -> 
+            Some {Nick = Some sourceString; User = None; Host = None}
+        | IsUserHost -> 
+            Some {Nick = None; User = Some (hostSplit.[0].Trim('!')); Host = Some (hostSplit.[1])}
+        | IsNickUser -> 
+            Some {Nick = Some nickSplit.[0]; User = Some nickSplit.[1]; Host = None}
+        | IsNickHost ->
+            Some {Nick = Some hostSplit.[0]; User = None; Host = Some hostSplit.[1]}
         | IsNickUserHost -> 
             Some
                 {
