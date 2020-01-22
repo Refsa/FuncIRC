@@ -23,7 +23,7 @@ See here for information: https://fsprojects.github.io/Paket/
 Currently a local gitlab runner is set up that runs on powershell. It's not the ideal way to handle the pipeline as it requries an active computer with all the required packages set up. Should create a docker image with all the required software setup so it can run on shared runners.
 
 ## Commit Messages
-Structure: \[prefix\]: <issue> <ms> <snippet> (\[message\]) <mention>
+Structure: \[prefix\]: (\[message\]) <commit> <issue> <ms> <snippet> <mention>
 + \[\] - Required
 + <> - Optional
 
@@ -46,17 +46,20 @@ Prefixes should be compunded together as such when it's appropriate:
 + irc/project/:
 + irc/test/:
 
+#### Message
+After the prefix the message should appear. It prefarable should be kept between two parantheses "(Message)"
+
+#### Commit
+After the message a commit reference may appear
+
 #### Issue
-After the prefix the issue related to the commit may appear
+After the commit reference the issue related to the commit may appear
 
 #### Milestone
 After the issue a milestone tag may appear
 
 #### Snippet
 After the milestone tag the reference to a snippet may appear
-
-#### Message
-After the snippet reference the message should appear. It prefarable should be kept between two parantheses "(Message)"
 
 #### Mention
 At the end of the commit message any mentions may appear
