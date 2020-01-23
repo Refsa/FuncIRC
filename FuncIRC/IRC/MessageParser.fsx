@@ -132,9 +132,11 @@ module MessageParser =
         | HasTrailing -> getParamsWithTrailing (paramsSplit, parametersString)
     
     /// Takes the full IRC message as a string and splits it into (tags, source, verb, params)
+    /// Order of execution inside this function is important
+    /// returns (tags, source, verb, params) as (string * string * string * string) all as optional
     let messageSplit (message: string) =
         /// Takes the full string received in the IRC message 
-        /// return the tags only string if they exist and the remainder of the original string
+        /// return the tags only string if they exist and the remainder of the input string
         let extractTagsFromString (message: string) =
             let tags = matchRegexFirst message tagsRegex
             let rest = 
@@ -170,6 +172,7 @@ module MessageParser =
                     | _  -> Some (command.Replace(verb, "").TrimStart(' '))
                 ( Some verb, parameters )
 
+        // This order is important
         let rest, tags       = extractTagsFromString (message)
         let rest, source     = extractSourceFromString (rest)
         let verb, parameters = extractCommandFromString (rest)

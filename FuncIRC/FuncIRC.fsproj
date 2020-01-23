@@ -13,6 +13,7 @@
     <Compile Include="Utils/StringHelpers.fsx" />
     <Compile Include="Utils/RegexHelpers.fsx" />
     <Compile Include="Utils/GeneralHelpers.fsx" />
+    <Compile Include="IRC/Validators.fsx" />
     <Compile Include="IRC/IrcUtils.fsx" />
 
     <Compile Include="IRC/MessageParser.fsx" />

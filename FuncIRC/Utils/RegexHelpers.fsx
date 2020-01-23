@@ -13,6 +13,10 @@ module RegexHelpers =
         | Some rm -> Some rm.[0]
         | None -> None
 
+    let (|RegexFound|) pattern input =
+        let matches = System.Text.RegularExpressions.Regex.Matches(input, pattern)
+        matches.Count > 0
+
     /// Gives all matches as an array if there were any
     let (|RegexSplit|_|) pattern input =
         let matches = System.Text.RegularExpressions.Regex.Matches(input, pattern)

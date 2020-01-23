@@ -6,6 +6,7 @@ open NUnit.Framework
 open FuncIRC
 open FuncIRC.MessageParser
 open FuncIRC.MessageTypes
+open FuncIRC.Validators
 
 module MessageParserTest =
     let testIRCServerAddress = "testnet.inspircd.org"
@@ -224,6 +225,28 @@ module MessageParserTest =
                     Params = Some (toParameters [ "foo"; "bar baz" ]) } }
         ]
 
+    type HostnameTest = { Hostname: string; Valid: bool }
+
+    let hostnameTests =
+        [
+            // True Tests
+            {Hostname = "irc.example.com";  Valid = true}
+            {Hostname = "i.coolguy.net";    Valid = true}
+            {Hostname = "irc-srv.net.uk";   Valid = true}
+            {Hostname = "iRC.CooLguY.NeT";  Valid = true}
+            {Hostname = "gsf.ds342.co.uk";  Valid = true}
+            {Hostname = "324.net.uk";       Valid = true}
+            {Hostname = "xn--bcher-kva.ch"; Valid = true}
+            {Hostname = "Xn--bcher-kva.ch"; Valid = true}
+            // False Tests
+            {Hostname = "-lol-.net.uk";          Valid = false}
+            {Hostname = "-lol.net.uk";           Valid = false}
+            {Hostname = "_irc._sctp.lol.net.uk"; Valid = false}
+            {Hostname = "irc";                   Valid = false}
+            {Hostname = "com";                   Valid = false}
+            {Hostname = "";                      Valid = false}
+        ]
+
     /// Prints contents of a Source type
     let printSource (source: Source) =
         printf "[ "
@@ -283,3 +306,16 @@ module MessageParserTest =
             (fun tm -> 
                 Assert.True(verifyMessageParser (tm.Input, tm.Output)
             ))
+
+    [<Test>]
+    let ``hostname validator should filter out invalid hostnames``() =
+        hostnameTests
+        |> List.iter
+            (fun hn ->
+                let result = (validateHostname hn.Hostname) = hn.Valid
+
+                if not result then
+                    printfn "Hostname %s was supposed to be %b" hn.Hostname hn.Valid
+
+                Assert.True(result)
+            )
