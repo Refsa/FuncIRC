@@ -6,6 +6,7 @@ module Validators =
     open System
     open RegexHelpers
 
+    /// Validates the hostname part of a Source
     let validateHostname (hostname: string) =
         match hostname with
         | "" -> false
