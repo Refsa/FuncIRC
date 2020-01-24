@@ -6,11 +6,17 @@
     <DebugType>portable</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Modes.fsx" />
-    <Compile Include="NumericReplies.fsx" />
-    <Compile Include="RegexHelpers.fsx" />
-    <Compile Include="Utils.fsx" />
-    <Compile Include="MessageParser.fsx" />
+    <Compile Include="IRC/Modes.fsx" />
+    <Compile Include="IRC/NumericReplies.fsx" />
+    <Compile Include="IRC/MessageTypes.fsx" />
+
+    <Compile Include="Utils/StringHelpers.fsx" />
+    <Compile Include="Utils/RegexHelpers.fsx" />
+    <Compile Include="Utils/GeneralHelpers.fsx" />
+    <Compile Include="IRC/Validators.fsx" />
+    <Compile Include="IRC/IrcUtils.fsx" />
+
+    <Compile Include="IRC/MessageParser.fsx" />
 
     <None Include="FuncIRC.fsx" />
 
