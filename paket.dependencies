@@ -4,8 +4,10 @@ source https://api.nuget.org/v3/index.json
 storage: none
 framework: net48
 framework: auto-detect
+
 nuget FSharp.Core
 nuget FParsec
+nuget NUnit
 
 group Build
 source https://www.nuget.org/api/v2

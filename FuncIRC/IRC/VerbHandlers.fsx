@@ -77,6 +77,7 @@ module VerbHandlers =
             | None -> "RPL_MYINFO"
         {Content = content; Type = VerbHandlerType.Callback; Verb = NumericsReplies.RPL_MYINFO}
 
+    // TODO: Requires some additional work to the client framework to handle RPL_ISUPPORT
     let rplIsupportHandler(parameters: Parameters option): VerbHandler =
         {noCallback with Content = ""; Verb = NumericsReplies.RPL_ISUPPORT}
 
