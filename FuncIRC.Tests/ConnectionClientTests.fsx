@@ -7,6 +7,7 @@ module ConnectionClientTests =
     open NUnit.Framework
     open FuncIRC.ConnectionClient
     open FuncIRC.IRCStreamReader
+    open FuncIRC.MessageTypes
 
     [<Test>]
     let ``Check that ConnectionClient can establish TCP connection``() =
@@ -24,3 +25,10 @@ module ConnectionClientTests =
 
         Assert.True ((utf8Decoded = testString))
         Assert.True ((latin1Decoded = testString))
+
+    [<Test>]
+    let ``PING verb should respond with PONG``() =
+        let pingVerb = Verb "PING"
+        let response = handleVerb pingVerb
+
+        Assert.AreEqual (response, "PONG")

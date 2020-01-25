@@ -30,10 +30,9 @@ module IRCStreamReader =
         let rec readLoop(received: string) =
             async {
                 try
-                    let bytes = client.Stream.Read(data, 0, data.Length)
+                    client.Stream.Read(data, 0, data.Length) |> ignore
 
                     let receivedData = parseByteString data
-
                     let receivedNext = received + receivedData
 
                     if receivedNext.EndsWith ("\r\n") then
@@ -47,6 +46,28 @@ module IRCStreamReader =
 
         readLoop("")
 
+    let handleVerb (verb: Verb) =
+        printf "\tVerb: %s - " (verb.Value)
+
+        let handler =
+            match verb with
+            | IsVerbName command ->
+                match command with
+                | IsPing handler -> handler
+                | IsNotice handler -> handler
+                | IsPrivMsg handler -> handler
+                | UnknownVerbName handler -> printf "Handler for Verb [%s] does not exist" command; handler
+            | IsNumeric numeric ->
+                let numericName = numericReplies.[numeric]
+                let handler = verbHandlers.TryFind numericName
+                match handler with
+                | Some handler -> handler
+                | None ->
+                    printf "Handler for Numeric(%d): %s does not exist\n" numeric (numericName.ToString())
+                    noCallback
+        
+        handler()
+
     let receivedDataHandler (data: string, client: Client) =
         let data = data.Trim(' ').Replace("\r\n", "")
         match data with
@@ -56,26 +77,9 @@ module IRCStreamReader =
             let message = parseMessageString data
             
             if message.Verb.IsSome then
-                let verb = message.Verb.Value.Value
-                printf "\tVerb: %s - " (verb)
-
-                let numeric = verbToInt message.Verb.Value
-                match numeric with
-                | None -> 
-                    match verb with
-                    | "PING" -> 
-                        let response = verbHandlers.[NumericsReplies.PING]()
-                        printf "Response: %s\n" response
-                        client |> sendIrcMessage <| response
-                    | "NOTICE" -> ()
-                    | "PRIVMSG" -> ()
-                    | _ -> printf "Handler for Verb [%s] does not exist" verb
-                | Some numeric ->
-                    let numericName = numericReplies.[numeric]
-                    let handler = verbHandlers.TryFind numericName
-                    match handler with
-                    | Some handler -> 
-                        let response = verbHandlers.[numericName]()
-                        printf "Response: %s\n" response
-                    | None ->
-                        printf "Handler for Numeric(%d): %s does not exist\n" numeric (numericName.ToString())
+                message.Verb.Value |> handleVerb
+                |> function
+                | "" -> ()
+                | response ->
+                    printf "Response: %s\n" response
+                    client |> sendIrcMessage <| response
