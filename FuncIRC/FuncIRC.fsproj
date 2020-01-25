@@ -13,10 +13,14 @@
     <Compile Include="Utils/StringHelpers.fsx" />
     <Compile Include="Utils/RegexHelpers.fsx" />
     <Compile Include="Utils/GeneralHelpers.fsx" />
+
     <Compile Include="IRC/Validators.fsx" />
     <Compile Include="IRC/IrcUtils.fsx" />
-
     <Compile Include="IRC/MessageParser.fsx" />
+
+    <Compile Include="ConnectionClient/ConnectionClient.fsx" />
+    <Compile Include="ConnectionClient/IRCStreamReader.fsx" />
+    <Compile Include="ConnectionClient/IRCClient.fsx" />
 
     <None Include="FuncIRC.fsx" />
 

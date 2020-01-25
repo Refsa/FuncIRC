@@ -18,6 +18,14 @@ module CLI =
     open System
     open System.IO
 
+    open System.Text
+    open System.Threading
+    open System.Threading.Tasks
+
+    open FuncIRC.ConnectionClient
+    open FuncIRC.IRCStreamReader
+    open FuncIRC.IRCClient
+
     open Application
     open ApplicationState
     open ConsoleHelpers
@@ -75,19 +83,34 @@ module CLI =
         with
             :? OperationCanceledException -> ()
 
+    let ircLoop (client: Client, token: CancellationTokenSource) =
+        Async.StartAsTask((readStream client receivedDataHandler), TaskCreationOptions(), token.Token) |> ignore
+
+        client |> sendRegistrationMessage <| ("testnick", "testuser", "some name", "")
+
+        printfn "### CLI LOOP ###"
+        while Console.ReadKey().Key <> ConsoleKey.Q do
+            ()
+        token
+
     [<EntryPoint>]
     let main argv =
         Console.Title <- "FuncIRC CLI"
 
-        consoleSize
-        |> fun cs ->
-            Console.SetWindowSize (cs.Width, cs.Height)
-            Console.SetBufferSize (cs.Width, cs.Height)
+        //consoleSize
+        //|> fun cs ->
+        //    Console.SetWindowSize (cs.Width, cs.Height)
+        //    Console.SetBufferSize (cs.Width, cs.Height)
 
-        Console.Clear()
-        Console.SetCursorPosition (0, 0)
+        //Console.Clear()
+        //Console.SetCursorPosition (0, 0)
 
-        testAsyncTask()
-        (app.Run())
+        //testAsyncTask()
+        //(app.Run())
+
+        ircClient "127.0.0.1" 6667 
+        |> ircClientHandler
+        |> ircLoop
+        |> closeIrcClient
 
         0 // return an integer exit code

@@ -20,6 +20,9 @@
 
     <Compile Include="TestMessages.fsx" />
     <Compile Include="MessageParserTests.fsx" />
+    
+    <Compile Include="ConnectionClientTests.fsx" />
+
     <Compile Include="FuncIRCTests.fsx" />
     <Compile Include="Program.fsx" />
   </ItemGroup>
