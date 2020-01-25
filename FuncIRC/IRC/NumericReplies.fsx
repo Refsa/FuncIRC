@@ -4,6 +4,7 @@ namespace FuncIRC
 module NumericReplies =
 
     type NumericsReplies =
+        | NO_NAME 
         // Replies
         | RPL_WELCOME
         | RPL_YOURHOST
@@ -104,8 +105,12 @@ module NumericReplies =
         | ERR_SASLABORTED
         | ERR_SASLALREADY
         | ERR_SASLMECHS
-
-        | PING
+        // Verbs
+        | MSG_PING
+        | MSG_PRIVMSG
+        | MSG_NOTICE
+        | MSG_ERROR
+        | MSG_JOIN
 
 
     let numericReplies =

@@ -19,67 +19,67 @@ module VerbHandlers =
         {
             Type: VerbHandlerType
             Content: string
+            Verb: NumericsReplies
         }
 
-    let noCallback = {Type = VerbHandlerType.NotImplemented; Content = ""}
-    let noCallbackHandler() = noCallback
+    let noCallback = {Type = VerbHandlerType.NotImplemented; Content = ""; Verb = NumericsReplies.NO_NAME}
+    let noCallbackHandler(parameters: Parameters option) = noCallback
 
-    let verbPingHandler(): VerbHandler =
-        {Type = VerbHandlerType.Response; Content = "PONG"}
+    let pingHandler(parameters: Parameters option): VerbHandler =
+        {Type = VerbHandlerType.Response; Content = "PONG"; Verb = NumericsReplies.MSG_PING}
 
-    let privMsgHandler(): VerbHandler =
-        {Content = "PRIVMSG"; Type = VerbHandlerType.Callback}
+    let privMsgHandler(parameters: Parameters option): VerbHandler =
+        {Content = "PRIVMSG"; Type = VerbHandlerType.Callback; Verb = NumericsReplies.MSG_PRIVMSG}
 
-    let noticeHandler(): VerbHandler =
-        {Content = "NOTICE"; Type = VerbHandlerType.Callback}
+    let noticeHandler(parameters: Parameters option): VerbHandler =
+        {Content = "NOTICE"; Type = VerbHandlerType.Callback; Verb = NumericsReplies.MSG_NOTICE}
 
-    let rplWelcomeHandler(): VerbHandler =
-        {Content = "RPL_WELCOME"; Type = VerbHandlerType.Callback}
+    let rplWelcomeHandler(parameters: Parameters option): VerbHandler =
+        {Content = "RPL_WELCOME"; Type = VerbHandlerType.Callback; Verb = NumericsReplies.RPL_WELCOME}
 
-    let rplYourHostHandler(): VerbHandler =
+    let rplYourHostHandler(parameters: Parameters option): VerbHandler =
         {noCallback with Content = "RPL_YOURHOST"}
 
-    let rplCreatedHandler(): VerbHandler =
+    let rplCreatedHandler(parameters: Parameters option): VerbHandler =
         {noCallback with Content = "RPL_CREATED"}
 
-    let rplMyInfoHandler(): VerbHandler =
+    let rplMyInfoHandler(parameters: Parameters option): VerbHandler =
         {noCallback with Content = "RPL_MYINFO"}
 
-    let rplIsupportHandler(): VerbHandler =
+    let rplIsupportHandler(parameters: Parameters option): VerbHandler =
         {noCallback with Content = "RPL_ISUPPORT"}
 
-    let rpllUserClientHandler(): VerbHandler =
+    let rpllUserClientHandler(parameters: Parameters option): VerbHandler =
         {noCallback with Content = "RPL_LUSERCLIENT"}
 
-    let rplLUserUnknownHandler(): VerbHandler =
+    let rplLUserUnknownHandler(parameters: Parameters option): VerbHandler =
         {noCallback with Content = "RPL_LUSERUNKNOWN"}
 
-    let rplLUserChannelsHandler(): VerbHandler =
+    let rplLUserChannelsHandler(parameters: Parameters option): VerbHandler =
         {noCallback with Content = "RPL_LUSERCHANNELS"}
 
-    let rplLUserMeHandler(): VerbHandler =
+    let rplLUserMeHandler(parameters: Parameters option): VerbHandler =
         {noCallback with Content = "RPL_LUSERME"}
 
-    let rplLocalUsersHandler(): VerbHandler =
+    let rplLocalUsersHandler(parameters: Parameters option): VerbHandler =
         {noCallback with Content = "RPL_LOCALUSERS"}
 
-    let rplGlobalUsersHandler(): VerbHandler =
+    let rplGlobalUsersHandler(parameters: Parameters option): VerbHandler =
         {noCallback with Content = "RPL_GLOBALUSERS"}
 
-    let rplMotdStartHandler(): VerbHandler =
+    let rplMotdStartHandler(parameters: Parameters option): VerbHandler =
         {noCallback with Content = "RPL_MOTDSTART"}
 
-    let rplMotdHandler(): VerbHandler =
+    let rplMotdHandler(parameters: Parameters option): VerbHandler =
         {noCallback with Content = "RPL_MOTD"}
 
-    let rplEndOfMotdHandler(): VerbHandler =
+    let rplEndOfMotdHandler(parameters: Parameters option): VerbHandler =
         {noCallback with Content = "RPL_ENDOFMOTD"}
 
     /// Binds NumericReplies to delegate handlers
     /// Handlers return the response verb and parameters
     let verbHandlers =
         [
-            NumericReplies.PING, verbPingHandler;
             NumericReplies.RPL_WELCOME, rplWelcomeHandler;
             NumericReplies.RPL_YOURHOST, rplYourHostHandler;
             NumericReplies.RPL_CREATED, rplCreatedHandler;
@@ -106,7 +106,7 @@ module VerbHandlers =
     /// TODO: Refactor this as there is a limit to 7 patterns on Active Patterns
     let (|IsPing|IsNotice|IsPrivMsg|IsError|IsJoin|UnknownVerbName|) (verb: string) =
         match verb with
-        | "PING"    -> IsPing verbHandlers.[NumericReplies.PING]
+        | "PING"    -> IsPing pingHandler
         | "NOTICE"  -> IsNotice noticeHandler
         | "PRIVMSG" -> IsPrivMsg privMsgHandler
         | "ERROR"   -> IsError noCallbackHandler

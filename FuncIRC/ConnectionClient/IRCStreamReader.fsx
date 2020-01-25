@@ -70,9 +70,9 @@ module IRCStreamReader =
                 let handler = verbHandlers.TryFind numericName
                 match handler with
                 | Some handler -> handler
-                | None         -> (fun () -> {noCallback with Content = numericName.ToString()})
+                | None         -> (fun (parameters: Parameters option) -> {noCallback with Content = numericName.ToString()})
         
-        handler()
+        handler
 
     /// Parses the whole message string from the server and runs the corresponding sub-handlers for tags, source, verb and params
     let receivedDataHandler (data: string, client: Client, messageCallback: Client * Message -> unit) =
@@ -85,6 +85,7 @@ module IRCStreamReader =
             
             if message.Verb.IsSome then
                 message.Verb.Value |> handleVerb
+                |> fun handler -> handler <| message.Params
                 |> function
                 | handler when handler.Type = VerbHandlerType.NotImplemented ->
                     (if handler.Content <> "" then handler.Content else message.Verb.Value.Value)
