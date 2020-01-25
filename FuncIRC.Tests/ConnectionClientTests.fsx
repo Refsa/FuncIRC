@@ -79,13 +79,40 @@ module ConnectionClientTests =
 
     [<Test>]
     let ``RPL_CREATED handler should respond with trailing params if there was any``() =
-        let testTrailingParam = "This server was created 23:25:21 Jan 24 2020"
+        let testParams = "This server was created 23:25:21 Jan 24 2020"
         let verb = Verb "003"
         let response = 
             handleVerb verb
             |> fun handler -> 
-                handler <| Some (toParameters [|"Nick"; testTrailingParam|])
+                handler <| Some (toParameters [|"Nick"; testParams|])
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
         Assert.AreEqual (response.Verb, NumericsReplies.RPL_CREATED)
-        Assert.AreEqual (response.Content, testTrailingParam)
+        Assert.AreEqual (response.Content, testParams)
+
+    [<Test>]
+    let ``RPL_MYINFO handler should respond with params if there was any``() =
+        let testParams = "127.0.0.1 InspIRCd-3 iosw biklmnopstv :bklov"
+        let verb = Verb "004"
+        let response = 
+            handleVerb verb
+            |> fun handler -> 
+                handler <| Some (toParameters [|"Nick"; testParams|])
+
+        Assert.AreEqual (response.Type, VerbHandlerType.Callback)
+        Assert.AreEqual (response.Verb, NumericsReplies.RPL_MYINFO)
+        Assert.AreEqual (response.Content, testParams)
+
+    [<Test>]
+    let ``RPL_ISUPPORT handler should respond with everything except trailing params``() =
+        let wantedParams = "AWAYLEN=200 CASEMAPPING=ascii CHANLIMIT=#:20 CHANMODES=b,k,l,imnpst CHANNELLEN=64 CHANTYPES=# ELIST=CMNTU HOSTLEN=64 KEYLEN=32 KICKLEN=255 LINELEN=512 MAXLIST=b:100"
+        let testParams = wantedParams + " :are supported by this server"
+        let verb = Verb "005"
+        let response = 
+            handleVerb verb
+            |> fun handler -> 
+                handler <| Some (toParameters [|"Nick"; testParams|])
+
+        Assert.AreEqual (response.Type, VerbHandlerType.Callback)
+        Assert.AreEqual (response.Verb, NumericsReplies.RPL_ISUPPORT)
+        Assert.AreEqual (response.Content, wantedParams)
