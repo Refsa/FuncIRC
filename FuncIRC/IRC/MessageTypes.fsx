@@ -9,8 +9,12 @@ module MessageTypes =
         | Verb of string
         member x.Value = let (Verb verb) = x in verb
 
-    type Parameter = Parameter of string
-    type Parameters = Parameters of Parameter list
+    type Parameter = 
+        | Parameter of string
+        member x.Value = let (Parameter parameter) = x in parameter
+    type Parameters =
+        | Parameters of Parameter array
+        member x.Value = let (Parameters parameters) = x in parameters
 
     type Source =
         { Nick: string option
@@ -31,7 +35,7 @@ module MessageTypes =
 
     /// transforms a collection of strings into a Parameters type
     let toParameters input =
-        Parameters [ for s in input -> Parameter s ]
+        Parameters [| for s in input -> Parameter s |]
 
     let verbToInt (verb: Verb) = 
         try

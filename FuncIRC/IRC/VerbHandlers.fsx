@@ -29,13 +29,26 @@ module VerbHandlers =
         {Type = VerbHandlerType.Response; Content = "PONG"; Verb = NumericsReplies.MSG_PING}
 
     let privMsgHandler(parameters: Parameters option): VerbHandler =
-        {Content = "PRIVMSG"; Type = VerbHandlerType.Callback; Verb = NumericsReplies.MSG_PRIVMSG}
+        let content =
+            match parameters with
+            | Some parameters -> parameters.Value |> Array.last |> fun x -> x.Value
+            | None -> "PRIVMSG"
+
+        {Content = content; Type = VerbHandlerType.Callback; Verb = NumericsReplies.MSG_PRIVMSG}
 
     let noticeHandler(parameters: Parameters option): VerbHandler =
-        {Content = "NOTICE"; Type = VerbHandlerType.Callback; Verb = NumericsReplies.MSG_NOTICE}
+        let content =
+            match parameters with
+            | Some parameters -> parameters.Value.[0].Value
+            | _ -> "NOTICE"
+        {Content = content; Type = VerbHandlerType.Callback; Verb = NumericsReplies.MSG_NOTICE}
 
     let rplWelcomeHandler(parameters: Parameters option): VerbHandler =
-        {Content = "RPL_WELCOME"; Type = VerbHandlerType.Callback; Verb = NumericsReplies.RPL_WELCOME}
+        let content = 
+            match parameters with
+            | Some parameters -> parameters.Value.[0].Value
+            | None -> "RPL_WELCOME"
+        {Content = content; Type = VerbHandlerType.Callback; Verb = NumericsReplies.RPL_WELCOME}
 
     let rplYourHostHandler(parameters: Parameters option): VerbHandler =
         {noCallback with Content = "RPL_YOURHOST"}

@@ -9,6 +9,7 @@ module ConnectionClientTests =
     open FuncIRC.IRCStreamReader
     open FuncIRC.MessageTypes
     open FuncIRC.VerbHandlers
+    open FuncIRC.NumericReplies
 
     [<Test>]
     let ``Check that ConnectionClient can establish TCP connection``() =
@@ -28,33 +29,37 @@ module ConnectionClientTests =
         Assert.True ((latin1Decoded = testString))
 
     [<Test>]
-    let ``PING verb should respond with PONG``() =
+    let ``PING verb handler should respond with PONG``() =
         let pingVerb = Verb "PING"
         let response = handleVerb pingVerb |> fun handler -> handler <| None
 
         Assert.AreEqual (response.Type, VerbHandlerType.Response)
-        Assert.AreEqual (response.Content, "PONG")
+        Assert.AreEqual (response.Verb, NumericsReplies.MSG_PING)
 
     [<Test>]
-    let ``PRIVMSG verb should respond with PRIVMSG and Callback type``() =
+    let ``PRIVMSG verb handler should respond with PRIVMSG and Callback type``() =
         let privmsgVerb = Verb "PRIVMSG"
         let response = handleVerb privmsgVerb |> fun handler -> handler <| None
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
-        Assert.AreEqual (response.Content, "PRIVMSG")
+        Assert.AreEqual (response.Verb, NumericsReplies.MSG_PRIVMSG)
 
     [<Test>]
-    let ``NOTICE verb should respond with NOTICE and Callback type``() =
+    let ``NOTICE verb handler should respond with NOTICE and Callback type``() =
         let noticeVerb = Verb "NOTICE"
         let response = handleVerb noticeVerb |> fun handler -> handler <| None
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
-        Assert.AreEqual (response.Content, "NOTICE")
+        Assert.AreEqual (response.Verb, NumericsReplies.MSG_NOTICE)
 
     [<Test>]
-    let ``RPL_WELCOME numeric should respond with RPL_WELCOME and Callback type``() =
+    let ``RPL_WELCOME handler should respond with Welcome message and Callback type``() =
         let rplWelcomeVerb = Verb "001" // RPL_WELCOME Numeric
-        let response = handleVerb rplWelcomeVerb |> fun handler -> handler <| None
+        let response = 
+            handleVerb rplWelcomeVerb 
+            |> fun handler -> 
+                handler <| Some (toParameters [|"Welcome to the Refsa IRC Network testnick!testuser@127.0.0.1"|])
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
-        Assert.AreEqual (response.Content, "RPL_WELCOME")
+        Assert.AreEqual (response.Verb, NumericsReplies.RPL_WELCOME)
+        Assert.AreEqual (response.Content, "Welcome to the Refsa IRC Network testnick!testuser@127.0.0.1")

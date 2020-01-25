@@ -103,7 +103,7 @@ module MessageParser =
 
         match subSplit.Length with
         | 1 | 0 -> 
-            Some (Parameters [ Parameter paramsSplit.[0] ]) // Only single param
+            Some (Parameters [| Parameter paramsSplit.[0] |]) // Only single param
         | _     -> // More than one param found
             let primary = arrayRemove (paramsSplit.[0].Replace(subSplit.[0], "").Split(' ')) stringIsEmpty |> Array.toList
             Some (toParameters ([ subSplit.[0] ] @ primary))
