@@ -8,6 +8,7 @@ module ConnectionClientTests =
     open FuncIRC.ConnectionClient
     open FuncIRC.IRCStreamReader
     open FuncIRC.MessageTypes
+    open FuncIRC.VerbHandlers
 
     [<Test>]
     let ``Check that ConnectionClient can establish TCP connection``() =
@@ -31,4 +32,5 @@ module ConnectionClientTests =
         let pingVerb = Verb "PING"
         let response = handleVerb pingVerb
 
-        Assert.AreEqual (response, "PONG")
+        Assert.AreEqual (response.Type, VerbHandlerType.Response)
+        Assert.AreEqual (response.Content, "PONG")
