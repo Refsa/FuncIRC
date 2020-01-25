@@ -48,7 +48,7 @@ module VerbHandlers =
     let rplWelcomeHandler(parameters: Parameters option): VerbHandler =
         let content = 
             match parameters with
-            | Some parameters -> parameters.Value.[1].Value
+            | Some parameters -> parameters.Value |> Array.last |> fun x -> x.Value
             | None -> "RPL_WELCOME"
             
         {Content = content; Type = VerbHandlerType.Callback; Verb = NumericsReplies.RPL_WELCOME}
@@ -56,17 +56,20 @@ module VerbHandlers =
     let rplYourHostHandler(parameters: Parameters option): VerbHandler =
         let content = 
             match parameters with
-            | Some parameters -> parameters.Value.[1].Value.Replace(", ", "\n")
+            | Some parameters -> parameters.Value |> Array.last |> fun x -> x.Value.Replace(", ", "\n")
             | None -> "RPL_YOURHOST"
         {Content = content; Type = VerbHandlerType.Callback; Verb = NumericsReplies.RPL_YOURHOST}
 
+    // TODO: Add handling of DateTime string
     let rplCreatedHandler(parameters: Parameters option): VerbHandler =
         let content = 
             match parameters with
-            | Some parameters -> parameters.Value.[1].Value
+            | Some parameters -> parameters.Value |> Array.last |> fun x -> x.Value
             | None -> "RPL_CREATED"
         {Content = content; Type = VerbHandlerType.Callback; Verb = NumericsReplies.RPL_CREATED}
 
+    // Does not have to be handles since RPL_ISUPPORT is more important
+    // TODO: Add fallback support for usermodes and channel modes
     let rplMyInfoHandler(parameters: Parameters option): VerbHandler =
         let content = 
             match parameters with
@@ -85,28 +88,62 @@ module VerbHandlers =
         {Content = content; Type = VerbHandlerType.Callback; Verb = NumericsReplies.RPL_LUSERCLIENT}
 
     let rplLUserUnknownHandler(parameters: Parameters option): VerbHandler =
-        {noCallback with Content = "RPL_LUSERUNKNOWN"}
+        let content = 
+            match parameters with
+            | Some parameters -> parameters.Value.[1].Value + "-" + parameters.Value.[2].Value
+            | None -> "RPL_LUSERUNKNOWN"
+        {Content = content; Type = VerbHandlerType.Callback; Verb = NumericsReplies.RPL_LUSERUNKNOWN}
 
     let rplLUserChannelsHandler(parameters: Parameters option): VerbHandler =
-        {noCallback with Content = "RPL_LUSERCHANNELS"}
+        let content = 
+            match parameters with
+            | Some parameters -> parameters.Value.[1].Value + "-" + parameters.Value.[2].Value
+            | None -> "RPL_LUSERCHANNELS"
+        {Content = content; Type = VerbHandlerType.Callback; Verb = NumericsReplies.RPL_LUSERCHANNELS}
 
     let rplLUserMeHandler(parameters: Parameters option): VerbHandler =
-        {noCallback with Content = "RPL_LUSERME"}
+        let content = 
+            match parameters with
+            | Some parameters -> parameters.Value.[1].Value
+            | None -> "RPL_LUSERME"
+        {Content = content; Type = VerbHandlerType.Callback; Verb = NumericsReplies.RPL_LUSERME}
 
     let rplLocalUsersHandler(parameters: Parameters option): VerbHandler =
-        {noCallback with Content = "RPL_LOCALUSERS"}
+        let content = 
+            match parameters with
+            | Some parameters -> parameters.Value.[1].Value
+            | None -> "RPL_LOCALUSERS"
+        {Content = content; Type = VerbHandlerType.Callback; Verb = NumericsReplies.RPL_LOCALUSERS}
 
     let rplGlobalUsersHandler(parameters: Parameters option): VerbHandler =
-        {noCallback with Content = "RPL_GLOBALUSERS"}
+        let content = 
+            match parameters with
+            | Some parameters -> parameters.Value.[1].Value
+            | None -> "RPL_GLOBALUSERS"
+        {Content = content; Type = VerbHandlerType.Callback; Verb = NumericsReplies.RPL_GLOBALUSERS}
 
+    // # MOTD
     let rplMotdStartHandler(parameters: Parameters option): VerbHandler =
-        {noCallback with Content = "RPL_MOTDSTART"}
+        let content = 
+            match parameters with
+            | Some parameters -> parameters.Value.[1].Value
+            | None -> "RPL_MOTDSTART"
+        {Content = content; Type = VerbHandlerType.Callback; Verb = NumericsReplies.RPL_MOTDSTART}
 
     let rplMotdHandler(parameters: Parameters option): VerbHandler =
-        {noCallback with Content = "RPL_MOTD"}
+        let content = 
+            match parameters with
+            | Some parameters -> parameters.Value.[1].Value
+            | None -> "RPL_MOTD"
+        {Content = content; Type = VerbHandlerType.Callback; Verb = NumericsReplies.RPL_MOTD}
 
     let rplEndOfMotdHandler(parameters: Parameters option): VerbHandler =
-        {noCallback with Content = "RPL_ENDOFMOTD"}
+        let content = 
+            match parameters with
+            | Some parameters -> parameters.Value.[1].Value
+            | None -> "RPL_ENDOFMOTD"
+        {Content = content; Type = VerbHandlerType.Callback; Verb = NumericsReplies.RPL_ENDOFMOTD}
+    // # MOTD END
 
     /// Binds NumericReplies to delegate handlers
     /// Handlers return the response verb and parameters

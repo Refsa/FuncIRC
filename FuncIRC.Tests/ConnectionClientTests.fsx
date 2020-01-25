@@ -140,7 +140,7 @@ module ConnectionClientTests =
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
         Assert.AreEqual (response.Verb, NumericsReplies.RPL_LUSERUNKNOWN)
-        Assert.AreEqual (response.Content, testParams)
+        Assert.AreEqual (response.Content, testParams.[1] + "-" + testParams.[2])
 
     [<Test>]
     let ``RPL_LUSERCHANNELS handler should respond with trailing params``() =
@@ -153,7 +153,7 @@ module ConnectionClientTests =
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
         Assert.AreEqual (response.Verb, NumericsReplies.RPL_LUSERCHANNELS)
-        Assert.AreEqual (response.Content, testParams)
+        Assert.AreEqual (response.Content, testParams.[1] + "-" + testParams.[2])
 
     [<Test>]
     let ``RPL_LUSERME handler should respond with trailing params``() =
@@ -166,7 +166,7 @@ module ConnectionClientTests =
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
         Assert.AreEqual (response.Verb, NumericsReplies.RPL_LUSERME)
-        Assert.AreEqual (response.Content, testParams)
+        Assert.AreEqual (response.Content, testParams.[1])
 
     [<Test>]
     let ``RPL_LOCALUSERS handler should respond with trailing params``() =
@@ -179,7 +179,7 @@ module ConnectionClientTests =
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
         Assert.AreEqual (response.Verb, NumericsReplies.RPL_LOCALUSERS)
-        Assert.AreEqual (response.Content, testParams)
+        Assert.AreEqual (response.Content, testParams.[1])
 
     [<Test>]
     let ``RPL_GLOBALUSERS handler should respond with trailing params``() =
@@ -192,7 +192,7 @@ module ConnectionClientTests =
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
         Assert.AreEqual (response.Verb, NumericsReplies.RPL_GLOBALUSERS)
-        Assert.AreEqual (response.Content, testParams)
+        Assert.AreEqual (response.Content, testParams.[1])
 
     [<Test>]
     let ``RPL_MOTDSTART handler should respond with trailing params``() =
@@ -205,7 +205,7 @@ module ConnectionClientTests =
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
         Assert.AreEqual (response.Verb, NumericsReplies.RPL_MOTDSTART)
-        Assert.AreEqual (response.Content, testParams)
+        Assert.AreEqual (response.Content, testParams.[1])
 
     [<Test>]
     let ``RPL_MOTD handler should respond with trailing params``() =
@@ -218,7 +218,7 @@ module ConnectionClientTests =
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
         Assert.AreEqual (response.Verb, NumericsReplies.RPL_MOTD)
-        Assert.AreEqual (response.Content, testParams)
+        Assert.AreEqual (response.Content, testParams.[1])
 
     [<Test>]
     let ``RPL_ENDOFMOTD handler should respond with trailing params``() =
@@ -231,4 +231,4 @@ module ConnectionClientTests =
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
         Assert.AreEqual (response.Verb, NumericsReplies.RPL_ENDOFMOTD)
-        Assert.AreEqual (response.Content, testParams)
+        Assert.AreEqual (response.Content, testParams.[1])
