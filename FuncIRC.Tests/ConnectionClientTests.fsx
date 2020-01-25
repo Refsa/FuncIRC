@@ -114,7 +114,7 @@ module ConnectionClientTests =
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
         Assert.AreEqual (response.Verb, NumericsReplies.RPL_ISUPPORT)
-        Assert.AreEqual (response.Content, wantedParams)
+        Assert.AreEqual (response.Content, testParams)
 
     [<Test>]
     let ``RPL_LUSERCLIENT handler should respond with params``() =
@@ -127,7 +127,7 @@ module ConnectionClientTests =
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
         Assert.AreEqual (response.Verb, NumericsReplies.RPL_LUSERCLIENT)
-        Assert.AreEqual (response.Content, wantedParams)
+        Assert.AreEqual (response.Content, testParams)
 
     [<Test>]
     let ``RPL_LUSERUNKNOWN handler should respond with params``() =
@@ -140,7 +140,7 @@ module ConnectionClientTests =
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
         Assert.AreEqual (response.Verb, NumericsReplies.RPL_LUSERUNKNOWN)
-        Assert.AreEqual (response.Content, wantedParams)
+        Assert.AreEqual (response.Content, testParams)
 
     [<Test>]
     let ``RPL_LUSERCHANNELS handler should respond with params``() =
@@ -153,7 +153,7 @@ module ConnectionClientTests =
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
         Assert.AreEqual (response.Verb, NumericsReplies.RPL_LUSERCHANNELS)
-        Assert.AreEqual (response.Content, wantedParams)
+        Assert.AreEqual (response.Content, testParams)
 
     [<Test>]
     let ``RPL_LUSERME handler should respond with params``() =
@@ -166,4 +166,30 @@ module ConnectionClientTests =
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
         Assert.AreEqual (response.Verb, NumericsReplies.RPL_LUSERME)
-        Assert.AreEqual (response.Content, wantedParams)
+        Assert.AreEqual (response.Content, testParams)
+
+    [<Test>]
+    let ``RPL_LOCALUSERS handler should respond with params``() =
+        let testParams = [|"Nick"; "Current local users: 0  Max: 0"|]
+        let verb = Verb "265"
+        let response = 
+            handleVerb verb
+            |> fun handler -> 
+                handler <| Some (toParameters  testParams)
+
+        Assert.AreEqual (response.Type, VerbHandlerType.Callback)
+        Assert.AreEqual (response.Verb, NumericsReplies.RPL_LOCALUSERS)
+        Assert.AreEqual (response.Content, testParams)
+
+    [<Test>]
+    let ``RPL_GLOBALUSERS handler should respond with params``() =
+        let testParams = [|"Nick"; "Current global users: 0  Max: 0"|]
+        let verb = Verb "266"
+        let response = 
+            handleVerb verb
+            |> fun handler -> 
+                handler <| Some (toParameters  testParams)
+
+        Assert.AreEqual (response.Type, VerbHandlerType.Callback)
+        Assert.AreEqual (response.Verb, NumericsReplies.RPL_GLOBALUSERS)
+        Assert.AreEqual (response.Content, testParams)
