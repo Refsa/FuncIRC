@@ -20,6 +20,7 @@
 
     <Compile Include="ConnectionClient/ConnectionClient.fsx" />
     <Compile Include="ConnectionClient/IRCStreamReader.fsx" />
+    <Compile Include="ConnectionClient/IRCStreamWriter.fsx" />
     <Compile Include="ConnectionClient/IRCClient.fsx" />
 
     <None Include="FuncIRC.fsx" />

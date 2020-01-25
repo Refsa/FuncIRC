@@ -24,6 +24,7 @@ module CLI =
 
     open FuncIRC.ConnectionClient
     open FuncIRC.IRCStreamReader
+    open FuncIRC.IRCStreamWriter
     open FuncIRC.IRCClient
 
     open Application

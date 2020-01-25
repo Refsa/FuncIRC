@@ -13,6 +13,15 @@ module MessageParserTests =
     open FuncIRC.Validators
     open TestMessages
 
+    /// Expanded equality comparison between two Message Records
+    let messageEquals msg1 msg2 =
+        match (msg1, msg2) with
+        | _ when msg1.Tags   <> msg2.Tags   -> printfn "Tags not equal";   false
+        | _ when msg1.Source <> msg2.Source -> printfn "Source not equal"; false
+        | _ when msg1.Verb   <> msg2.Verb   -> printfn "Verb not equal";   false
+        | _ when msg1.Params <> msg2.Params -> printfn "Params not equal"; false
+        | _ -> true
+
     /// Prints contents of a Source type
     let printSource (source: Source) =
         printf "[ "
@@ -23,15 +32,6 @@ module MessageParserTests =
         if source.Host.IsSome then
             printf "Host = %s; " source.Host.Value
         printf " ]"
-
-    /// Expanded equality comparison between two Message Records
-    let messageEquals msg1 msg2 =
-        match (msg1, msg2) with
-        | _ when msg1.Tags   <> msg2.Tags   -> printfn "Tags not equal";   false
-        | _ when msg1.Source <> msg2.Source -> printfn "Source not equal"; false
-        | _ when msg1.Verb   <> msg2.Verb   -> printfn "Verb not equal";   false
-        | _ when msg1.Params <> msg2.Params -> printfn "Params not equal"; false
-        | _ -> true
 
     /// Function to print out content of a message to console
     let printMessage message =
