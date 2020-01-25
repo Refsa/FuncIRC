@@ -34,3 +34,27 @@ module ConnectionClientTests =
 
         Assert.AreEqual (response.Type, VerbHandlerType.Response)
         Assert.AreEqual (response.Content, "PONG")
+
+    [<Test>]
+    let ``PRIVMSG verb should respond with PRIVMSG and Callback type``() =
+        let privmsgVerb = Verb "PRIVMSG"
+        let response = handleVerb privmsgVerb
+
+        Assert.AreEqual (response.Type, VerbHandlerType.Callback)
+        Assert.AreEqual (response.Content, "PRIVMSG")
+
+    [<Test>]
+    let ``NOTICE verb should respond with NOTICE and Callback type``() =
+        let noticeVerb = Verb "NOTICE"
+        let response = handleVerb noticeVerb
+
+        Assert.AreEqual (response.Type, VerbHandlerType.Callback)
+        Assert.AreEqual (response.Content, "NOTICE")
+
+    [<Test>]
+    let ``RPL_WELCOME numeric should respond with RPL_WELCOME and Callback type``() =
+        let rplWelcomeVerb = Verb "001" // RPL_WELCOME Numeric
+        let response = handleVerb rplWelcomeVerb
+
+        Assert.AreEqual (response.Type, VerbHandlerType.Callback)
+        Assert.AreEqual (response.Content, "RPL_WELCOME")

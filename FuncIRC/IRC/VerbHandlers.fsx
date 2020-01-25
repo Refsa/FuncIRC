@@ -30,6 +30,9 @@ module VerbHandlers =
     let privMsgHandler(): VerbHandler =
         {Content = "PRIVMSG"; Type = VerbHandlerType.Callback}
 
+    let noticeHandler(): VerbHandler =
+        {Content = "NOTICE"; Type = VerbHandlerType.Callback}
+
     let rplWelcomeHandler(): VerbHandler =
         {Content = "RPL_WELCOME"; Type = VerbHandlerType.Callback}
 
@@ -103,6 +106,6 @@ module VerbHandlers =
     let (|IsPing|IsNotice|IsPrivMsg|UnknownVerbName|) (verb: string) =
         match verb with
         | "PING" -> IsPing verbHandlers.[NumericReplies.PING]
-        | "NOTICE" -> IsNotice noCallbackHandler
+        | "NOTICE" -> IsNotice noticeHandler
         | "PRIVMSG" -> IsPrivMsg privMsgHandler
         | _ -> UnknownVerbName noCallbackHandler
