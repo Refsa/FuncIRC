@@ -37,12 +37,13 @@ module ConnectionClientTests =
         Assert.AreEqual (response.Verb, NumericsReplies.MSG_PING)
 
     [<Test>]
-    let ``PRIVMSG verb handler should respond with PRIVMSG and Callback type``() =
+    let ``PRIVMSG verb handler should respond with last entry of parameters and Callback type``() =
         let privmsgVerb = Verb "PRIVMSG"
-        let response = handleVerb privmsgVerb |> fun handler -> handler <| None
+        let response = handleVerb privmsgVerb |> fun handler -> handler <| Some (toParameters [|"#chan"; "some message to channel"|])
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
         Assert.AreEqual (response.Verb, NumericsReplies.MSG_PRIVMSG)
+        Assert.AreEqual (response.Content, "some message to channel")
 
     [<Test>]
     let ``NOTICE verb handler should respond with NOTICE and Callback type``() =

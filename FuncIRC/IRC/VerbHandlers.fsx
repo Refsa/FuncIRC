@@ -41,6 +41,7 @@ module VerbHandlers =
             match parameters with
             | Some parameters -> parameters.Value.[0].Value
             | _ -> "NOTICE"
+
         {Content = content; Type = VerbHandlerType.Callback; Verb = NumericsReplies.MSG_NOTICE}
 
     let rplWelcomeHandler(parameters: Parameters option): VerbHandler =
@@ -48,6 +49,7 @@ module VerbHandlers =
             match parameters with
             | Some parameters -> parameters.Value.[0].Value
             | None -> "RPL_WELCOME"
+            
         {Content = content; Type = VerbHandlerType.Callback; Verb = NumericsReplies.RPL_WELCOME}
 
     let rplYourHostHandler(parameters: Parameters option): VerbHandler =
