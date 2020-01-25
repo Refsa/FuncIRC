@@ -117,7 +117,7 @@ module ConnectionClientTests =
         Assert.AreEqual (response.Content, testParams)
 
     [<Test>]
-    let ``RPL_LUSERCLIENT handler should respond with params``() =
+    let ``RPL_LUSERCLIENT handler should respond with trailing params``() =
         let testParams = "There are 0 users and 0 invisible on 1 servers"
         let verb = Verb "251"
         let response = 
@@ -130,7 +130,7 @@ module ConnectionClientTests =
         Assert.AreEqual (response.Content, testParams)
 
     [<Test>]
-    let ``RPL_LUSERUNKNOWN handler should respond with params``() =
+    let ``RPL_LUSERUNKNOWN handler should respond with trailing params``() =
         let testParams = [|"Nick"; "1"; "unknown connections"|]
         let verb = Verb "253"
         let response = 
@@ -143,7 +143,7 @@ module ConnectionClientTests =
         Assert.AreEqual (response.Content, testParams)
 
     [<Test>]
-    let ``RPL_LUSERCHANNELS handler should respond with params``() =
+    let ``RPL_LUSERCHANNELS handler should respond with trailing params``() =
         let testParams = [|"Nick"; "0"; "channels formed"|]
         let verb = Verb "254"
         let response = 
@@ -156,7 +156,7 @@ module ConnectionClientTests =
         Assert.AreEqual (response.Content, testParams)
 
     [<Test>]
-    let ``RPL_LUSERME handler should respond with params``() =
+    let ``RPL_LUSERME handler should respond with trailing params``() =
         let testParams = [|"Nick"; "I have 0 clients and 0 servers"|]
         let verb = Verb "255"
         let response = 
@@ -169,7 +169,7 @@ module ConnectionClientTests =
         Assert.AreEqual (response.Content, testParams)
 
     [<Test>]
-    let ``RPL_LOCALUSERS handler should respond with params``() =
+    let ``RPL_LOCALUSERS handler should respond with trailing params``() =
         let testParams = [|"Nick"; "Current local users: 0  Max: 0"|]
         let verb = Verb "265"
         let response = 
@@ -182,7 +182,7 @@ module ConnectionClientTests =
         Assert.AreEqual (response.Content, testParams)
 
     [<Test>]
-    let ``RPL_GLOBALUSERS handler should respond with params``() =
+    let ``RPL_GLOBALUSERS handler should respond with trailing params``() =
         let testParams = [|"Nick"; "Current global users: 0  Max: 0"|]
         let verb = Verb "266"
         let response = 
@@ -192,4 +192,43 @@ module ConnectionClientTests =
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
         Assert.AreEqual (response.Verb, NumericsReplies.RPL_GLOBALUSERS)
+        Assert.AreEqual (response.Content, testParams)
+
+    [<Test>]
+    let ``RPL_MOTDSTART handler should respond with trailing params``() =
+        let testParams = [|"Nick"; "127.0.0.1 message of the day"|]
+        let verb = Verb "375"
+        let response = 
+            handleVerb verb
+            |> fun handler -> 
+                handler <| Some (toParameters  testParams)
+
+        Assert.AreEqual (response.Type, VerbHandlerType.Callback)
+        Assert.AreEqual (response.Verb, NumericsReplies.RPL_MOTDSTART)
+        Assert.AreEqual (response.Content, testParams)
+
+    [<Test>]
+    let ``RPL_MOTD handler should respond with trailing params``() =
+        let testParams = [|"Nick"; " _____                        _____   _____    _____      _"|]
+        let verb = Verb "372"
+        let response = 
+            handleVerb verb
+            |> fun handler -> 
+                handler <| Some (toParameters  testParams)
+
+        Assert.AreEqual (response.Type, VerbHandlerType.Callback)
+        Assert.AreEqual (response.Verb, NumericsReplies.RPL_MOTD)
+        Assert.AreEqual (response.Content, testParams)
+
+    [<Test>]
+    let ``RPL_ENDOFMOTD handler should respond with trailing params``() =
+        let testParams = [|"Nick"; "End of message of the day."|]
+        let verb = Verb "376"
+        let response = 
+            handleVerb verb
+            |> fun handler -> 
+                handler <| Some (toParameters  testParams)
+
+        Assert.AreEqual (response.Type, VerbHandlerType.Callback)
+        Assert.AreEqual (response.Verb, NumericsReplies.RPL_ENDOFMOTD)
         Assert.AreEqual (response.Content, testParams)
