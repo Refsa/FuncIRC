@@ -59,8 +59,33 @@ module ConnectionClientTests =
         let response = 
             handleVerb rplWelcomeVerb 
             |> fun handler -> 
-                handler <| Some (toParameters [|"Welcome to the Refsa IRC Network testnick!testuser@127.0.0.1"|])
+                handler <| Some (toParameters [|"nick"; "Welcome to the Refsa IRC Network testnick!testuser@127.0.0.1"|])
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
         Assert.AreEqual (response.Verb, NumericsReplies.RPL_WELCOME)
         Assert.AreEqual (response.Content, "Welcome to the Refsa IRC Network testnick!testuser@127.0.0.1")
+
+    [<Test>]
+    let ``RPL_YOURHOST handler should respond with trailing params if there was any``() =
+        let rplYourHostVerb = Verb "002"
+        let response = 
+            handleVerb rplYourHostVerb
+            |> fun handler -> 
+                handler <| Some (toParameters [|"Nick"; "Your host is 127.0.0.1, running version InspIRCd-3"|])
+
+        Assert.AreEqual (response.Type, VerbHandlerType.Callback)
+        Assert.AreEqual (response.Verb, NumericsReplies.RPL_YOURHOST)
+        Assert.AreEqual (response.Content, "Your host is 127.0.0.1, running version InspIRCd-3")
+
+    [<Test>]
+    let ``RPL_CREATED handler should respond with trailing params if there was any``() =
+        let testTrailingParam = "This server was created 23:25:21 Jan 24 2020"
+        let verb = Verb "003"
+        let response = 
+            handleVerb verb
+            |> fun handler -> 
+                handler <| Some (toParameters [|"Nick"; testTrailingParam|])
+
+        Assert.AreEqual (response.Type, VerbHandlerType.Callback)
+        Assert.AreEqual (response.Verb, NumericsReplies.RPL_CREATED)
+        Assert.AreEqual (response.Content, testTrailingParam)
