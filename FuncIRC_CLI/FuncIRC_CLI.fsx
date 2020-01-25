@@ -92,6 +92,7 @@ module CLI =
         printfn "### CLI LOOP ###"
         while Console.ReadKey().Key <> ConsoleKey.Q do
             ()
+
         token
 
     [<EntryPoint>]
@@ -109,7 +110,7 @@ module CLI =
         //testAsyncTask()
         //(app.Run())
 
-        ircClient "127.0.0.1" 6667 
+        ircClient "127.0.0.1" 6697 
         |> ircClientHandler
         |> ircLoop
         |> closeIrcClient

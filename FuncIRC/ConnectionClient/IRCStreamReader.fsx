@@ -54,32 +54,33 @@ module IRCStreamReader =
             | IsVerbName command ->
                 match command with
                 | IsPing handler -> handler
-                | IsNotice handler -> handler
+                | IsNotice handler  -> handler
                 | IsPrivMsg handler -> handler
-                | UnknownVerbName handler -> printf "Handler for Verb [%s] does not exist" command; handler
+                | UnknownVerbName handler -> handler
             | IsNumeric numeric ->
                 let numericName = numericReplies.[numeric]
                 let handler = verbHandlers.TryFind numericName
                 match handler with
                 | Some handler -> handler
-                | None ->
-                    printf "Handler for Numeric(%d): %s does not exist\n" numeric (numericName.ToString())
-                    noCallback
+                | None         -> noCallbackHandler
         
         handler()
 
     let receivedDataHandler (data: string, client: Client) =
-        let data = data.Trim(' ').Replace("\r\n", "")
-        match data with
+        data.Trim(' ').Replace("\r\n", "")
+        |> function
         | "" -> ()
-        | _ ->
-            printfn "Message: %s" data 
+        | data ->
+            printfn "Message: %s" data
             let message = parseMessageString data
             
             if message.Verb.IsSome then
                 message.Verb.Value |> handleVerb
                 |> function
-                | "" -> ()
-                | response ->
-                    printf "Response: %s\n" response
-                    client |> sendIrcMessage <| response
+                | handler when handler.Type = VerbHandlerType.NotImplemented -> 
+                    printfn "WARNING: Verb Handler for %s is not implemented" handler.Content
+                | handler when handler.Type = VerbHandlerType.Callback -> ()
+                | handler when handler.Type = VerbHandlerType.Response ->
+                    printf "Response: %s\n" handler.Content
+                    client |> sendIrcMessage <| handler.Content
+                | handler -> printfn "ERROR: No registered fallback for VerbHandlerType: %s" (handler.Type.ToString())
