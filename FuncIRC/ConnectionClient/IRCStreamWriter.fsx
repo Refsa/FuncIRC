@@ -8,6 +8,8 @@ module IRCStreamWriter =
     open IRCClient
     open ConnectionClient
 
+    /// Verifies and sends the message string to the client stream
+    /// Preferred syntax for sending messages is client |> sendIrcMessage <| message
     let sendIrcMessage (client: Client) (message: string) =
         let messageData =
             match message with
@@ -16,6 +18,7 @@ module IRCStreamWriter =
 
         client.Stream.Write (messageData, 0, messageData.Length)
 
+    /// Creates a registration message and sends it to the client
     let sendRegistrationMessage (client: Client) (nick: string, user: string, realName: string, pass: string) =
         let message = 
             match () with
@@ -23,4 +26,4 @@ module IRCStreamWriter =
             | _ when nick <> "" && user <> "" -> "CAP LS 302\r\nNICK " + nick + "\r\nUSER " + user + " 0 * " + realName + "\r\n"
             | _ -> raise RegistrationContentException
 
-        sendIrcMessage client message
+        client |> sendIrcMessage <| message

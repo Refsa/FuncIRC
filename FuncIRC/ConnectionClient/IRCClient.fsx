@@ -9,6 +9,8 @@ module IRCClient =
 
     exception RegistrationContentException
 
+    /// Starts the IRC Client connection
+    /// Raises ClientConnectionException if the connection was unsuccessful
     let ircClient (server: string) (port: int) = 
         startClient server port 
         |> fun client ->
@@ -17,6 +19,7 @@ module IRCClient =
             else
                 raise ClientConnectionException
 
+    /// Handles the client connection and disposes it if it loses connection or the cancellation token is invoked
     let ircClientHandler (client: Client) =
         let cancellationTokenSource = new CancellationTokenSource()
         let rec keepAlive() =
@@ -31,6 +34,8 @@ module IRCClient =
         Async.StartAsTask (keepAlive(), TaskCreationOptions(), cancellationTokenSource.Token) |> ignore
         (client, cancellationTokenSource)
 
+    /// Cancels the Client connection token and waits for the token WaitHandle to close
+    /// Important to include in the client call chain in order to properly dispose of the TcpClient
     let closeIrcClient (token: CancellationTokenSource) =
         token.Cancel()
 

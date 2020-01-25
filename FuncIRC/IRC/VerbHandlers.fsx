@@ -103,9 +103,12 @@ module VerbHandlers =
         | Some numeric -> IsNumeric numeric
         | None -> IsVerbName verb.Value
 
-    let (|IsPing|IsNotice|IsPrivMsg|UnknownVerbName|) (verb: string) =
+    /// TODO: Refactor this as there is a limit to 7 patterns on Active Patterns
+    let (|IsPing|IsNotice|IsPrivMsg|IsError|IsJoin|UnknownVerbName|) (verb: string) =
         match verb with
-        | "PING" -> IsPing verbHandlers.[NumericReplies.PING]
-        | "NOTICE" -> IsNotice noticeHandler
+        | "PING"    -> IsPing verbHandlers.[NumericReplies.PING]
+        | "NOTICE"  -> IsNotice noticeHandler
         | "PRIVMSG" -> IsPrivMsg privMsgHandler
-        | _ -> UnknownVerbName noCallbackHandler
+        | "ERROR"   -> IsError noCallbackHandler
+        | "JOIN"    -> IsJoin noCallbackHandler
+        | _         -> UnknownVerbName noCallbackHandler

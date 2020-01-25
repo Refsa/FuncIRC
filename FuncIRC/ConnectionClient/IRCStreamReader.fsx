@@ -18,12 +18,16 @@ module IRCStreamReader =
     let latin1Encoding = Encoding.GetEncoding("ISO-8859-1") // Latin-1
     let utf8Encoding = Encoding.UTF8
 
+    /// Takes a byte array and first attemps to decode using UTF8, uses Latin-1 if that fails
     let parseByteString (data: byte array) =
         try
             utf8Encoding.GetString(data, 0, data.Length)
         with
             e -> latin1Encoding.GetString(data, 0, data.Length)
 
+    /// Responsible for reading the incoming byte stream
+    /// Reads on byte at a time, dispatches the callback delegate when \r\n EOM marker is found
+    /// TODO: Make it dependant on the CancellationToken of the client
     let readStream (client: Client) (callback: string * Client * (Client * Message -> unit) -> unit) (messageCallback: Client * Message -> unit) =
         let data = [| byte 0 |]
 
@@ -46,6 +50,8 @@ module IRCStreamReader =
 
         readLoop("")
 
+    /// Handles the Verb part of an incoming message and finds the correct handler function for it
+    /// Returns the VerbHandler record corresponding to the Verb
     let handleVerb (verb: Verb) =
         printf "\tVerb: %s - " (verb.Value)
 
@@ -56,6 +62,8 @@ module IRCStreamReader =
                 | IsPing handler          -> handler
                 | IsNotice handler        -> handler
                 | IsPrivMsg handler       -> handler
+                | IsError handler         -> handler
+                | IsJoin handler          -> handler
                 | UnknownVerbName handler -> handler
             | IsNumeric numeric ->
                 let numericName = numericReplies.[numeric]
@@ -66,6 +74,7 @@ module IRCStreamReader =
         
         handler()
 
+    /// Parses the whole message string from the server and runs the corresponding sub-handlers for tags, source, verb and params
     let receivedDataHandler (data: string, client: Client, messageCallback: Client * Message -> unit) =
         data.Trim(' ').Replace("\r\n", "")
         |> function
