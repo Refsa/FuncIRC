@@ -27,8 +27,11 @@ module VerbHandlers =
     let verbPingHandler(): VerbHandler =
         {Type = VerbHandlerType.Response; Content = "PONG"}
 
+    let privMsgHandler(): VerbHandler =
+        {Content = "PRIVMSG"; Type = VerbHandlerType.Callback}
+
     let rplWelcomeHandler(): VerbHandler =
-        {noCallback with Content = "RPL_WELCOME"}
+        {Content = "RPL_WELCOME"; Type = VerbHandlerType.Callback}
 
     let rplYourHostHandler(): VerbHandler =
         {noCallback with Content = "RPL_YOURHOST"}
@@ -101,5 +104,5 @@ module VerbHandlers =
         match verb with
         | "PING" -> IsPing verbHandlers.[NumericReplies.PING]
         | "NOTICE" -> IsNotice noCallbackHandler
-        | "PRIVMSG" -> IsPrivMsg noCallbackHandler
+        | "PRIVMSG" -> IsPrivMsg privMsgHandler
         | _ -> UnknownVerbName noCallbackHandler

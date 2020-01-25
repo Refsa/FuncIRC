@@ -13,26 +13,27 @@
 #load "View/StartupView.fsx"
 
 namespace FuncIRC_CLI
+open System
+open System.IO
+
+open System.Text
+open System.Threading
+open System.Threading.Tasks
+
+open FuncIRC.ConnectionClient
+open FuncIRC.IRCStreamReader
+open FuncIRC.IRCStreamWriter
+open FuncIRC.IRCClient
+open FuncIRC.MessageTypes
+
+open Application
+open ApplicationState
+open ConsoleHelpers
+open NavigationState
+open LoginView
+open StartupView
 
 module CLI =
-    open System
-    open System.IO
-
-    open System.Text
-    open System.Threading
-    open System.Threading.Tasks
-
-    open FuncIRC.ConnectionClient
-    open FuncIRC.IRCStreamReader
-    open FuncIRC.IRCStreamWriter
-    open FuncIRC.IRCClient
-
-    open Application
-    open ApplicationState
-    open ConsoleHelpers
-    open NavigationState
-    open LoginView
-    open StartupView
 
     let consoleSize = {Width = 128; Height = 32}
 
@@ -84,14 +85,23 @@ module CLI =
         with
             :? OperationCanceledException -> ()
 
+    let messageCallback (client: Client, message: Message) =
+        match message.Verb.Value.Value with
+        | "001" -> client |> sendIrcMessage <| "JOIN #testchannel"
+        | "PRIVMSG" -> printfn "CLI PRIVMSG Handler: %A" message.Params.Value
+        | _ -> ()
+
     let ircLoop (client: Client, token: CancellationTokenSource) =
-        Async.StartAsTask((readStream client receivedDataHandler), TaskCreationOptions(), token.Token) |> ignore
+        Async.StartAsTask((readStream client receivedDataHandler messageCallback), TaskCreationOptions(), token.Token) |> ignore
 
         client |> sendRegistrationMessage <| ("testnick", "testuser", "some name", "")
 
         printfn "### CLI LOOP ###"
         while Console.ReadKey().Key <> ConsoleKey.Q do
             ()
+
+        if client.Connected then
+            client |> sendIrcMessage <| "QUIT bye everyone"
 
         token
 

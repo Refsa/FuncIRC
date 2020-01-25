@@ -24,7 +24,7 @@ module IRCStreamReader =
         with
             e -> latin1Encoding.GetString(data, 0, data.Length)
 
-    let readStream (client: Client) (callback: string * Client -> unit) =
+    let readStream (client: Client) (callback: string * Client * (Client * Message -> unit) -> unit) (messageCallback: Client * Message -> unit) =
         let data = [| byte 0 |]
 
         let rec readLoop(received: string) =
@@ -36,7 +36,7 @@ module IRCStreamReader =
                     let receivedNext = received + receivedData
 
                     if receivedNext.EndsWith ("\r\n") then
-                        callback (received, client)
+                        callback (received, client, messageCallback)
                         return! readLoop("")
                     else
                         return! readLoop(receivedNext)
@@ -53,20 +53,20 @@ module IRCStreamReader =
             match verb with
             | IsVerbName command ->
                 match command with
-                | IsPing handler -> handler
-                | IsNotice handler  -> handler
-                | IsPrivMsg handler -> handler
+                | IsPing handler          -> handler
+                | IsNotice handler        -> handler
+                | IsPrivMsg handler       -> handler
                 | UnknownVerbName handler -> handler
             | IsNumeric numeric ->
                 let numericName = numericReplies.[numeric]
                 let handler = verbHandlers.TryFind numericName
                 match handler with
                 | Some handler -> handler
-                | None         -> noCallbackHandler
+                | None         -> (fun () -> {noCallback with Content = numericName.ToString()})
         
         handler()
 
-    let receivedDataHandler (data: string, client: Client) =
+    let receivedDataHandler (data: string, client: Client, messageCallback: Client * Message -> unit) =
         data.Trim(' ').Replace("\r\n", "")
         |> function
         | "" -> ()
@@ -77,9 +77,11 @@ module IRCStreamReader =
             if message.Verb.IsSome then
                 message.Verb.Value |> handleVerb
                 |> function
-                | handler when handler.Type = VerbHandlerType.NotImplemented -> 
-                    printfn "WARNING: Verb Handler for %s is not implemented" handler.Content
-                | handler when handler.Type = VerbHandlerType.Callback -> ()
+                | handler when handler.Type = VerbHandlerType.NotImplemented ->
+                    (if handler.Content <> "" then handler.Content else message.Verb.Value.Value)
+                    |> printfn "WARNING: Verb Handler for %s is not implemented"
+                | handler when handler.Type = VerbHandlerType.Callback ->
+                    messageCallback (client, message)
                 | handler when handler.Type = VerbHandlerType.Response ->
                     printf "Response: %s\n" handler.Content
                     client |> sendIrcMessage <| handler.Content
