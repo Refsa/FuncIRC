@@ -14,6 +14,7 @@ module VerbHandlers =
         | NotImplemented
         | Response
         | Callback
+        | Error
 
     type VerbHandler =
         {
@@ -47,25 +48,41 @@ module VerbHandlers =
     let rplWelcomeHandler(parameters: Parameters option): VerbHandler =
         let content = 
             match parameters with
-            | Some parameters -> parameters.Value.[0].Value
+            | Some parameters -> parameters.Value.[1].Value
             | None -> "RPL_WELCOME"
             
         {Content = content; Type = VerbHandlerType.Callback; Verb = NumericsReplies.RPL_WELCOME}
 
     let rplYourHostHandler(parameters: Parameters option): VerbHandler =
-        {noCallback with Content = "RPL_YOURHOST"}
+        let content = 
+            match parameters with
+            | Some parameters -> parameters.Value.[1].Value.Replace(", ", "\n")
+            | None -> "RPL_YOURHOST"
+        {Content = content; Type = VerbHandlerType.Callback; Verb = NumericsReplies.RPL_YOURHOST}
 
     let rplCreatedHandler(parameters: Parameters option): VerbHandler =
-        {noCallback with Content = "RPL_CREATED"}
+        let content = 
+            match parameters with
+            | Some parameters -> parameters.Value.[1].Value
+            | None -> "RPL_CREATED"
+        {Content = content; Type = VerbHandlerType.Callback; Verb = NumericsReplies.RPL_CREATED}
 
     let rplMyInfoHandler(parameters: Parameters option): VerbHandler =
-        {noCallback with Content = "RPL_MYINFO"}
+        let content = 
+            match parameters with
+            | Some parameters -> parameters.Value.[1].Value + "-" + parameters.Value.[2].Value
+            | None -> "RPL_MYINFO"
+        {Content = content; Type = VerbHandlerType.Callback; Verb = NumericsReplies.RPL_MYINFO}
 
     let rplIsupportHandler(parameters: Parameters option): VerbHandler =
-        {noCallback with Content = "RPL_ISUPPORT"}
+        {noCallback with Content = ""; Verb = NumericsReplies.RPL_ISUPPORT}
 
     let rpllUserClientHandler(parameters: Parameters option): VerbHandler =
-        {noCallback with Content = "RPL_LUSERCLIENT"}
+        let content = 
+            match parameters with
+            | Some parameters -> parameters.Value.[1].Value
+            | None -> "RPL_LUSERCLIENT"
+        {Content = content; Type = VerbHandlerType.Callback; Verb = NumericsReplies.RPL_LUSERCLIENT}
 
     let rplLUserUnknownHandler(parameters: Parameters option): VerbHandler =
         {noCallback with Content = "RPL_LUSERUNKNOWN"}

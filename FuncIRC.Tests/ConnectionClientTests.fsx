@@ -75,7 +75,7 @@ module ConnectionClientTests =
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
         Assert.AreEqual (response.Verb, NumericsReplies.RPL_YOURHOST)
-        Assert.AreEqual (response.Content, "Your host is 127.0.0.1, running version InspIRCd-3")
+        Assert.AreEqual (response.Content, "Your host is 127.0.0.1\nrunning version InspIRCd-3")
 
     [<Test>]
     let ``RPL_CREATED handler should respond with trailing params if there was any``() =
@@ -101,7 +101,7 @@ module ConnectionClientTests =
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
         Assert.AreEqual (response.Verb, NumericsReplies.RPL_MYINFO)
-        Assert.AreEqual (response.Content, testParams)
+        Assert.AreEqual (response.Content, (testParams.[1] + "-" + testParams.[2]))
 
     [<Test>]
     let ``RPL_ISUPPORT handler should respond with everything except trailing params``() =
