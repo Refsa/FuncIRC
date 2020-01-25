@@ -70,8 +70,8 @@ module Specs =
     (*
         Order of commands during registration:
             1. CAP LS 302
-            2. PASS
-            3. NICK and USER and maybe PASS
+            2. PASS maybe
+            3. NICK and USER
             4. Capability Negotiation
             5. SASL (if negotiated)
             6. CAP END
@@ -87,6 +87,63 @@ module Specs =
             4. At least one RPL_ISUPPORT (005)
             5. There may be other numerics sent here
             6. MOTD or ERR_NOMOTD
+
+        Example of registration response from InspIRCd
+        :127.0.0.1 001 testnick :Welcome to the Refsa IRC Network testnick!testuser@127.0.0.1
+        :127.0.0.1 002 testnick :Your host is 127.0.0.1, running version InspIRCd-3
+        :127.0.0.1 003 testnick :This server was created 23:25:21 Jan 24 2020
+        :127.0.0.1 004 testnick 127.0.0.1 InspIRCd-3 iosw biklmnopstv :bklov
+        :127.0.0.1 005 testnick AWAYLEN=200 CASEMAPPING=ascii CHANLIMIT=#:20 CHANMODES=b,k,l,imnpst CHANNELLEN=64 CHANTYPES=# ELIST=CMNTU HOSTLEN=64 KEYLEN=32 KICKLEN=255 LINELEN=512 MAXLIST=b:100 :are supported by this server
+        :127.0.0.1 005 testnick MAXTARGETS=20 MODES=20 NETWORK=Refsa NICKLEN=30 PREFIX=(ov)@+ SAFELIST STATUSMSG=@+ TOPICLEN=307 USERLEN=10 WHOX :are supported by this server
+        :127.0.0.1 251 testnick :There are 0 users and 0 invisible on 1 servers
+        :127.0.0.1 253 testnick 1 :unknown connections
+        :127.0.0.1 254 testnick 0 :channels formed
+        :127.0.0.1 255 testnick :I have 0 clients and 0 servers
+        :127.0.0.1 265 testnick :Current local users: 0  Max: 0
+        :127.0.0.1 266 testnick :Current global users: 0  Max: 0
+        :127.0.0.1 375 testnick :127.0.0.1 message of the day
+        :127.0.0.1 372 testnick :-
+        :127.0.0.1 372 testnick :-  _____                        _____   _____    _____      _
+        :127.0.0.1 372 testnick :- |_   _|                      |_   _| |  __ \  / ____|    | |
+        :127.0.0.1 372 testnick :-   | |    _ __    ___   _ __    | |   | |__) || |       __| |
+        :127.0.0.1 372 testnick :-   | |   | '_ \  / __| | '_ \   | |   |  _  / | |      / _` |
+        :127.0.0.1 372 testnick :-  _| |_  | | | | \__ \ | |_) | _| |_  | | \ \ | |____ | (_| |
+        :127.0.0.1 372 testnick :- |_____| |_| |_| |___/ | .__/ |_____| |_|  \_\ \_____| \__,_|
+        :127.0.0.1 372 testnick :-     __________________| |_______________________________
+        :127.0.0.1 372 testnick :-    |__________________|_|_______________________________|
+        :127.0.0.1 372 testnick :-
+        :127.0.0.1 372 testnick :-                         Putting the ricer in IRCer since 2007
+        :127.0.0.1 372 testnick :-
+        :127.0.0.1 372 testnick :-        //\
+        :127.0.0.1 372 testnick :-        V  \    WELCOME TO AN INSPIRCD NETWORK
+        :127.0.0.1 372 testnick :-         \  \_    If you see this, I am probably new.
+        :127.0.0.1 372 testnick :-          \,'.`-.   If I'm not new, my owner is lazy.
+        :127.0.0.1 372 testnick :-           |\ `. `.
+        :127.0.0.1 372 testnick :-           ( \  `. `-.                        _,.-:\
+        :127.0.0.1 372 testnick :-            \ \   `.  `-._             __..--' ,-';/
+        :127.0.0.1 372 testnick :-             \ `.   `-.   `-..___..---'   _.--' ,'/
+        :127.0.0.1 372 testnick :-              `. `.    `-._        __..--'    ,' /
+        :127.0.0.1 372 testnick :-                `. `-_     ``--..''       _.-' ,'
+        :127.0.0.1 372 testnick :-                  `-_ `-.___        __,--'   ,'
+        :127.0.0.1 372 testnick :-                     `-.__  `----"""    __.-'
+        :127.0.0.1 372 testnick :-                          `--..____..--'
+        :127.0.0.1 372 testnick :-
+        :127.0.0.1 372 testnick :-         ---- To change, see motd.txt.example -----
+        :127.0.0.1 372 testnick :-        /                                          \
+        :127.0.0.1 372 testnick :-       /   * Web: https://www.inspircd.org          \
+        :127.0.0.1 372 testnick :-       |   * IRC: irc.inspircd.org #inspircd        |
+        :127.0.0.1 372 testnick :-       |   * Docs: https://docs.inspircd.org        |
+        :127.0.0.1 372 testnick :-       |   * Bugs: https://inspircd.org/bugs        |
+        :127.0.0.1 372 testnick :-       |                                            |
+        :127.0.0.1 372 testnick :-       | We hope you like this software. Please do  |
+        :127.0.0.1 372 testnick :-       | make  sure  you  put  some  effort  into   |
+        :127.0.0.1 372 testnick :-       | your configuration, though, so you love it.|
+        :127.0.0.1 372 testnick :-       | Enjoy.                                     |
+        :127.0.0.1 372 testnick :-       |                                            |
+        :127.0.0.1 372 testnick :-       \                   -- The InspIRCd Team    /
+        :127.0.0.1 372 testnick :-        -------------------------------------------
+        :127.0.0.1 372 testnick :-
+        :127.0.0.1 376 testnick :End of message of the day.
     *)
 
     // Capability negotation:

@@ -5,7 +5,9 @@ module MessageTypes =
         { Key: string
           Value: string option }
 
-    type Verb = Verb of string
+    type Verb = 
+        | Verb of string
+        member x.Value = let (Verb verb) = x in verb
 
     type Parameter = Parameter of string
     type Parameters = Parameters of Parameter list
@@ -30,3 +32,9 @@ module MessageTypes =
     /// transforms a collection of strings into a Parameters type
     let toParameters input =
         Parameters [ for s in input -> Parameter s ]
+
+    let verbToInt (verb: Verb) = 
+        try
+            Some (int (verb.Value))
+        with
+        | _ -> None
