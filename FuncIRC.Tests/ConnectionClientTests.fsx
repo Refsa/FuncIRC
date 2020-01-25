@@ -92,12 +92,12 @@ module ConnectionClientTests =
 
     [<Test>]
     let ``RPL_MYINFO handler should respond with params if there was any``() =
-        let testParams = "127.0.0.1 InspIRCd-3 iosw biklmnopstv :bklov"
+        let testParams = [|"Nick"; "127.0.0.1 InspIRCd-3 iosw biklmnopstv"; "bklov"|]
         let verb = Verb "004"
         let response = 
             handleVerb verb
             |> fun handler -> 
-                handler <| Some (toParameters [|"Nick"; testParams|])
+                handler <| Some (toParameters testParams)
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
         Assert.AreEqual (response.Verb, NumericsReplies.RPL_MYINFO)
@@ -105,14 +105,65 @@ module ConnectionClientTests =
 
     [<Test>]
     let ``RPL_ISUPPORT handler should respond with everything except trailing params``() =
-        let wantedParams = "AWAYLEN=200 CASEMAPPING=ascii CHANLIMIT=#:20 CHANMODES=b,k,l,imnpst CHANNELLEN=64 CHANTYPES=# ELIST=CMNTU HOSTLEN=64 KEYLEN=32 KICKLEN=255 LINELEN=512 MAXLIST=b:100"
-        let testParams = wantedParams + " :are supported by this server"
+        let testParams = [|"Nick"; "AWAYLEN=200"; "CASEMAPPING=ascii"; "CHANLIMIT=#:20"; "CHANMODES=b,k,l,imnpst"; "CHANNELLEN=64"; "CHANTYPES=#"; "ELIST=CMNTU"; "HOSTLEN=64"; "KEYLEN=32"; "KICKLEN=255"; "LINELEN=512"; "MAXLIST=b:100"; "are supported by this server"|]
         let verb = Verb "005"
+        let response = 
+            handleVerb verb
+            |> fun handler -> 
+                handler <| Some (toParameters testParams)
+
+        Assert.AreEqual (response.Type, VerbHandlerType.Callback)
+        Assert.AreEqual (response.Verb, NumericsReplies.RPL_ISUPPORT)
+        Assert.AreEqual (response.Content, wantedParams)
+
+    [<Test>]
+    let ``RPL_LUSERCLIENT handler should respond with params``() =
+        let testParams = "There are 0 users and 0 invisible on 1 servers"
+        let verb = Verb "251"
         let response = 
             handleVerb verb
             |> fun handler -> 
                 handler <| Some (toParameters [|"Nick"; testParams|])
 
         Assert.AreEqual (response.Type, VerbHandlerType.Callback)
-        Assert.AreEqual (response.Verb, NumericsReplies.RPL_ISUPPORT)
+        Assert.AreEqual (response.Verb, NumericsReplies.RPL_LUSERCLIENT)
+        Assert.AreEqual (response.Content, wantedParams)
+
+    [<Test>]
+    let ``RPL_LUSERUNKNOWN handler should respond with params``() =
+        let testParams = [|"Nick"; "1"; "unknown connections"|]
+        let verb = Verb "253"
+        let response = 
+            handleVerb verb
+            |> fun handler -> 
+                handler <| Some (toParameters testParams)
+
+        Assert.AreEqual (response.Type, VerbHandlerType.Callback)
+        Assert.AreEqual (response.Verb, NumericsReplies.RPL_LUSERUNKNOWN)
+        Assert.AreEqual (response.Content, wantedParams)
+
+    [<Test>]
+    let ``RPL_LUSERCHANNELS handler should respond with params``() =
+        let testParams = [|"Nick"; "0"; "channels formed"|]
+        let verb = Verb "254"
+        let response = 
+            handleVerb verb
+            |> fun handler -> 
+                handler <| Some (toParameters testParams)
+
+        Assert.AreEqual (response.Type, VerbHandlerType.Callback)
+        Assert.AreEqual (response.Verb, NumericsReplies.RPL_LUSERCHANNELS)
+        Assert.AreEqual (response.Content, wantedParams)
+
+    [<Test>]
+    let ``RPL_LUSERME handler should respond with params``() =
+        let testParams = [|"Nick"; "I have 0 clients and 0 servers"|]
+        let verb = Verb "255"
+        let response = 
+            handleVerb verb
+            |> fun handler -> 
+                handler <| Some (toParameters  testParams)
+
+        Assert.AreEqual (response.Type, VerbHandlerType.Callback)
+        Assert.AreEqual (response.Verb, NumericsReplies.RPL_LUSERME)
         Assert.AreEqual (response.Content, wantedParams)
