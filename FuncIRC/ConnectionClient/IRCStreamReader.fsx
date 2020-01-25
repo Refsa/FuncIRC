@@ -15,30 +15,37 @@ open NumericReplies
 open VerbHandlers
 
 module IRCStreamReader =
+    let latin1Encoding = Encoding.GetEncoding("ISO-8859-1") // Latin-1
+    let utf8Encoding = Encoding.UTF8
+
+    let parseByteString (data: byte array) =
+        try
+            utf8Encoding.GetString(data, 0, data.Length)
+        with
+            e -> latin1Encoding.GetString(data, 0, data.Length)
 
     let readStream (client: Client) (callback: string * Client -> unit) =
-        let mutable received = ""
+        let data = [| byte 0 |]
 
-        let rec readLoop() =
+        let rec readLoop(received: string) =
             async {
                 try
-                    let data =
-                        [| byte 0 |]
-
                     let bytes = client.Stream.Read(data, 0, data.Length)
 
-                    let receivedData = Encoding.UTF8.GetString(data, 0, bytes)
-                    received <- received + receivedData
+                    let receivedData = parseByteString data
 
-                    if received.EndsWith ("\r\n") then
+                    let receivedNext = received + receivedData
+
+                    if receivedNext.EndsWith ("\r\n") then
                         callback (received, client)
-                        received <- ""
+                        return! readLoop("")
+                    else
+                        return! readLoop(receivedNext)
 
-                    return! readLoop()
                 with e -> printfn "Exception: %s" e.Message
             }
 
-        readLoop()
+        readLoop("")
 
     let receivedDataHandler (data: string, client: Client) =
         let data = data.Trim(' ').Replace("\r\n", "")
@@ -47,6 +54,7 @@ module IRCStreamReader =
         | _ ->
             printfn "Message: %s" data 
             let message = parseMessageString data
+            
             if message.Verb.IsSome then
                 let verb = message.Verb.Value.Value
                 printf "\tVerb: %s - " (verb)
@@ -59,6 +67,8 @@ module IRCStreamReader =
                         let response = verbHandlers.[NumericsReplies.PING]()
                         printf "Response: %s\n" response
                         client |> sendIrcMessage <| response
+                    | "NOTICE" -> ()
+                    | "PRIVMSG" -> ()
                     | _ -> printf "Handler for Verb [%s] does not exist" verb
                 | Some numeric ->
                     let numericName = numericReplies.[numeric]
