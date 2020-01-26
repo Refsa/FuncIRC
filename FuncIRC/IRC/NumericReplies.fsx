@@ -111,7 +111,8 @@ module NumericReplies =
         | MSG_NOTICE
         | MSG_ERROR
         | MSG_JOIN
-
+        with
+        member x.Value = x.ToString()
 
     let numericReplies =
         [ 001, NumericsReplies.RPL_WELCOME

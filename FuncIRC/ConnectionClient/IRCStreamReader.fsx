@@ -19,6 +19,8 @@ open MessageSubscription
 open System.Threading
 
 module IRCStreamReader =
+    exception IncomingByteMessageParsingException
+
     let latin1Encoding = Encoding.GetEncoding("ISO-8859-1") // Latin-1
     let utf8Encoding = Encoding.UTF8
 
@@ -27,7 +29,11 @@ module IRCStreamReader =
         try
             utf8Encoding.GetString(data, 0, data.Length)
         with
-            e -> latin1Encoding.GetString(data, 0, data.Length)
+            e ->
+                try 
+                    latin1Encoding.GetString(data, 0, data.Length)
+                with
+                | e -> raise IncomingByteMessageParsingException
 
     /// Responsible for reading the incoming byte stream
     /// Reads on byte at a time, dispatches the callback delegate when \r\n EOM marker is found
@@ -54,43 +60,14 @@ module IRCStreamReader =
 
         readLoop("")
 
-    /// Handles the Verb part of an incoming message and finds the correct handler function for it
-    /// Returns the VerbHandler record corresponding to the Verb
-    let handleVerb (verb: Verb) =
-        printf "\tVerb: %s - " (verb.Value)
-
-        let handler =
-            match verb with
-            | IsVerbName command ->
-                match command with
-                | IsPing handler          -> handler
-                | IsNotice handler        -> handler
-                | IsPrivMsg handler       -> handler
-                | IsError handler         -> handler
-                | IsJoin handler          -> handler
-                | UnknownVerbName handler -> handler
-            | IsNumeric numeric ->
-                let numericName = numericReplies.[numeric]
-                let handler = verbHandlers.TryFind numericName
-                match handler with
-                | Some handler -> handler
-                | None         -> (fun (parameters: Parameters option) -> {noCallback with Content = numericName.ToString()})
-        
-        handler
-
     let runMessageSubscriptionCallbacks (messageSubQueue: MessageSubscriptionQueue) (verb: Verb) (callbackParams: TCPClient * Message) =
-        let fi, ei = messageSubQueue.GetSubscriptions verb
-        let rec loopSubs i =
-            messageSubQueue.RunSubscription i callbackParams
-            let next = i + 1
-            match next with
-            | _ when next = ei -> ()
-            | _ -> loopSubs (i + 1)
-
-        if fi <> -1 && ei <> -1 then
-            match (fi = ei) with
-            | true -> messageSubQueue.RunSubscription fi callbackParams
-            | false -> loopSubs fi
+        messageSubQueue.GetSubscriptions verb
+        |> Array.iter 
+            (fun x -> 
+                x.Callback callbackParams
+                if not x.Continuous then
+                    messageSubQueue.RemoveSubscription x
+            )
 
     /// Parses the whole message string from the server and runs the corresponding sub-handlers for tags, source, verb and params
     let receivedDataHandler (data: string, client: TCPClient, messageSubQueue: MessageSubscriptionQueue) =

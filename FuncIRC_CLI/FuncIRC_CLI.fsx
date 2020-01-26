@@ -111,6 +111,7 @@ module CLI =
 
         let serverAddress = ("127.0.0.1", 6697)
         let client, clientTokenSource, messageSubQueue = ircClient serverAddress
+        messageSubQueue.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_WELCOME.Value)) (fun (c, m) -> printfn "RPL_WELCOME"))
 
         client |> sendRegistrationMessage <| ("testnick", "testuser", "some name", "")
         

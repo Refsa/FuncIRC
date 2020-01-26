@@ -32,24 +32,15 @@ module MessageSubscription =
     type MessageSubscriptionQueue() =
         let mutable subscriptions: MessageSubscription array = Array.empty
 
+        member this.Count 
+            with get() = subscriptions.Length
+
         member this.AddSubscription (messageSubscription: MessageSubscription) =
             subscriptions <- (Array.append subscriptions [| messageSubscription |])
             Array.sortInPlaceBy (fun x -> x.Verb.Value) subscriptions
 
-        member this.GetSubscriptions (verb: Verb) =
-            try
-                let firstIndex = Array.findIndex (fun x -> x.Verb = verb) subscriptions
-                let lastIndex = Array.findIndexBack (fun x -> x.Verb = verb) subscriptions
-                (firstIndex, lastIndex)
-            with
-            | e -> (-1, -1)
-
-        member this.GetSubscription (index: int) = subscriptions.[index]
-
-        member this.RunSubscription index callbackParams =
-            subscriptions.[index].Callback callbackParams
-            if not subscriptions.[index].Continuous then
-                this.RemoveSubscription subscriptions.[index]
+        member this.GetSubscriptions (verb: Verb): MessageSubscription array =
+            Array.FindAll (subscriptions, (fun ms -> ms.Verb = verb))
 
         member this.RemoveSubscription (messageSubscription: MessageSubscription) =
             //subscriptions <- subscriptions.[0..index - 1] |> Array.append <| subscriptions.[index + 1..subscriptions.Length - 1]
@@ -57,5 +48,5 @@ module MessageSubscription =
 
     let setupRequiredIrcMessageSubscriptions (messageSubQueue: MessageSubscriptionQueue) =
         messageSubQueue.AddSubscription (MessageSubscription.NewRepeat (Verb ("PING")) pongMessageHandler)
-        
-        messageSubQueue.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_WELCOME.ToString())) rplWelcomeHandler)
+
+        messageSubQueue.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_WELCOME.Value)) rplWelcomeHandler)
