@@ -104,18 +104,18 @@ module ConnectionClientTests =
         Assert.AreEqual (response.Verb, NumericsReplies.RPL_MYINFO)
         Assert.AreEqual (response.Content, (testParams.[1] + "-" + testParams.[2]))
 
-    [<Test>]
-    let ``RPL_ISUPPORT handler should respond with everything except trailing params``() =
-        let testParams = [|"Nick"; "AWAYLEN=200"; "CASEMAPPING=ascii"; "CHANLIMIT=#:20"; "CHANMODES=b,k,l,imnpst"; "CHANNELLEN=64"; "CHANTYPES=#"; "ELIST=CMNTU"; "HOSTLEN=64"; "KEYLEN=32"; "KICKLEN=255"; "LINELEN=512"; "MAXLIST=b:100"; "are supported by this server"|]
-        let verb = Verb "005"
-        let response = 
-            handleVerb verb
-            |> fun handler -> 
-                handler <| Some (toParameters testParams)
-
-        Assert.AreEqual (response.Type, VerbHandlerType.Callback)
-        Assert.AreEqual (response.Verb, NumericsReplies.RPL_ISUPPORT)
-        Assert.AreEqual (response.Content, testParams)
+    //[<Test>]
+    //let ``RPL_ISUPPORT handler should respond with everything except trailing params``() =
+    //    let testParams = [|"Nick"; "AWAYLEN=200"; "CASEMAPPING=ascii"; "CHANLIMIT=#:20"; "CHANMODES=b,k,l,imnpst"; "CHANNELLEN=64"; "CHANTYPES=#"; "ELIST=CMNTU"; "HOSTLEN=64"; "KEYLEN=32"; "KICKLEN=255"; "LINELEN=512"; "MAXLIST=b:100"; "are supported by this server"|]
+    //    let verb = Verb "005"
+    //    let response = 
+    //        handleVerb verb
+    //        |> fun handler -> 
+    //            handler <| Some (toParameters testParams)
+//
+    //    Assert.AreEqual (response.Type, VerbHandlerType.Callback)
+    //    Assert.AreEqual (response.Verb, NumericsReplies.RPL_ISUPPORT)
+    //    Assert.AreEqual (response.Content, testParams)
 
     [<Test>]
     let ``RPL_LUSERCLIENT handler should respond with trailing params``() =

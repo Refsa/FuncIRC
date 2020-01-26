@@ -3,12 +3,15 @@
 #load "IRCTestInfo.fsx"
 #load "Utils/ConsoleHelpers.fsx"
 #load "Utils/GeneralHelpers.fsx"
-#load "View/CLIView.fsx"
-#load "Update/Application.fsx"
+
 #load "Model/ApplicationState.fsx"
 #load "Model/NavigationState.fsx"
+
+#load "Update/Application.fsx"
 #load "Update/Navigation.fsx"
 #load "Update/ButtonFunctions.fsx"
+
+#load "View/CLIView.fsx"
 #load "View/LoginView.fsx"
 #load "View/StartupView.fsx"
 
@@ -25,6 +28,8 @@ open FuncIRC.IRCStreamReader
 open FuncIRC.IRCStreamWriter
 open FuncIRC.IRCClient
 open FuncIRC.MessageTypes
+open FuncIRC.MessageSubscription
+open FuncIRC.NumericReplies
 
 open Application
 open ApplicationState
@@ -85,25 +90,11 @@ module CLI =
         with
             :? OperationCanceledException -> ()
 
-    let messageCallback (client: Client, message: Message) =
+    let messageCallback (client: TCPClient, message: Message) =
         match message.Verb.Value.Value with
         | "001" -> client |> sendIrcMessage <| "JOIN #testchannel"
         | "PRIVMSG" -> printfn "CLI PRIVMSG Handler: %A" message.Params.Value
         | _ -> ()
-
-    let ircLoop (client: Client, token: CancellationTokenSource) =
-        Async.StartAsTask((readStream client receivedDataHandler messageCallback), TaskCreationOptions(), token.Token) |> ignore
-
-        client |> sendRegistrationMessage <| ("testnick", "testuser", "some name", "")
-
-        printfn "### CLI LOOP ###"
-        while Console.ReadKey().Key <> ConsoleKey.Q do
-            ()
-
-        if client.Connected then
-            client |> sendIrcMessage <| "QUIT bye everyone"
-
-        token
 
     [<EntryPoint>]
     let main argv =
@@ -113,16 +104,21 @@ module CLI =
         //|> fun cs ->
         //    Console.SetWindowSize (cs.Width, cs.Height)
         //    Console.SetBufferSize (cs.Width, cs.Height)
-
         //Console.Clear()
         //Console.SetCursorPosition (0, 0)
-
         //testAsyncTask()
         //(app.Run())
 
-        ircClient "127.0.0.1" 6697 
-        |> ircClientHandler
-        |> ircLoop
-        |> closeIrcClient
+        let serverAddress = ("127.0.0.1", 6697)
+        let client, clientTokenSource, messageSubQueue = ircClient serverAddress
+
+        client |> sendRegistrationMessage <| ("testnick", "testuser", "some name", "")
+        
+        printfn "### CLI LOOP ###"
+        while Console.ReadKey().Key <> ConsoleKey.Q do
+            ()
+
+        client |> sendQuitMessage <| "Bye everyone!"
+        closeIrcClient clientTokenSource
 
         0 // return an integer exit code

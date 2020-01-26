@@ -11,7 +11,7 @@ module ConnectionClient =
     exception ClientConnectionException
 
     /// Wrapper for TcpClient
-    type Client(server: string, port: int) =
+    type TCPClient(server: string, port: int) =
         let client: TcpClient = new TcpClient(server, port)
         let stream: NetworkStream = client.GetStream()
 
@@ -32,7 +32,7 @@ module ConnectionClient =
     /// Attempts to connect with the given server on the given port through TCP
     let startClient (server: string) (port: int) = 
         try
-            let client = new Client(server, port)
+            let client = new TCPClient(server, port)
             Some client
         with
         | :? ArgumentNullException as ane -> printfn "ArgumentNullException %s" ane.Message; None

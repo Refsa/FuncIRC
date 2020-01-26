@@ -1,11 +1,13 @@
 #load "ConnectionClient.fsx"
 #load "IRCStreamWriter.fsx"
+#load "MessageSubscription.fsx"
 #load "../IRC/MessageParser.fsx"
 #load "../IRC/MessageTypes.fsx"
 #load "../IRC/NumericReplies.fsx"
 #load "../IRC/VerbHandlers.fsx"
 
 namespace FuncIRC
+
 open System.Text
 open ConnectionClient
 open IRCStreamWriter
@@ -13,6 +15,8 @@ open MessageParser
 open MessageTypes
 open NumericReplies
 open VerbHandlers
+open MessageSubscription
+open System.Threading
 
 module IRCStreamReader =
     let latin1Encoding = Encoding.GetEncoding("ISO-8859-1") // Latin-1
@@ -28,7 +32,7 @@ module IRCStreamReader =
     /// Responsible for reading the incoming byte stream
     /// Reads on byte at a time, dispatches the callback delegate when \r\n EOM marker is found
     /// TODO: Make it dependant on the CancellationToken of the client
-    let readStream (client: Client) (callback: string * Client * (Client * Message -> unit) -> unit) (messageCallback: Client * Message -> unit) =
+    let readStream (client: TCPClient) (callback: string * TCPClient * MessageSubscriptionQueue -> unit) (messageSubQueue: MessageSubscriptionQueue) =
         let data = [| byte 0 |]
 
         let rec readLoop(received: string) =
@@ -40,7 +44,7 @@ module IRCStreamReader =
                     let receivedNext = received + receivedData
 
                     if receivedNext.EndsWith ("\r\n") then
-                        callback (received, client, messageCallback)
+                        callback (received, client, messageSubQueue)
                         return! readLoop("")
                     else
                         return! readLoop(receivedNext)
@@ -74,25 +78,34 @@ module IRCStreamReader =
         
         handler
 
+    let runMessageSubscriptionCallbacks (messageSubQueue: MessageSubscriptionQueue) (verb: Verb) (callbackParams: TCPClient * Message) =
+        let fi, ei = messageSubQueue.GetSubscriptions verb
+        let rec loopSubs i =
+            messageSubQueue.RunSubscription i callbackParams
+            let next = i + 1
+            match next with
+            | _ when next = ei -> ()
+            | _ -> loopSubs (i + 1)
+
+        if fi <> -1 && ei <> -1 then
+            match (fi = ei) with
+            | true -> messageSubQueue.RunSubscription fi callbackParams
+            | false -> loopSubs fi
+
     /// Parses the whole message string from the server and runs the corresponding sub-handlers for tags, source, verb and params
-    let receivedDataHandler (data: string, client: Client, messageCallback: Client * Message -> unit) =
+    let receivedDataHandler (data: string, client: TCPClient, messageSubQueue: MessageSubscriptionQueue) =
         data.Trim(' ').Replace("\r\n", "")
         |> function
         | "" -> ()
         | data ->
-            printfn "Message: %s" data
+            //printfn "Message: %s" data
             let message = parseMessageString data
             
-            if message.Verb.IsSome then
-                message.Verb.Value |> handleVerb
-                |> fun handler -> handler <| message.Params
-                |> function
-                | handler when handler.Type = VerbHandlerType.NotImplemented ->
-                    (if handler.Content <> "" then handler.Content else message.Verb.Value.Value)
-                    |> printfn "WARNING: Verb Handler for %s is not implemented"
-                | handler when handler.Type = VerbHandlerType.Callback ->
-                    messageCallback (client, message)
-                | handler when handler.Type = VerbHandlerType.Response ->
-                    printf "Response: %s\n" handler.Content
-                    client |> sendIrcMessage <| handler.Content
-                | handler -> printfn "ERROR: No registered fallback for VerbHandlerType: %s" (handler.Type.ToString())
+            match message.Verb with
+            | Some verb ->
+                let verbName = 
+                    match verb with
+                    | IsVerbName command -> Verb command
+                    | IsNumeric numeric -> Verb (numericReplies.[numeric].ToString())
+                runMessageSubscriptionCallbacks messageSubQueue verbName (client, message)
+            | None -> ()
