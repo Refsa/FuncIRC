@@ -14,11 +14,12 @@ open MessageTypes
 open MessageQueue
 open System.Text
 open System.Threading
+open System.Net.Sockets
 
-module IRCStreamWriter =
+module internal IRCStreamWriter =
     /// Verifies and sends the message string to the client stream
     /// Preferred syntax for sending messages is client |> sendIrcMessage <| message
-    let sendIrcMessage (clientData: IRCClientData) (message: string) =
+    let sendIrcMessage (stream: NetworkStream) (message: string) =
         let messageData =
             match message with
             | message when message.EndsWith("\r\n") -> Encoding.UTF8.GetBytes (message)
@@ -26,7 +27,7 @@ module IRCStreamWriter =
 
         try
             printfn "Sending Message: %s" message
-            clientData.Client.Stream.Write (messageData, 0, messageData.Length) 
+            stream.Write (messageData, 0, messageData.Length) 
         with
             | e -> printfn "Exception when writing message(s) to stream: %s" e.Message
 
@@ -53,7 +54,7 @@ module IRCStreamWriter =
     /// Contains an internal async loop that looks at clientData.OutQueue and sends the messages
     /// Has a 10ms sleep duration between each message sent 
     /// will send multiple messages at the same time
-    let writeStream (clientData: IRCClientData) =
+    let writeStream (clientData: IRCClientData) (stream: NetworkStream) =
         let rec writeLoop() =
             async {
                 let outboundMessage = 
@@ -63,7 +64,7 @@ module IRCStreamWriter =
                     | _ -> messagesToString clientData.OutQueue.PopMessages
 
                 if outboundMessage <> "" then
-                    sendIrcMessage clientData outboundMessage
+                    sendIrcMessage stream outboundMessage
 
                 Thread.Sleep (10)
                 return! writeLoop()

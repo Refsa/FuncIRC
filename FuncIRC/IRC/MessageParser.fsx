@@ -5,7 +5,7 @@ namespace FuncIRC
 #load "../Utils/StringHelpers.fsx"
 #load "../Utils/GeneralHelpers.fsx"
 
-module MessageParser =
+module internal MessageParser =
     open GeneralHelpers
     open IrcUtils
     open MessageTypes

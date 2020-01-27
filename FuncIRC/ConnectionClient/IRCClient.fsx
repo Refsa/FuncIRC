@@ -3,6 +3,8 @@
 #load "../IRC/MessageTypes.fsx"
 #load "IRCClientData.fsx"
 #load "MessageQueue.fsx"
+#load "IRCStreamReader.fsx"
+#load "IRCStreamWriter.fsx"
 
 namespace FuncIRC
 open System.Text
@@ -12,8 +14,10 @@ open ConnectionClient
 open IRCClientData
 open MessageSubscription
 open MessageQueue
+open IRCStreamReader
+open IRCStreamWriter
 
-module IRCClient =
+module internal IRCClient =
     /// Handles the client connection and disposes it if it loses connection or the cancellation token is invoked
     let ircClientHandler (client: TCPClient) =
         let cancellationTokenSource = new CancellationTokenSource()
@@ -52,11 +56,26 @@ module IRCClient =
             match client with
             | Some client -> 
                 let clientTokenSource = ircClientHandler client
-                {
-                    Client = client
-                    TokenSource = clientTokenSource
-                    SubscriptionQueue = MessageSubscriptionQueue()
-                    OutQueue = MessageQueue()
-                    InQueue = MessageQueue()
-                }
+
+                let clientData =
+                    {   
+                        TokenSource = clientTokenSource
+                        SubscriptionQueue = MessageSubscriptionQueue()
+                        OutQueue = MessageQueue()
+                        InQueue = MessageQueue()
+                    }
+
+                // Read Stream
+                Async.StartAsTask
+                    (
+                        (readStream clientData client.Stream), TaskCreationOptions(), clientData.TokenSource.Token
+                    ) |> ignore
+
+                // Write Stream
+                Async.StartAsTask
+                    (
+                        (writeStream clientData client.Stream), TaskCreationOptions(), clientData.TokenSource.Token
+                    ) |> ignore
+
+                clientData
             | None -> raise ClientConnectionException

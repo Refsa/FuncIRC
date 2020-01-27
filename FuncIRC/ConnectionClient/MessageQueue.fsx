@@ -5,6 +5,8 @@ namespace FuncIRC
 open MessageTypes
 
 module MessageQueue =
+
+    [<Sealed>]
     type MessageQueue() =
         let mutable messages: Message list = []
 

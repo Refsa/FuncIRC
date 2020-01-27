@@ -1,16 +1,13 @@
 namespace FuncIRC
 
-module ConnectionClient =
-    open System
-    open System.IO
-    open System.Text
-    open System.Threading
-    open System.Net
-    open System.Net.Sockets
+open System
+open System.Net.Sockets
 
+module internal ConnectionClient =
     exception ClientConnectionException
 
     /// Wrapper for TcpClient
+    [<Sealed>]
     type TCPClient(server: string, port: int) =
         let client: TcpClient = new TcpClient(server, port)
         let stream: NetworkStream = client.GetStream()

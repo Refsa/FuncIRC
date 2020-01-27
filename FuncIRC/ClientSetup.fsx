@@ -23,18 +23,6 @@ module ClientSetup =
 
         clientData.SubscriptionQueue.AddSubscription (MessageSubscription.NewRepeat (Verb ("PING")) (fun (m) -> clientData.OutQueue.AddMessage { Tags = None; Source = None; Verb = Some (Verb "PONG"); Params = None }; None))
 
-        // Read Stream
-        Async.StartAsTask
-            (
-                (readStream clientData), TaskCreationOptions(), clientData.TokenSource.Token
-            ) |> ignore
-
-        // Write Stream
-        Async.StartAsTask
-            (
-                (writeStream clientData), TaskCreationOptions(), clientData.TokenSource.Token
-            ) |> ignore
-
         clientData
 
     /// Stops the TcpClient and internal stream readers/writers

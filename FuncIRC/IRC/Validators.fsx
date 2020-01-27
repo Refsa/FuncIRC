@@ -2,7 +2,7 @@
 
 namespace FuncIRC
 
-module Validators =
+module internal Validators =
     open System
     open RegexHelpers
 

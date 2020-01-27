@@ -1,5 +1,5 @@
 #load "ConnectionClient.fsx"
-#load "IRCClient.fsx"
+#load "IRCClientData.fsx"
 #load "MessageSubscription.fsx"
 #load "../IRC/MessageParser.fsx"
 #load "../IRC/MessageTypes.fsx"
@@ -15,8 +15,9 @@ open NumericReplies
 open VerbHandlers
 open MessageSubscription
 open IRCClientData
+open System.Net.Sockets
 
-module IRCStreamReader =
+module internal IRCStreamReader =
     /// Raised when the incoming byte array/stream couldn't be parsed with either UTF-8 or Latin-1
     exception IncomingByteMessageParsingException
 
@@ -74,13 +75,13 @@ module IRCStreamReader =
     /// Responsible for reading the incoming byte stream
     /// Reads on byte at a time, dispatches the callback delegate when \r\n EOM marker is found
     /// TODO: Make it dependant on the CancellationToken of the client
-    let readStream (clientData: IRCClientData) =
+    let readStream (clientData: IRCClientData) (stream: NetworkStream) =
         let data = [| byte 0 |]
 
         let rec readLoop(received: string) =
             async {
                 try 
-                    clientData.Client.Stream.Read(data, 0, data.Length) |> ignore
+                    stream.Read(data, 0, data.Length) |> ignore
 
                     let receivedData = parseByteString data
                     let receivedNext = received + receivedData

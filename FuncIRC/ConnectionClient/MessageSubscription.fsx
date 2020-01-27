@@ -43,6 +43,7 @@ module MessageSubscription =
         static member Equal x y = 
             x.Timestamp = y.Timestamp && x.Verb = y.Verb && x.Continuous = y.Continuous
 
+    [<Sealed>]
     type MessageSubscriptionQueue() =
         let mutable subscriptions: MessageSubscription array = Array.empty
 

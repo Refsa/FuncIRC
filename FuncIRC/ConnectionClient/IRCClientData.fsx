@@ -12,7 +12,6 @@ open MessageQueue
 module IRCClientData =
     type IRCClientData = 
         {
-            Client: TCPClient
             TokenSource: CancellationTokenSource
             SubscriptionQueue: MessageSubscriptionQueue
             OutQueue: MessageQueue

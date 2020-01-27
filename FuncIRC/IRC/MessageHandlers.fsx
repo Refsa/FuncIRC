@@ -6,7 +6,7 @@ namespace FuncIRC
 open MessageTypes
 open MessageSubscription
 
-module MessageHandlers =
+module internal MessageHandlers =
     let pongMessageHandler (message: Message) =
         Some (MessageResponse.NewMessage "PONG")
 
