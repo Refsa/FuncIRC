@@ -2,4 +2,10 @@
 cls
 
 dotnet build FuncIRC/
-dotnet test FuncIRC.Tests/
+
+cd FuncIRC.Tests/
+
+dotnet test
+dotnet nbench --fx-version 2.1.13
+
+cd ..

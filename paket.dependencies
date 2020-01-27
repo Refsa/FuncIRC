@@ -8,6 +8,7 @@ framework: auto-detect
 nuget FSharp.Core
 nuget FParsec
 nuget NUnit
+nuget NBench
 
 group Build
 source https://www.nuget.org/api/v2

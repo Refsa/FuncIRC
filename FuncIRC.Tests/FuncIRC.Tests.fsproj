@@ -1,34 +1,35 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <PropertyGroup>
+        <TargetFramework>netcoreapp2.0</TargetFramework>
+        
+        <IsPackable>false</IsPackable>
+        <GenerateProgramFile>false</GenerateProgramFile>
+    </PropertyGroup>
 
-    <IsPackable>false</IsPackable>
-    <GenerateProgramFile>false</GenerateProgramFile>
-  </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="nunit" Version="3.12.0" />
+        <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
 
-  <ItemGroup>
-    <PackageReference Include="nunit" Version="3.12.0" />
-    <PackageReference Include="NUnit3TestAdapter" Version="3.13.0" />
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
-  </ItemGroup>
+        <PackageReference Include="NBench" Version="1.2.1" />
+        <DotNetCliToolReference Include="dotnet-nbench" Version="1.2.1" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="FuncIRC">
-      <HintPath>..\FuncIRC\bin\Debug\netstandard2.0\FuncIRC.dll</HintPath>
-    </Reference>
+    <ItemGroup>
+        <ProjectReference Include="..\FuncIRC\FuncIRC.fsproj" />
+    </ItemGroup>
 
-    <Compile Include="TestMessages.fsx" />
-    <Compile Include="MessageParserTests.fsx" />
-    
-    <Compile Include="ConnectionClientTests.fsx" />
+    <ItemGroup>
+        <Compile Include="TestMessages.fsx" />
+        <Compile Include="MessageParserTests.fsx" />
+        
+        <Compile Include="PerformanceTests/MessageParser.performance.fsx" />
 
-    <Compile Include="FuncIRCTests.fsx" />
-    <Compile Include="Program.fsx" />
-  </ItemGroup>
+        <Compile Include="ConnectionClientTests.fsx" />
 
-  <ItemGroup>
-    <ProjectReference Include="..\FuncIRC\FuncIRC.fsproj" />
-  </ItemGroup>
+        <Compile Include="FuncIRCTests.fsx" />
+        <Compile Include="Program.fsx" />
+    </ItemGroup>
 
 </Project>

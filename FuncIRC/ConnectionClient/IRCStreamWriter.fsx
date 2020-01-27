@@ -54,7 +54,9 @@ module internal IRCStreamWriter =
     /// Contains an internal async loop that looks at clientData.OutQueue and sends the messages
     /// Has a 10ms sleep duration between each message sent 
     /// will send multiple messages at the same time
-    let writeStream (clientData: IRCClientData) (stream: NetworkStream) =
+    let writeStream (clientData: IRCClientData) (stream: NetworkStream) (writeInterval: int) =
+        let sw = System.Diagnostics.Stopwatch()
+
         let rec writeLoop() =
             async {
                 let outboundMessage = 
@@ -66,8 +68,11 @@ module internal IRCStreamWriter =
                 if outboundMessage <> "" then
                     sendIrcMessage stream outboundMessage
 
-                Thread.Sleep (10)
-                return! writeLoop()
+                Thread.Sleep (writeInterval)
+
+                match clientData.TokenSource.IsCancellationRequested with
+                | false -> return! writeLoop()
+                | true -> ()
             }
 
         writeLoop()

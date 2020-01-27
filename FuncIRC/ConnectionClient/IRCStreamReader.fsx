@@ -5,10 +5,12 @@
 #load "../IRC/MessageTypes.fsx"
 #load "../IRC/NumericReplies.fsx"
 #load "../IRC/VerbHandlers.fsx"
+#load "../Utils/StringHelpers.fsx"
 
 namespace FuncIRC
 
 open System.Text
+open System.Diagnostics
 open MessageParser
 open MessageTypes
 open NumericReplies
@@ -16,26 +18,9 @@ open VerbHandlers
 open MessageSubscription
 open IRCClientData
 open System.Net.Sockets
+open StringHelpers
 
 module internal IRCStreamReader =
-    /// Raised when the incoming byte array/stream couldn't be parsed with either UTF-8 or Latin-1
-    exception IncomingByteMessageParsingException
-
-    let latin1Encoding = Encoding.GetEncoding("ISO-8859-1") // Latin-1
-    let utf8Encoding = Encoding.UTF8 // UTF-8
-
-    /// Takes a byte array and first attemps to decode using UTF8, uses Latin-1 if that fails
-    /// raises: <typeref "IncomingByteMessageParsingException">
-    let parseByteString (data: byte array) =
-        try
-            utf8Encoding.GetString(data, 0, data.Length)
-        with
-            e ->
-                try 
-                    latin1Encoding.GetString(data, 0, data.Length)
-                with
-                | e -> raise IncomingByteMessageParsingException
-
     ///
     let runMessageSubscriptionCallbacks (clientData: IRCClientData) (verb: Verb) (callbackParams: Message) =
         clientData.SubscriptionQueue.GetSubscriptions verb
@@ -53,6 +38,7 @@ module internal IRCStreamReader =
                     clientData.SubscriptionQueue.RemoveSubscription x
             )
 
+    let private sw = Stopwatch()
     /// Parses the whole message string from the server and runs the corresponding sub-handlers for tags, source, verb and params
     let receivedDataHandler (data: string, clientData: IRCClientData) =
         data.Trim(' ').Replace("\r\n", "")
@@ -61,7 +47,7 @@ module internal IRCStreamReader =
         | data ->
             //printfn "Message: %s" data
             let message = parseMessageString data
-            
+
             match message.Verb with
             | Some verb ->
                 let verbName = 
@@ -80,17 +66,20 @@ module internal IRCStreamReader =
 
         let rec readLoop(received: string) =
             async {
-                try 
+                try
                     stream.Read(data, 0, data.Length) |> ignore
 
                     let receivedData = parseByteString data
                     let receivedNext = received + receivedData
 
-                    if receivedNext.EndsWith ("\r\n") then
-                        receivedDataHandler (receivedNext, clientData)
-                        return! readLoop("")
-                    else
-                        return! readLoop(receivedNext)
+                    match clientData.TokenSource.IsCancellationRequested with
+                    | true -> ()
+                    | false ->
+                        if receivedNext.EndsWith ("\r\n") then
+                            receivedDataHandler (receivedNext, clientData)
+                            return! readLoop("")
+                        else
+                            return! readLoop(receivedNext)
                 with 
                     e -> printfn "readLoop - Exception: %s" e.Message
             }

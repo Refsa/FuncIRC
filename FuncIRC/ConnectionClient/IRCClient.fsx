@@ -18,11 +18,15 @@ open IRCStreamReader
 open IRCStreamWriter
 
 module internal IRCClient =
+    let private streamWriteInterval        = 10
+    let private tcpClientKeepAliveInterval = 50
+    let private cancelAwaitTime            = streamWriteInterval + tcpClientKeepAliveInterval
+
     /// Handles the client connection and disposes it if it loses connection or the cancellation token is invoked
     let ircClientHandler (client: TCPClient) (token: CancellationToken) =
         let rec keepAlive() =
             async {
-                Thread.Sleep (50)
+                Thread.Sleep (tcpClientKeepAliveInterval)
 
                 if client.Connected && not token.IsCancellationRequested then
                     return! keepAlive()
@@ -37,8 +41,9 @@ module internal IRCClient =
     let closeIrcClient (token: CancellationTokenSource) =
         let rec waitForClient() =
             async {
-                token.CancelAfter(100)
-                Thread.Sleep (1000)
+
+                token.CancelAfter(cancelAwaitTime)
+                Thread.Sleep (cancelAwaitTime * 2)
 
                 token.Dispose()
             }
@@ -46,7 +51,7 @@ module internal IRCClient =
         waitForClient() |> Async.RunSynchronously
 
     /// Starts the IRC TCPClient connection
-    /// Raises ClientConnectionException if the connection was unsuccessful
+    /// Raises <typeref = "ClientConnectionException"> if the connection was unsuccessful
     let ircClient (server: string, port: int) = 
         startClient server port 
         |> fun client ->
@@ -63,22 +68,17 @@ module internal IRCClient =
                     }
 
                 // TcpClient
-                Async.StartAsTask
-                    (
-                        (ircClientHandler client clientCancellationTokenSource.Token), TaskCreationOptions(), clientCancellationTokenSource.Token
-                    ) |> ignore
+                let tcpClient = (ircClientHandler client clientCancellationTokenSource.Token)
 
                 // Read Stream
-                Async.StartAsTask
-                    (
-                        (readStream clientData client.Stream), TaskCreationOptions(), clientCancellationTokenSource.Token
-                    ) |> ignore
+                let readStream = (readStream clientData client.Stream)
 
                 // Write Stream
-                Async.StartAsTask
-                    (
-                        (writeStream clientData client.Stream), TaskCreationOptions(), clientCancellationTokenSource.Token
-                    ) |> ignore
+                let writeStream = (writeStream clientData client.Stream streamWriteInterval)
+
+                let asParallel = Async.Parallel([tcpClient; readStream; writeStream], 3)
+
+                Async.StartAsTask(asParallel, TaskCreationOptions(), clientCancellationTokenSource.Token) |> ignore
 
                 clientData
             | None -> raise ClientConnectionException
