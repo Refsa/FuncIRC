@@ -9,6 +9,11 @@ funcirc_tests:
     - ./build_funcirc.cmd
     - ./run_funcirc_tests.cmd
 
+funcirc_performance_tests:
+  script:
+    - paket.exe install
+    - ./run_funcirc_ptests.cmd
+
 funcirc_cli:
   script:
     - paket.exe install
@@ -19,8 +24,3 @@ funcirc_cli_tests:
     - paket.exe install
     - ./build_funcirc_cli.cmd
     - ./run_cli_tests.cmd
-
-funcirc_cli_performance_tests:
-  script:
-    - paket.exe install
-    - ./run_funcirc_ptests.cmd
