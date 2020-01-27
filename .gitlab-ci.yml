@@ -19,3 +19,8 @@ funcirc_cli_tests:
     - paket.exe install
     - ./build_funcirc_cli.cmd
     - ./run_cli_tests.cmd
+
+funcirc_cli_performance_tests:
+  script:
+    - paket.exe install
+    - ./run_funcirc_ptests.cmd
