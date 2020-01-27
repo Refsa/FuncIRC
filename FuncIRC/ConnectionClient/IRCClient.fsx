@@ -7,7 +7,6 @@
 #load "IRCStreamWriter.fsx"
 
 namespace FuncIRC
-open System.Text
 open System.Threading
 open System.Threading.Tasks
 open ConnectionClient
