@@ -19,31 +19,28 @@ open IRCStreamWriter
 
 module internal IRCClient =
     /// Handles the client connection and disposes it if it loses connection or the cancellation token is invoked
-    let ircClientHandler (client: TCPClient) =
-        let cancellationTokenSource = new CancellationTokenSource()
+    let ircClientHandler (client: TCPClient) (token: CancellationToken) =
         let rec keepAlive() =
             async {
-                Thread.Sleep (10)
-                if client.Connected && not cancellationTokenSource.IsCancellationRequested then
+                Thread.Sleep (50)
+
+                if client.Connected && not token.IsCancellationRequested then
                     return! keepAlive()
                 else
                     client.Close
             }
 
-        Async.StartAsTask (keepAlive(), TaskCreationOptions(), cancellationTokenSource.Token) |> ignore
-
-        cancellationTokenSource
+        keepAlive()
 
     /// Cancels the TCPClient connection token and waits for the token WaitHandle to close
     /// Important to include in the client call chain in order to properly dispose of the TcpClient
     let closeIrcClient (token: CancellationTokenSource) =
-        token.Cancel()
-
         let rec waitForClient() =
             async {
-                let! waitForCancel = Async.AwaitWaitHandle(token.Token.WaitHandle)
-                if waitForCancel then ()
-                else return! waitForClient()
+                token.CancelAfter(100)
+                Thread.Sleep (1000)
+
+                token.Dispose()
             }
 
         waitForClient() |> Async.RunSynchronously
@@ -55,26 +52,32 @@ module internal IRCClient =
         |> fun client ->
             match client with
             | Some client -> 
-                let clientTokenSource = ircClientHandler client
+                let clientCancellationTokenSource = new CancellationTokenSource()
 
                 let clientData =
                     {   
-                        TokenSource = clientTokenSource
+                        TokenSource = clientCancellationTokenSource
                         SubscriptionQueue = MessageSubscriptionQueue()
                         OutQueue = MessageQueue()
                         InQueue = MessageQueue()
                     }
 
+                // TcpClient
+                Async.StartAsTask
+                    (
+                        (ircClientHandler client clientCancellationTokenSource.Token), TaskCreationOptions(), clientCancellationTokenSource.Token
+                    ) |> ignore
+
                 // Read Stream
                 Async.StartAsTask
                     (
-                        (readStream clientData client.Stream), TaskCreationOptions(), clientData.TokenSource.Token
+                        (readStream clientData client.Stream), TaskCreationOptions(), clientCancellationTokenSource.Token
                     ) |> ignore
 
                 // Write Stream
                 Async.StartAsTask
                     (
-                        (writeStream clientData client.Stream), TaskCreationOptions(), clientData.TokenSource.Token
+                        (writeStream clientData client.Stream), TaskCreationOptions(), clientCancellationTokenSource.Token
                     ) |> ignore
 
                 clientData
