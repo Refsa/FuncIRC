@@ -23,8 +23,7 @@ open System.Text
 open System.Threading
 open System.Threading.Tasks
 
-open FuncIRC.IRCStreamWriter
-open FuncIRC.IRCClient
+open FuncIRC.IRCMessages
 open FuncIRC.MessageTypes
 open FuncIRC.ClientSetup
 
@@ -91,6 +90,12 @@ module CLI =
 
     let joinChannelMessage = { Tags = None; Source = None; Verb = Some (Verb "JOIN"); Params = Some (toParameters [|"#testchannel"|]) }
 
+    let printPrivMsg (message: Message) =
+        printfn "PRIVMSG: %s %s: %s" 
+                    message.Params.Value.Value.[0].Value 
+                    message.Source.Value.Nick.Value 
+                    message.Params.Value.Value.[1].Value
+
     [<EntryPoint>]
     let main argv =
         Console.Title <- "FuncIRC CLI"
@@ -107,16 +112,19 @@ module CLI =
         let serverAddress = ("127.0.0.1", 6697)
         let clientData = startIrcClient serverAddress
 
-        clientData |> sendRegistrationMessage <| ("testnick", "testuser", "some name", "")
+        clientData.SubscriptionQueue.AddSubscription 
+            (MessageSubscription.NewRepeat (Verb "PRIVMSG") (fun m -> printPrivMsg m; None))
 
         clientData.SubscriptionQueue.AddSubscription 
             (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_MYINFO.ToString())) (fun m -> clientData.OutQueue.AddMessage joinChannelMessage; None ))
         
+        clientData |> sendRegistrationMessage <| ("testnick", "testuser", "some name", "")
+
         printfn "### CLI LOOP ###"
         while Console.ReadKey().Key <> ConsoleKey.Q do
             ()
 
         clientData |> sendQuitMessage <| "Bye everyone!"
-        closeIrcClient clientData.TokenSource
+        stopIrcClient clientData
 
         0 // return an integer exit code

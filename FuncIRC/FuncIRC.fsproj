@@ -23,8 +23,9 @@
     <Compile Include="ConnectionClient/ConnectionClient.fsx" />
     <Compile Include="ConnectionClient/MessageSubscription.fsx" />
     <Compile Include="ConnectionClient/IRCClientData.fsx" />
-
+    
     <Compile Include="IRC/MessageHandlers.fsx" />
+    <Compile Include="ConnectionClient/IRCMessages.fsx" />
     <Compile Include="ConnectionClient/IRCClient.fsx" />
     
     <Compile Include="ConnectionClient/IRCStreamReader.fsx" />
