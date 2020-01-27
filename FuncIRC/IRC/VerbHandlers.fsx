@@ -8,7 +8,15 @@ module VerbHandlers =
     open MessageTypes
     open NumericReplies
     open ConnectionClient
+    
+    let (|IsNumeric|IsVerbName|) (verb: Verb) =
+        let numeric = verbToInt verb
 
+        match numeric with
+        | Some numeric -> IsNumeric numeric
+        | None -> IsVerbName verb.Value
+
+    (*
     type VerbHandlerType =
         | NotImplemented
         | Response
@@ -165,13 +173,6 @@ module VerbHandlers =
             NumericReplies.RPL_ENDOFMOTD, rplEndOfMotdHandler;
         ] |> Map.ofList
 
-    let (|IsNumeric|IsVerbName|) (verb: Verb) =
-        let numeric = verbToInt verb
-
-        match numeric with
-        | Some numeric -> IsNumeric numeric
-        | None -> IsVerbName verb.Value
-
     /// TODO: Refactor this as there is a limit to 7 patterns on Active Patterns
     let (|IsPing|IsNotice|IsPrivMsg|IsError|IsJoin|UnknownVerbName|) (verb: string) =
         match verb with
@@ -181,3 +182,4 @@ module VerbHandlers =
         | "ERROR"   -> IsError noCallbackHandler
         | "JOIN"    -> IsJoin noCallbackHandler
         | _         -> UnknownVerbName noCallbackHandler
+    *)

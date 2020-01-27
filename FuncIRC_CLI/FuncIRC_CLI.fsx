@@ -24,12 +24,12 @@ open System.Threading
 open System.Threading.Tasks
 
 open FuncIRC.ConnectionClient
-open FuncIRC.IRCStreamReader
 open FuncIRC.IRCStreamWriter
 open FuncIRC.IRCClient
 open FuncIRC.MessageTypes
 open FuncIRC.MessageSubscription
 open FuncIRC.NumericReplies
+open FuncIRC.ClientSetup
 
 open Application
 open ApplicationState
@@ -90,11 +90,11 @@ module CLI =
         with
             :? OperationCanceledException -> ()
 
-    let messageCallback (client: TCPClient, message: Message) =
-        match message.Verb.Value.Value with
-        | "001" -> client |> sendIrcMessage <| "JOIN #testchannel"
-        | "PRIVMSG" -> printfn "CLI PRIVMSG Handler: %A" message.Params.Value
-        | _ -> ()
+    //let messageCallback (client: TCPClient, message: Message) =
+    //    match message.Verb.Value.Value with
+    //    | "001" -> client |> sendIrcMessage <| "JOIN #testchannel"
+    //    | "PRIVMSG" -> printfn "CLI PRIVMSG Handler: %A" message.Params.Value
+    //    | _ -> ()
 
     [<EntryPoint>]
     let main argv =
@@ -110,16 +110,17 @@ module CLI =
         //(app.Run())
 
         let serverAddress = ("127.0.0.1", 6697)
-        let client, clientTokenSource, messageSubQueue = ircClient serverAddress
-        messageSubQueue.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_WELCOME.Value)) (fun (c, m) -> printfn "RPL_WELCOME"))
+        let clientData = startIrcClient serverAddress
 
-        client |> sendRegistrationMessage <| ("testnick", "testuser", "some name", "")
+        clientData |> sendRegistrationMessage <| ("testnick", "testuser", "some name", "")
+        clientData.OutQueue.AddMessage
+            { Tags = None; Source = None; Verb = Some (Verb "JOIN"); Params = Some (toParameters [|"#testchannel"|]) }
         
         printfn "### CLI LOOP ###"
         while Console.ReadKey().Key <> ConsoleKey.Q do
             ()
 
-        client |> sendQuitMessage <| "Bye everyone!"
-        closeIrcClient clientTokenSource
+        clientData |> sendQuitMessage <| "Bye everyone!"
+        closeIrcClient clientData.TokenSource
 
         0 // return an integer exit code

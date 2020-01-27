@@ -1,16 +1,17 @@
 #load "ConnectionClient.fsx"
 #load "MessageSubscription.fsx"
-#load "IRCStreamReader.fsx"
 #load "../IRC/MessageTypes.fsx"
-#load "../IRC/VerbHandlers.fsx"
+#load "IRCClientData.fsx"
+#load "MessageQueue.fsx"
 
 namespace FuncIRC
+open System.Text
 open System.Threading
 open System.Threading.Tasks
 open ConnectionClient
-open IRCStreamReader
-open MessageTypes
+open IRCClientData
 open MessageSubscription
+open MessageQueue
 
 module IRCClient =
     /// Handles the client connection and disposes it if it loses connection or the cancellation token is invoked
@@ -50,17 +51,12 @@ module IRCClient =
         |> fun client ->
             match client with
             | Some client -> 
-                let messageSubQueue = MessageSubscriptionQueue()
-                setupRequiredIrcMessageSubscriptions messageSubQueue
-
                 let clientTokenSource = ircClientHandler client
-
-                Async.StartAsTask
-                    (
-                        (readStream client receivedDataHandler messageSubQueue), 
-                        TaskCreationOptions(), 
-                        clientTokenSource.Token
-                    ) |> ignore
-
-                (client, clientTokenSource, messageSubQueue)
+                {
+                    Client = client
+                    TokenSource = clientTokenSource
+                    SubscriptionQueue = MessageSubscriptionQueue()
+                    OutQueue = MessageQueue()
+                    InQueue = MessageQueue()
+                }
             | None -> raise ClientConnectionException

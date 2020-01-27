@@ -35,5 +35,5 @@ module ConnectionClient =
             let client = new TCPClient(server, port)
             Some client
         with
-        | :? ArgumentNullException as ane -> printfn "ArgumentNullException %s" ane.Message; None
-        | :? SocketException as se -> printfn "SocketException %s" se.Message; None
+        | :? ArgumentNullException as ane -> (*printfn "ArgumentNullException %s" ane.Message;*) None
+        | :? SocketException as se -> (*printfn "SocketException %s" se.Message;*) None
