@@ -23,12 +23,9 @@ open System.Text
 open System.Threading
 open System.Threading.Tasks
 
-open FuncIRC.ConnectionClient
 open FuncIRC.IRCStreamWriter
 open FuncIRC.IRCClient
 open FuncIRC.MessageTypes
-open FuncIRC.MessageSubscription
-open FuncIRC.NumericReplies
 open FuncIRC.ClientSetup
 
 open Application
@@ -37,6 +34,8 @@ open ConsoleHelpers
 open NavigationState
 open LoginView
 open StartupView
+open FuncIRC.MessageSubscription
+open FuncIRC.NumericReplies
 
 module CLI =
 
@@ -90,11 +89,7 @@ module CLI =
         with
             :? OperationCanceledException -> ()
 
-    //let messageCallback (client: TCPClient, message: Message) =
-    //    match message.Verb.Value.Value with
-    //    | "001" -> client |> sendIrcMessage <| "JOIN #testchannel"
-    //    | "PRIVMSG" -> printfn "CLI PRIVMSG Handler: %A" message.Params.Value
-    //    | _ -> ()
+    let joinChannelMessage = { Tags = None; Source = None; Verb = Some (Verb "JOIN"); Params = Some (toParameters [|"#testchannel"|]) }
 
     [<EntryPoint>]
     let main argv =
@@ -113,8 +108,9 @@ module CLI =
         let clientData = startIrcClient serverAddress
 
         clientData |> sendRegistrationMessage <| ("testnick", "testuser", "some name", "")
-        clientData.OutQueue.AddMessage
-            { Tags = None; Source = None; Verb = Some (Verb "JOIN"); Params = Some (toParameters [|"#testchannel"|]) }
+
+        clientData.SubscriptionQueue.AddSubscription 
+            (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_MYINFO.ToString())) (fun m -> clientData.OutQueue.AddMessage joinChannelMessage; None ))
         
         printfn "### CLI LOOP ###"
         while Console.ReadKey().Key <> ConsoleKey.Q do

@@ -27,36 +27,45 @@ module IRCStreamWriter =
             | _ -> Encoding.UTF8.GetBytes (message + "\r\n")
 
         try
+            printfn "Message: %s" message
             clientData.Client.Stream.Write (messageData, 0, messageData.Length) 
         with
             | e -> printfn "Exception when writing message(s) to stream: %s" e.Message
 
+    /// Constructs the IRC message to be sent from a Message object
+    let messageToString (message: Message) =
+        let mutable messageString = ""
+        match message.Verb with
+        | Some verb -> messageString <- messageString + verb.Value + " "
+        | None -> ()
+        match message.Params with
+        | Some parameters -> 
+            parameters.Value
+            |> Array.iter (fun p -> messageString <- messageString + p.Value + " ")
+        | None -> ()
+        messageString <- messageString.TrimEnd(' ') + "\r\n"
+        messageString
+
+    /// Construct a single outboud IRC message from a list of messages
+    let messagesToString (messages: Message list) =
+        let mutable outboundMessage = ""
+        messages |> List.iter (fun (m: Message) -> outboundMessage <- outboundMessage + (messageToString m) )
+        outboundMessage
+
     ///
     let writeStream (clientData: IRCClientData) =
-        let mutable outboundMessage = ""
-
         let rec writeLoop() =
             async {
                 if clientData.OutQueue.Count = 0 then
                     Thread.Sleep (10)
                     return! writeLoop()
 
-
-                clientData.OutQueue.PopMessages
-                |> List.iter (
-                    fun (m: Message) -> (match m.Verb with
-                                         | Some verb -> outboundMessage <- outboundMessage + verb.Value + " "
-                                         | None -> ()
-                                         match m.Params with
-                                         | Some parameters -> 
-                                             parameters.Value
-                                             |> Array.iter (fun p -> outboundMessage <- outboundMessage + p.Value + " ")
-                                         | None -> ()
-                                         outboundMessage <- outboundMessage.TrimEnd(' ') + "\r\n" 
-                                         ) )
+                let outboundMessage = 
+                    match clientData.OutQueue.Count with
+                    | 1 -> messageToString clientData.OutQueue.PopMessage
+                    | _ -> messagesToString clientData.OutQueue.PopMessages
 
                 sendIrcMessage clientData outboundMessage
-                outboundMessage <- ""
 
                 return! writeLoop()
             }
