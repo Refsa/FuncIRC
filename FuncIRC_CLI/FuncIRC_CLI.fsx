@@ -35,6 +35,7 @@ open LoginView
 open StartupView
 open FuncIRC.MessageSubscription
 open FuncIRC.NumericReplies
+open FuncIRC.IRCClientData
 
 module CLI =
 
@@ -88,12 +89,28 @@ module CLI =
         with
             :? OperationCanceledException -> ()
 
+    let sendPrivMsgTask(message: string, channel: string, timeout: int, clientData: IRCClientData) =
+        let outMessage = { Tags = None; Source = None; Verb = Some (Verb "PRIVMSG"); Params = Some (toParameters [|channel; message|]) }
+        let mutable counter = 0
+
+        let rec messageLoop() =
+            async {
+                clientData.AddOutMessage {outMessage with Params = Some (toParameters [|channel; message + "_" + counter.ToString()|])}
+                Thread.Sleep (timeout)
+
+                counter <- counter + 1
+                return! messageLoop()
+            }
+        messageLoop()
 
     let printPrivMsg (message: Message) =
         printfn "PRIVMSG: %s %s: %s" 
                     message.Params.Value.Value.[0].Value 
                     message.Source.Value.Nick.Value 
                     message.Params.Value.Value.[1].Value
+
+    let spammerLoginDetail = ("spammernick", "spammeruser", "spammer name", "")
+    let testUserLoginDetail = ("testnick", "testuser", "some name", "")
 
     [<EntryPoint>]
     let main argv =
@@ -114,13 +131,16 @@ module CLI =
         [
             (MessageSubscription.NewRepeat (Verb "PRIVMSG") (fun m -> printPrivMsg m; None));
             (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_MYINFO.ToString())) 
-                                           (fun m -> clientData.AddOutMessage (joinChannelMessage "#testchannel"); None ));
+                                           (fun m -> 
+                                                clientData.AddOutMessage (joinChannelMessage "#testchannel")
+                                                //Async.StartAsTask ((sendPrivMsgTask ("spam", "#testchannel", 2000, clientData))) |> ignore
+                                                None ));
         ] |> List.iter clientData.AddSubscription
 
         //clientData.AddSubscription
         //    (MessageSubscription.NewSingle (Verb "JOIN") (fun m -> printfn "Client Data %s" clientData.User.Value.Source.ToString; None))
         
-        clientData |> sendRegistrationMessage <| ("testnick", "testuser", "some name", "")
+        clientData |> sendRegistrationMessage <| testUserLoginDetail
 
         printfn "### CLI LOOP ###\n\n"
         while Console.ReadKey().Key <> ConsoleKey.Q do
