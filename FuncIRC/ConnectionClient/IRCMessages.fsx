@@ -20,42 +20,67 @@ module IRCMessages =
     /// Exception thrown when parameters to a registration message was missing
     exception RegistrationContentException
 
+    let internal capMessage = 
+        { Tags = None; Source = None; Verb = Some (Verb "CAP"); Params  = Some (toParameters [|"LS"; "302"|]) }
+
+    let internal passMessage pass = 
+        { Tags = None; Source = None; Verb = Some (Verb "PASS"); Params = Some (toParameters [|pass|]) }
+
+    let internal nickMessage nick = 
+        { Tags = None; Source = None; Verb = Some (Verb "NICK"); Params = Some (toParameters [|nick|]) }
+
+    let internal userMessage user realName =
+        { Tags = None; Source = None; Verb = Some (Verb "USER"); Params = Some (toParameters [|user; "0"; "*"; realName|]) }
+
+    let joinChannelMessage channel = { Tags = None; Source = None; Verb = Some (Verb "JOIN"); Params = Some (toParameters [|channel|]) }
+
+    let (|UserRealNamePass|UserRealName|UserPass|User|Nick|InvalidLoginData|) (loginData: string * string * string * string) =
+        let nick, user, realName, pass = loginData
+        let hasNick = nick <> ""
+        let hasUser = user <> ""
+        let hasRealName = realName <> ""
+        let hasPass = pass <> ""
+
+        let userRealNamePass = hasUser && hasRealName && hasPass
+        let userRealName = hasUser && hasRealName
+        let userPass = hasUser && hasPass
+
+        match () with
+        | _ when hasNick ->
+            match () with
+            | _ when userRealNamePass -> UserRealNamePass (nick, user, realName, pass)
+            | _ when userRealName     -> UserRealName (nick, user, realName)
+            | _ when userPass         -> UserPass (nick, user, pass)
+            | _ when hasUser          -> User (nick, user)
+            | _                       -> Nick (nick) // Not sure if this should be valid login data
+        | _ -> InvalidLoginData
+
     /// Creates a registration message and sends it to the outbound message queue
     /// Subscribes to incoming VERBs related to the registration message
-    let sendRegistrationMessage (clientData: IRCClientData) (nick: string, user: string, realName: string, pass: string) =
+    let sendRegistrationMessage (clientData: IRCClientData) (loginData: string * string * string * string) =
         let messages = 
-            match () with
-            | _ when pass <> "" && nick <> "" && user <> "" -> 
-                [
-                    { Tags = None; Source = None; Verb = Some (Verb "CAP"); Params = Some (toParameters [|"LS"; "302"|]) }
-                    { Tags = None; Source = None; Verb = Some (Verb "PASS"); Params = Some (toParameters [|pass|]) }
-                    { Tags = None; Source = None; Verb = Some (Verb "NICK"); Params = Some (toParameters [|nick|]) }
-                    { Tags = None; Source = None; Verb = Some (Verb "USER"); Params = Some (toParameters [|user; "0"; "*"; realName|]) }
-                ]
-            | _ when nick <> "" && user <> "" -> 
-                [
-                    { Tags = None; Source = None; Verb = Some (Verb "CAP"); Params = Some (toParameters [|"LS"; "302"|]) }
-                    { Tags = None; Source = None; Verb = Some (Verb "NICK"); Params = Some (toParameters [|nick|]) }
-                    { Tags = None; Source = None; Verb = Some (Verb "USER"); Params = Some (toParameters [|user; "0"; "*"; realName|]) }
-                ]
-            | _ -> raise RegistrationContentException
+            match loginData with
+            | InvalidLoginData -> raise RegistrationContentException
+            | UserRealNamePass (nick, user, realName, pass) -> [ capMessage; passMessage pass; nickMessage nick; userMessage user realName ]
+            | UserPass (nick, user, pass)                   -> [ capMessage; passMessage pass; nickMessage nick; userMessage user user ]
+            | UserRealName (nick, user, realName)           -> [ capMessage; nickMessage nick; userMessage user realName ]
+            | User (nick, user)                             -> [ capMessage; nickMessage nick; userMessage user user ]
+            | Nick (nick)                                   -> [ capMessage; nickMessage nick; userMessage nick nick ]
+
+        [//                                                 VERB                                HANDLER
+            MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_WELCOME.Value))       rplWelcomeHandler
+            MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_YOURHOST.Value))      rplYourHostHandler
+            MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_CREATED.Value))       rplCreatedHandler
+            MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_MYINFO.Value))        rplMyInfoHandler
+            MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_LUSERCLIENT.Value))   rplLUserClientHandler
+            MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_LUSERUNKNOWN.Value))  rplLUserUnknownHandler
+            MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_LUSERCHANNELS.Value)) rplLUserChannelsHandler
+            MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_LUSERME.Value))       rplLUserMeHandler
+            MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_LOCALUSERS.Value))    rplLocalUsersHandler
+            MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_GLOBALUSERS.Value))   rplGlobalUsersHandler
+        ] |> List.iter clientData.AddSubscription
 
         clientData.AddOutMessages messages
-
-        clientData.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_WELCOME.Value)) rplWelcomeHandler)
-        clientData.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_YOURHOST.Value)) rplYourHostHandler)
-        clientData.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_CREATED.Value)) rplCreatedHandler)
-        clientData.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_MYINFO.Value)) rplMyInfoHandler)
-
-        // ISUPPORT HERE
-
-        clientData.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_LUSERCLIENT.Value)) rplLUserClientHandler)
-        clientData.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_LUSERUNKNOWN.Value)) rplLUserUnknownHandler)
-        clientData.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_LUSERCHANNELS.Value)) rplLUserChannelsHandler)
-        clientData.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_LUSERME.Value)) rplLUserMeHandler)
-        clientData.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_LOCALUSERS.Value)) rplLocalUsersHandler)
-        clientData.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_GLOBALUSERS.Value)) rplGlobalUsersHandler)
-
 
     /// Creates a QUIT messages and adds it to the outbound message queue
     let sendQuitMessage (clientData: IRCClientData) (message: string) =

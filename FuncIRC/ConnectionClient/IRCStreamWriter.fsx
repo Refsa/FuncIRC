@@ -51,9 +51,13 @@ module internal IRCStreamWriter =
     let rec getOutboudMessages (clientData: IRCClientData) =
         async {
             match clientData.OutQueue.Count with
-            | 0 -> return! getOutboudMessages clientData
-            | 1 -> return clientData.OutQueue.PopMessage.ToMessageString
-            | _ -> return messagesToString clientData.OutQueue.PopMessages
+            | 0 -> 
+                Thread.Sleep(clientData.StreamWriteInterval); 
+                return! getOutboudMessages clientData
+            | 1 -> 
+                return clientData.OutQueue.PopMessage.ToMessageString
+            | _ -> 
+                return messagesToString clientData.OutQueue.PopMessages
         }
 
     /// Contains an internal async loop that looks at clientData.OutQueue and sends the messages

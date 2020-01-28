@@ -88,7 +88,6 @@ module CLI =
         with
             :? OperationCanceledException -> ()
 
-    let joinChannelMessage = { Tags = None; Source = None; Verb = Some (Verb "JOIN"); Params = Some (toParameters [|"#testchannel"|]) }
 
     let printPrivMsg (message: Message) =
         printfn "PRIVMSG: %s %s: %s" 
@@ -110,11 +109,12 @@ module CLI =
         //(app.Run())
 
         let serverAddress = ("127.0.0.1", 6697)
-        let clientData = startIrcClient serverAddress
+        let clientData    = startIrcClient serverAddress
 
         [
-            (MessageSubscription.NewRepeat (Verb "PRIVMSG") (fun m -> printPrivMsg m; None))
-            (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_MYINFO.ToString())) (fun m -> clientData.AddOutMessage joinChannelMessage; None ))
+            (MessageSubscription.NewRepeat (Verb "PRIVMSG") (fun m -> printPrivMsg m; None));
+            (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_MYINFO.ToString())) 
+                                           (fun m -> clientData.AddOutMessage (joinChannelMessage "#testchannel"); None ));
         ] |> List.iter clientData.AddSubscription
 
         //clientData.AddSubscription
@@ -122,7 +122,7 @@ module CLI =
         
         clientData |> sendRegistrationMessage <| ("testnick", "testuser", "some name", "")
 
-        printfn "### CLI LOOP ###"
+        printfn "### CLI LOOP ###\n\n"
         while Console.ReadKey().Key <> ConsoleKey.Q do
             ()
 
