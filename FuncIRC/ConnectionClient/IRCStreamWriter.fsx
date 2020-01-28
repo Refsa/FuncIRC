@@ -48,17 +48,26 @@ module internal IRCStreamWriter =
         Async.Start (writeMessage())
 
     /// Run until there are new messages in the outbound queue
-    let rec getOutboudMessages (clientData: IRCClientData) =
+    let rec getOutboundMessagesAsync (clientData: IRCClientData) =
         async {
             match clientData.OutQueue.Count with
             | 0 -> 
                 Thread.Sleep(clientData.StreamWriteInterval); 
-                return! getOutboudMessages clientData
+                return! getOutboundMessagesAsync clientData
             | 1 -> 
                 return clientData.OutQueue.PopMessage.ToMessageString
             | _ -> 
                 return messagesToString clientData.OutQueue.PopMessages
         }
+
+    /// Get all outbound messages formatted to a
+    let rec getOutboundMessages (clientData: IRCClientData) =
+        match clientData.OutQueue.Count with
+        | 0 -> ""
+        | 1 -> 
+            clientData.OutQueue.PopMessage.ToMessageString
+        | _ -> 
+            messagesToString clientData.OutQueue.PopMessages
 
     /// Contains an internal async loop that looks at clientData.OutQueue and sends the messages
     /// Has a 10ms sleep duration between each message sent 
@@ -66,11 +75,11 @@ module internal IRCStreamWriter =
     let writeStream (clientData: IRCClientData) (stream: NetworkStream) (writeInterval: int) =
         let rec writeLoop() =
             async {
-                let! outboundMessage = getOutboudMessages(clientData)
+                //let! outboundMessage = getOutboundMessagesAsync(clientData)
+                do! Async.AwaitEvent (clientData.SendMessageEvent)
 
+                let outboundMessage = getOutboundMessages(clientData)
                 sendIrcMessage stream outboundMessage
-
-                Thread.Sleep (writeInterval)
 
                 match clientData.TokenSource.IsCancellationRequested with
                 | false -> return! writeLoop()

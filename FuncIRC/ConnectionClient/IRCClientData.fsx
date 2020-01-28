@@ -27,7 +27,8 @@ module IRCClientData =
 
         // # EVENTS
         let clientDisconnected: Event<_> = new Event<_>()
-        let disonnectClient:     Event<_> = new Event<_>()
+        let disconnectClient:   Event<_> = new Event<_>()
+        let sendMessage:        Event<_> = new Event<_>()
 
         // # MUTABLES
         let mutable userInfoSelf: IRCUserInfo ValueOption = ValueOption.ValueNone
@@ -52,23 +53,27 @@ module IRCClientData =
 
         member internal this.SetUserInfoSelf userInfo = userInfoSelf <- userInfo
 
-        // # EVENTS
+        // # EVENTS Triggers
         member internal this.ClientDisconnected() = clientDisconnected.Trigger()
+        member internal this.SendMessageTrigger() = sendMessage.Trigger()
+        // # Internal EVENTS
         [<CLIEvent>]
-        member internal this.DisconnectClientEvent = disonnectClient.Publish
+        member internal this.DisconnectClientEvent = disconnectClient.Publish
+        [<CLIEvent>]
+        member internal this.SendMessageEvent      = sendMessage.Publish
 //#endregion
 
 //#region external members
         member this.GetUserInfoSelf              = userInfoSelf
 
         member this.AddSubscription subscription = subscriptionQueue.AddSubscription subscription
-        member this.AddOutMessage message        = outQueue.AddMessage message
-        member this.AddOutMessages messages      = outQueue.AddMessages messages
+        member this.AddOutMessage message        = outQueue.AddMessage message; this.SendMessageTrigger ()
+        member this.AddOutMessages messages      = outQueue.AddMessages messages; this.SendMessageTrigger ()
 //#endregion
 
 //#region External Events
         [<CLIEvent>]
         member this.ClientDisconnectedEvent = clientDisconnected.Publish
 
-        member this.DisconnectClient() = disonnectClient.Trigger()
+        member this.DisconnectClient() = disconnectClient.Trigger()
 //#endregion
