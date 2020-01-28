@@ -26,7 +26,3 @@ module ClientSetup =
         clientData.AddSubscription ( MessageSubscription.NewRepeat (Verb ("PING")) pongMessageHandler )
 
         clientData
-
-    /// Stops the TcpClient and internal stream readers/writers
-    let stopIrcClient (clientData: IRCClientData) =
-        closeIrcClient clientData

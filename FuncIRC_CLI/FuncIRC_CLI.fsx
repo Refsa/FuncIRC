@@ -127,6 +127,6 @@ module CLI =
             ()
 
         clientData |> sendQuitMessage <| "Bye everyone!"
-        stopIrcClient clientData
+        clientData.DisconnectClient()
 
         0 // return an integer exit code

@@ -27,6 +27,7 @@ module IRCClientData =
 
         // # EVENTS
         let clientDisconnected: Event<_> = new Event<_>()
+        let disonnectClient:     Event<_> = new Event<_>()
 
         // # MUTABLES
         let mutable userInfoSelf: IRCUserInfo ValueOption = ValueOption.ValueNone
@@ -53,6 +54,8 @@ module IRCClientData =
 
         // # EVENTS
         member internal this.ClientDisconnected() = clientDisconnected.Trigger()
+        [<CLIEvent>]
+        member internal this.DisconnectClientEvent = disonnectClient.Publish
 //#endregion
 
 //#region external members
@@ -66,4 +69,6 @@ module IRCClientData =
 //#region External Events
         [<CLIEvent>]
         member this.ClientDisconnectedEvent = clientDisconnected.Publish
+
+        member this.DisconnectClient() = disonnectClient.Trigger()
 //#endregion

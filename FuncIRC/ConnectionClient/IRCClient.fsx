@@ -19,29 +19,18 @@ module internal IRCClient =
     let ircClientHandler (clientData: IRCClientData) (client: TCPClient) =
         let rec keepAlive() =
             async {
-                Thread.Sleep (clientData.TcpClientKeepAliveInterval)
+                do! Async.AwaitEvent (clientData.DisconnectClientEvent)
 
-                if client.Connected && not clientData.Token.IsCancellationRequested then
-                    return! keepAlive()
-                else
-                    client.Close
-                    clientData.ClientDisconnected()
+                clientData.TokenSource.Cancel()
+                Thread.Sleep (clientData.CancelAwaitTime * 2)
+
+                client.Close
+                clientData.TokenSource.Dispose()
+
+                clientData.ClientDisconnected()
             }
 
         keepAlive()
-
-    /// Cancels the TCPClient connection token and waits for the token WaitHandle to close
-    /// Important to include in the client call chain in order to properly dispose of the TcpClient
-    let closeIrcClient (clientData: IRCClientData) =
-        let rec waitForClient() =
-            async {
-                clientData.TokenSource.CancelAfter(clientData.CancelAwaitTime)
-                Thread.Sleep (clientData.CancelAwaitTime * 2)
-
-                clientData.TokenSource.Dispose()
-            }
-
-        waitForClient() |> Async.RunSynchronously
 
     /// Starts the IRC TCPClient connection
     /// Raises <typeref="ClientConnectionException"> if the connection was unsuccessful
