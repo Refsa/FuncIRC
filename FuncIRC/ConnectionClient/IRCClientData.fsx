@@ -34,15 +34,9 @@ module IRCClientData =
         let mutable userInfoSelf: IRCUserInfo ValueOption = ValueOption.ValueNone
 
         // # CONFIG
-        let streamWriteInterval        = 10
-        let tcpClientKeepAliveInterval = 50
-        let cancelAwaitTime            = streamWriteInterval + tcpClientKeepAliveInterval
 
 //#region internal members
         // # CONFIG
-        member internal this.StreamWriteInterval        = streamWriteInterval
-        member internal this.TcpClientKeepAliveInterval = tcpClientKeepAliveInterval
-        member internal this.CancelAwaitTime            = cancelAwaitTime
 
         // # FIELDS
         member internal this.TokenSource       = tokenSource

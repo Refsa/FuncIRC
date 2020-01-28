@@ -22,7 +22,7 @@ module internal IRCClient =
                 do! Async.AwaitEvent (clientData.DisconnectClientEvent)
 
                 clientData.TokenSource.Cancel()
-                Thread.Sleep (clientData.CancelAwaitTime * 2)
+                Thread.Sleep (100)
 
                 client.Close
                 clientData.TokenSource.Dispose()
@@ -46,7 +46,7 @@ module internal IRCClient =
             // Read Stream
             let readStream = (readStream clientData client.Stream)
             // Write Stream
-            let writeStream = (writeStream clientData client.Stream clientData.StreamWriteInterval)
+            let writeStream = (writeStream clientData client.Stream)
 
             let asParallel = Async.Parallel([tcpClient; readStream; writeStream], 3)
             Async.StartAsTask(asParallel, TaskCreationOptions(), clientData.Token) |> ignore
