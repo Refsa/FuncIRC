@@ -2,16 +2,18 @@
 #load "IRCClientData.fsx"
 #load "MessageSubscription.fsx"
 #load "../IRC/MessageParser.fsx"
+#load "../IRC/MessageParserInternals.fsx"
 #load "../IRC/MessageTypes.fsx"
 #load "../IRC/NumericReplies.fsx"
 #load "../IRC/VerbHandlers.fsx"
+#load "../IRC/MessageHandlers.fsx"
 #load "../Utils/StringHelpers.fsx"
 
 namespace FuncIRC
 
-open System.Text
 open System.Diagnostics
 open MessageParser
+open MessageParserInternals
 open MessageTypes
 open NumericReplies
 open VerbHandlers
@@ -30,7 +32,8 @@ module internal IRCStreamReader =
                 |> function
                 | Some response ->
                     match response.ResponseType with
-                    | ResponseType.Message -> ()
+                    | ResponseType.Message ->
+                        clientData.OutQueue.AddMessage <| parseMessageString response.Content
                     | _ -> ()
                 | None -> ()
 
@@ -38,7 +41,7 @@ module internal IRCStreamReader =
                     clientData.SubscriptionQueue.RemoveSubscription x
             )
 
-    let private sw = Stopwatch()
+    
     /// Parses the whole message string from the server and runs the corresponding sub-handlers for tags, source, verb and params
     let receivedDataHandler (data: string, clientData: IRCClientData) =
         data.Trim(' ').Replace("\r\n", "")

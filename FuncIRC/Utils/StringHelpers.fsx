@@ -31,3 +31,8 @@ module StringHelpers =
             target.[0..target.Length - 2]
         else
             target
+
+    let stringFromStringOption (target: string option) =
+        match target with
+        | Some target -> target
+        | None -> ""

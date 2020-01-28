@@ -112,11 +112,13 @@ module CLI =
         let serverAddress = ("127.0.0.1", 6697)
         let clientData = startIrcClient serverAddress
 
-        clientData.SubscriptionQueue.AddSubscription 
+        [
             (MessageSubscription.NewRepeat (Verb "PRIVMSG") (fun m -> printPrivMsg m; None))
+            (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_MYINFO.ToString())) (fun m -> clientData.AddOutMessage joinChannelMessage; None ))
+        ] |> List.iter clientData.AddSubscription
 
-        clientData.SubscriptionQueue.AddSubscription 
-            (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_MYINFO.ToString())) (fun m -> clientData.OutQueue.AddMessage joinChannelMessage; None ))
+        //clientData.AddSubscription
+        //    (MessageSubscription.NewSingle (Verb "JOIN") (fun m -> printfn "Client Data %s" clientData.User.Value.Source.ToString; None))
         
         clientData |> sendRegistrationMessage <| ("testnick", "testuser", "some name", "")
 

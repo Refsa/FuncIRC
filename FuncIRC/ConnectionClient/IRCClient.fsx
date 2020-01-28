@@ -11,73 +11,57 @@ open System.Threading
 open System.Threading.Tasks
 open ConnectionClient
 open IRCClientData
-open MessageSubscription
-open MessageQueue
 open IRCStreamReader
 open IRCStreamWriter
 
 module internal IRCClient =
-    let private streamWriteInterval        = 10
-    let private tcpClientKeepAliveInterval = 50
-    let private cancelAwaitTime            = streamWriteInterval + tcpClientKeepAliveInterval
-
     /// Handles the client connection and disposes it if it loses connection or the cancellation token is invoked
-    let ircClientHandler (client: TCPClient) (token: CancellationToken) =
+    let ircClientHandler (clientData: IRCClientData) (client: TCPClient) =
         let rec keepAlive() =
             async {
-                Thread.Sleep (tcpClientKeepAliveInterval)
+                Thread.Sleep (clientData.TcpClientKeepAliveInterval)
 
-                if client.Connected && not token.IsCancellationRequested then
+                if client.Connected && not clientData.Token.IsCancellationRequested then
                     return! keepAlive()
                 else
                     client.Close
+                    clientData.ClientDisconnected()
             }
 
         keepAlive()
 
     /// Cancels the TCPClient connection token and waits for the token WaitHandle to close
     /// Important to include in the client call chain in order to properly dispose of the TcpClient
-    let closeIrcClient (token: CancellationTokenSource) =
+    let closeIrcClient (clientData: IRCClientData) =
         let rec waitForClient() =
             async {
+                clientData.TokenSource.CancelAfter(clientData.CancelAwaitTime)
+                Thread.Sleep (clientData.CancelAwaitTime * 2)
 
-                token.CancelAfter(cancelAwaitTime)
-                Thread.Sleep (cancelAwaitTime * 2)
-
-                token.Dispose()
+                clientData.TokenSource.Dispose()
             }
 
         waitForClient() |> Async.RunSynchronously
 
     /// Starts the IRC TCPClient connection
-    /// Raises <typeref = "ClientConnectionException"> if the connection was unsuccessful
+    /// Raises <typeref="ClientConnectionException"> if the connection was unsuccessful
     let ircClient (server: string, port: int) = 
-        startClient server port 
-        |> fun client ->
-            match client with
-            | Some client -> 
-                let clientCancellationTokenSource = new CancellationTokenSource()
+        let client = startClient server port
 
-                let clientData =
-                    {   
-                        TokenSource = clientCancellationTokenSource
-                        SubscriptionQueue = MessageSubscriptionQueue()
-                        OutQueue = MessageQueue()
-                        InQueue = MessageQueue()
-                    }
+        match client.Connect with
+        | true -> 
+            let clientData = IRCClientData()
+                
+            // TcpClient
+            let tcpClient = (ircClientHandler clientData client)
+            // Read Stream
+            let readStream = (readStream clientData client.Stream)
+            // Write Stream
+            let writeStream = (writeStream clientData client.Stream clientData.StreamWriteInterval)
 
-                // TcpClient
-                let tcpClient = (ircClientHandler client clientCancellationTokenSource.Token)
+            let asParallel = Async.Parallel([tcpClient; readStream; writeStream], 3)
+            Async.StartAsTask(asParallel, TaskCreationOptions(), clientData.Token) |> ignore
 
-                // Read Stream
-                let readStream = (readStream clientData client.Stream)
-
-                // Write Stream
-                let writeStream = (writeStream clientData client.Stream streamWriteInterval)
-
-                let asParallel = Async.Parallel([tcpClient; readStream; writeStream], 3)
-
-                Async.StartAsTask(asParallel, TaskCreationOptions(), clientCancellationTokenSource.Token) |> ignore
-
-                clientData
-            | None -> raise ClientConnectionException
+            clientData
+        | false ->
+            raise ClientConnectionException

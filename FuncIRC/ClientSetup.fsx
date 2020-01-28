@@ -4,6 +4,7 @@
 #load "ConnectionClient/IRCStreamWriter.fsx"
 #load "ConnectionClient/MessageSubscription.fsx"
 #load "IRC/MessageTypes.fsx"
+#load "IRC/MessageHandlers.fsx"
 
 namespace FuncIRC
 
@@ -13,6 +14,7 @@ open IRCStreamReader
 open IRCStreamWriter
 open MessageSubscription
 open MessageTypes
+open MessageHandlers
 open System.Threading.Tasks
 
 module ClientSetup =
@@ -21,10 +23,10 @@ module ClientSetup =
     let startIrcClient (server: string, port: int) =
         let clientData = ircClient (server, port)
 
-        clientData.SubscriptionQueue.AddSubscription (MessageSubscription.NewRepeat (Verb ("PING")) (fun (m) -> clientData.OutQueue.AddMessage { Tags = None; Source = None; Verb = Some (Verb "PONG"); Params = None }; None))
+        clientData.AddSubscription ( MessageSubscription.NewRepeat (Verb ("PING")) pongMessageHandler )
 
         clientData
 
     /// Stops the TcpClient and internal stream readers/writers
     let stopIrcClient (clientData: IRCClientData) =
-        closeIrcClient clientData.TokenSource
+        closeIrcClient clientData

@@ -1,3 +1,4 @@
+#load "IRCClient.fsx"
 #load "IRCClientData.fsx"
 #load "MessageSubscription.fsx"
 #load "MessageQueue.fsx"
@@ -7,6 +8,7 @@
 
 namespace FuncIRC
 
+open IRCClient
 open IRCClientData
 open MessageTypes
 open MessageSubscription
@@ -38,14 +40,24 @@ module IRCMessages =
                 ]
             | _ -> raise RegistrationContentException
 
-        clientData.OutQueue.AddMessages messages
+        clientData.AddOutMessages messages
 
-        clientData.SubscriptionQueue.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_WELCOME.Value)) rplWelcomeHandler)
-        clientData.SubscriptionQueue.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_YOURHOST.Value)) rplYourHostHandler)
-        clientData.SubscriptionQueue.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_CREATED.Value)) rplCreatedHandler)
-        clientData.SubscriptionQueue.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_MYINFO.Value)) rplMyInfoHandler)
+        clientData.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_WELCOME.Value)) rplWelcomeHandler)
+        clientData.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_YOURHOST.Value)) rplYourHostHandler)
+        clientData.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_CREATED.Value)) rplCreatedHandler)
+        clientData.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_MYINFO.Value)) rplMyInfoHandler)
+
+        // ISUPPORT HERE
+
+        clientData.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_LUSERCLIENT.Value)) rplLUserClientHandler)
+        clientData.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_LUSERUNKNOWN.Value)) rplLUserUnknownHandler)
+        clientData.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_LUSERCHANNELS.Value)) rplLUserChannelsHandler)
+        clientData.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_LUSERME.Value)) rplLUserMeHandler)
+        clientData.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_LOCALUSERS.Value)) rplLocalUsersHandler)
+        clientData.AddSubscription (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_GLOBALUSERS.Value)) rplGlobalUsersHandler)
+
 
     /// Creates a QUIT messages and adds it to the outbound message queue
     let sendQuitMessage (clientData: IRCClientData) (message: string) =
         { Tags = None; Source = None; Verb = Some (Verb "QUIT"); Params = Some (toParameters [|message|]) }
-        |> clientData.OutQueue.AddMessage
+        |> clientData.AddOutMessage

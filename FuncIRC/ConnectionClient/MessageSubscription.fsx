@@ -13,6 +13,9 @@ module MessageSubscription =
         | NotImplemented
         | Subscription
         | Message
+        | ClientInfoSelf
+        | ClientInfoOther
+        | ClientInfoChanged
 
     type MessageResponse =
         {
