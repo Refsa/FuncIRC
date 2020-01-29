@@ -1,4 +1,3 @@
-#load "../ConnectionClient/Subscription.fsx"
 #load "../ConnectionClient/IRCClientData.fsx"
 #load "MessageTypes.fsx"
 #load "NumericReplies.fsx"
@@ -6,11 +5,18 @@
 namespace FuncIRC
 
 open MessageTypes
-open Subscription
 open IRCClientData
 open NumericReplies
 
 module internal MessageHandlers =
+#if DEBUG
+    type MessageHandlerResponse =
+        {
+            Verb: string
+            Content: string
+        }
+#endif
+
     let private pongMessage = Message.NewSimpleMessage (Some (Verb "PONG")) None
     let pongMessageHandler (message: Message, clientData: IRCClientData) =
         clientData.AddOutMessage pongMessage

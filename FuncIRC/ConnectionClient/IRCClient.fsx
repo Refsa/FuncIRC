@@ -32,7 +32,7 @@ module internal IRCClient =
 
         keepAlive()
 
-    /// Starts the IRC TCPClient connection
+    /// Starts the TcpClient and connects the NetworkStream to the corresponding reader/writer handlers
     /// Raises <typeref="ClientConnectionException"> if the connection was unsuccessful
     let ircClient (server: string, port: int) = 
         let client = startClient server port
