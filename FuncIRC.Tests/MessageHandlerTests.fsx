@@ -206,7 +206,8 @@ module MessageHandlerTests =
                 rplMotdHandler (message, clientData)
         )
 
-        Assert.Warn ("Not Implemented")
+        Assert.AreEqual (clientData.GetServerMOTD.Length, motdContents.Length)
+        Assert.True (List.forall2 (fun a b -> a=b) clientData.GetServerMOTD motdContents)
 
     [<Test>]
     let ``RPL_ENDOFMOTD handler should do nothing``() =

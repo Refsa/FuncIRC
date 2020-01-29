@@ -27,6 +27,10 @@ module IRCInformation =
             UserCount: int
         }
 
+    type IRCServerMOTD = 
+        | MOTD of string list
+        member x.Value = let (MOTD motd) = x in motd
+
 //#region Defaults
     let default_IRCServerInfo = {Name = "DEFAULT"; Created = DateTime.MinValue; GlobalUserInfo = (-1, -1); LocalUserInfo = (-1, -1)}
 //#endregion

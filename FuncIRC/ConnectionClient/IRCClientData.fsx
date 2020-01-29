@@ -33,6 +33,7 @@ module IRCClientData =
         // # MUTABLES
         let mutable userInfoSelf: IRCUserInfo option = None
         let mutable serverInfo: IRCServerInfo = default_IRCServerInfo
+        let mutable serverMOTD: IRCServerMOTD = MOTD [""]
 
 //#region private members
         /// Messages from the outbound message queue
@@ -50,6 +51,9 @@ module IRCClientData =
         member internal this.ServerInfo 
             with get()     = serverInfo
             and set(value) = serverInfo <- value
+        member internal this.ServerMOTD
+            with get() = serverMOTD.Value
+            and set(value) = serverMOTD <- MOTD value
 
         // # EVENTS Triggers
         /// Dispatches the clientDisconnected event
@@ -69,6 +73,7 @@ module IRCClientData =
 //#region external members
         member this.GetUserInfoSelf = userInfoSelf
         member this.GetServerInfo   = serverInfo
+        member this.GetServerMOTD   = serverMOTD.Value
 
         // TODO: Add outboud message validation
         /// Adds one message to the outbound queue and triggers the sendMessage event
