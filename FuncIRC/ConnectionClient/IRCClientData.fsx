@@ -33,7 +33,7 @@ module IRCClientData =
         // # MUTABLES
         let mutable userInfoSelf: IRCUserInfo option = None
         let mutable serverInfo: IRCServerInfo = default_IRCServerInfo
-        let mutable serverMOTD: IRCServerMOTD = MOTD [""]
+        let mutable serverMOTD: IRCServerMOTD = MOTD []
 
 //#region private members
         /// Messages from the outbound message queue

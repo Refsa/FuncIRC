@@ -118,7 +118,9 @@ module MessageHandlers =
         ()
 
     let rplMotdHandler (message: Message, clientData: IRCClientData) =
-        ()
+        let wantedParam = message.Params.Value.Value.[1].Value
+
+        clientData.ServerMOTD <- clientData.ServerMOTD @ [wantedParam]
 
     let rplEndOfMotdHandler (message: Message, clientData: IRCClientData) =
         ()

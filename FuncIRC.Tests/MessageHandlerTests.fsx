@@ -207,7 +207,13 @@ module MessageHandlerTests =
         )
 
         Assert.AreEqual (motdContents.Length, clientData.GetServerMOTD.Length)
-        Assert.True (List.forall2 (fun a b -> a=b) clientData.GetServerMOTD motdContents)
+        let motdContentEqual = List.forall2 (fun a b -> a=b) clientData.GetServerMOTD motdContents
+
+        if not motdContentEqual then
+            clientData.GetServerMOTD
+            |> List.iter (fun ml -> printfn "%s" ml)
+
+        Assert.True (motdContentEqual)
 
     [<Test>]
     let ``RPL_ENDOFMOTD handler should do nothing``() =
