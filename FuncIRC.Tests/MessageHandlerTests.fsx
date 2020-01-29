@@ -6,11 +6,12 @@ namespace NUnit
 namespace NUnit.Framework
 
 module MessageHandlerTests =
+    open System
     open FuncIRC.IRCClientData
     open FuncIRC.MessageTypes
+    open FuncIRC.IRCInformation
     open FuncIRC.MessageHandlers
     open FuncIRC.GeneralHelpers
-    open NUnit.Framework
 
     let ircClientData(): IRCClientData = IRCClientData()
 
@@ -50,14 +51,18 @@ module MessageHandlerTests =
         Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
     [<Test>]
-    let ``RPL_CREATED handler should respond with trailing params if there was any``() =
+    let ``RPL_CREATED handler should update server info in IRCClientData with creation date``() =
         let clientData = ircClientData()
         let testParams = "This server was created 23:25:21 Jan 24 2020"
         let parameters = Some (toParameters [|"Nick"; testParams|])
         let verb = Some (Verb "RPL_CREATED")
         let message = Message.NewSimpleMessage verb parameters
 
-        Assert.Warn ("Not Implemented")
+        rplCreatedHandler (message, clientData)
+
+        let serverInfo = clientData.GetServerInfo
+        Assert.AreNotEqual (serverInfo, {Name = "DEFAULT"; Created = DateTime.MinValue; GlobalUserCount = -1; LocalUserCount = -1})
+        Assert.AreEqual (serverInfo, {Name = "DEFAULT"; Created = DateTime.Parse("23:25:21 Jan 24 2020"); GlobalUserCount = -1; LocalUserCount = -1})
 
     [<Test>]
     let ``RPL_MYINFO handler should respond with params if there was any``() =

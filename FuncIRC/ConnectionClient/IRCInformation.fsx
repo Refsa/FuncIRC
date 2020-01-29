@@ -5,6 +5,7 @@ namespace FuncIRC
 
 open MessageTypes
 open ConnectionClient
+open System
 
 module IRCInformation =
     type IRCUserInfo =
@@ -15,6 +16,7 @@ module IRCInformation =
     type IRCServerInfo =
         {
             Name: string
+            Created: DateTime
             GlobalUserCount: int
             LocalUserCount: int
         }
