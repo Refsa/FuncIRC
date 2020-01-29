@@ -1,4 +1,5 @@
 #load "../ConnectionClient/IRCClientData.fsx"
+#load "../Utils/RegexHelpers.fsx"
 #load "MessageTypes.fsx"
 #load "NumericReplies.fsx"
 
@@ -7,6 +8,7 @@ namespace FuncIRC
 open MessageTypes
 open IRCClientData
 open NumericReplies
+open RegexHelpers
 
 #if !DEBUG
 module internal MessageHandlers =
@@ -52,9 +54,26 @@ module MessageHandlers =
     let rplLUserMeHandler (message: Message, clientData: IRCClientData) =
         printfn "RPL_LUSERME: %A" [| for p in message.Params.Value.Value -> p.Value |]
 
+    let currentUsersRegex = @"users.+?(\d)"
+    let maxUsersRegex = @"[mM]ax.+?(\d+)"
+
     /// RPL_LOCALUSERS handler
     let rplLocalUsersHandler (message: Message, clientData: IRCClientData) =
-        printfn "RPL_LOCALUSERS: %A" [| for p in message.Params.Value.Value -> p.Value |]
+        let wantedParam = message.Params.Value.Value.[1].Value
+       
+        let currentLocalUsers =
+            matchRegexGroup wantedParam currentUsersRegex
+            |> function
+            | Some r -> int (r.[0].Groups.[1].Value)
+            | None -> -1
+            
+        let maxLocalUsers =
+            matchRegexGroup wantedParam maxUsersRegex
+            |> function
+            | Some r -> int (r.[0].Groups.[1].Value)
+            | None -> -1
+
+        clientData.ServerInfo <- {clientData.ServerInfo with LocalUserInfo = (currentLocalUsers, maxLocalUsers)}
 
     /// RPL_GLOBALUSERS handler
     let rplGlobalUsersHandler (message: Message, clientData: IRCClientData) =

@@ -48,9 +48,11 @@ module IRCClientData =
         member internal this.Token       = tokenSource.Token
         /// User info of the connected client
         member internal this.SetUserInfoSelf userInfo = userInfoSelf <- Some userInfo
+        /// Server info
         member internal this.ServerInfo 
             with get()     = serverInfo
             and set(value) = serverInfo <- value
+        /// Server MOTD
         member internal this.ServerMOTD
             with get() = serverMOTD.Value
             and set(value) = serverMOTD <- MOTD value
