@@ -40,7 +40,7 @@ module internal IRCClient =
         match client.Connect with
         | true -> 
             let clientData = IRCClientData()
-                
+
             // TcpClient
             let tcpClient = (ircClientHandler clientData client)
             // Read Stream

@@ -18,15 +18,18 @@
     <Compile Include="IRC/IrcUtils.fsx" />
     <Compile Include="IRC/MessageParser.fsx" />
     <Compile Include="IRC/VerbHandlers.fsx" />
+
+    <Compile Include="ConnectionClient/ConnectionClient.fsx" />
+
     <Compile Include="ConnectionClient/MessageQueue.fsx" />
     
-    <Compile Include="ConnectionClient/ConnectionClient.fsx" />
     <Compile Include="ConnectionClient/MessageSubscription.fsx" />
+    <Compile Include="ConnectionClient/MessageSubscriptionQueue.fsx" />
     <Compile Include="ConnectionClient/IRCClientData.fsx" />
     
-    <Compile Include="IRC/MessageHandlers.fsx" />
-    <Compile Include="ConnectionClient/IRCMessages.fsx" />
     <Compile Include="ConnectionClient/IRCClient.fsx" />
+    <Compile Include="ConnectionClient/IRCMessages.fsx" />
+    <Compile Include="IRC/MessageHandlers.fsx" />
     
     <Compile Include="ConnectionClient/IRCStreamReader.fsx" />
     <Compile Include="ConnectionClient/IRCStreamWriter.fsx" />

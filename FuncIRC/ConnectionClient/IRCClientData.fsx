@@ -1,29 +1,52 @@
-#load "ConnectionClient.fsx"
+#load "MessageSubscriptionQueue.fsx"
 #load "MessageSubscription.fsx"
 #load "MessageQueue.fsx"
 #load "../IRC/MessageTypes.fsx"
 
 namespace FuncIRC
 
+open System
 open System.Threading
-open ConnectionClient
-open MessageSubscription
+open MessageSubscriptionQueue
 open MessageQueue
 open MessageTypes
-open System.Net.Sockets
+open MessageSubscription
 
-module IRCClientData =
+module rec IRCClientData =
+
+    type MessageSubscription = Subscription<Message, IRCClientData>
+    type MessageSubscriptionQueue = SubscriptionQueue<MessageSubscription>
+
+    let messageSubscriptionEquals (x: MessageSubscription, y: MessageSubscription) =
+        x.Timestamp = y.Timestamp && x.Verb = y.Verb && x.Continuous = y.Continuous
+    
+    let messageSubscriptionVerbEquals (x: MessageSubscription, v: Verb) =
+        x.Verb = v
+
     type IRCUserInfo =
         {
             Source: Source
         }
 
+    type IRCServerInfo =
+        {
+            Name: string
+            GlobalUserCount: int
+            LocalUserCount: int
+        }
+
+    type IRCChannelInfo =  
+        {
+            Name: string
+            UserCount: int
+        }
+
     type IRCClientData() =
         // # FIELDS
-        let tokenSource: CancellationTokenSource        = new CancellationTokenSource()
+        let tokenSource:       CancellationTokenSource  = new CancellationTokenSource()
         let subscriptionQueue: MessageSubscriptionQueue = MessageSubscriptionQueue()
-        let outQueue: MessageQueue                      = MessageQueue()
-        let inQueue: MessageQueue                       = MessageQueue()
+        let outQueue:          MessageQueue             = MessageQueue()
+        let inQueue:           MessageQueue             = MessageQueue()
 
         // # EVENTS
         let clientDisconnected: Event<_> = new Event<_>()
@@ -61,6 +84,7 @@ module IRCClientData =
         member this.GetUserInfoSelf              = userInfoSelf
 
         member this.AddSubscription subscription = subscriptionQueue.AddSubscription subscription
+        // TODO: Add outboud message validation
         member this.AddOutMessage message        = outQueue.AddMessage message; this.SendMessageTrigger ()
         member this.AddOutMessages messages      = outQueue.AddMessages messages; this.SendMessageTrigger ()
 //#endregion

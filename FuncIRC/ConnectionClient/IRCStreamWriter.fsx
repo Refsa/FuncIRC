@@ -38,23 +38,12 @@ module internal IRCStreamWriter =
         messages |> List.iter (fun (m: Message) -> outboundMessage <- outboundMessage + m.ToMessageString + "\r\n" )
         outboundMessage
 
-    /// Writes the message to stream
-    let writeMessageToStream (message: Message) (stream: NetworkStream) =
-        let writeMessage() =
-            async {
-                stream |> sendIrcMessage <| message.ToMessageString
-            }
-
-        Async.Start (writeMessage())
-
     /// Get all outbound messages formatted to a
     let rec getOutboundMessages (clientData: IRCClientData) =
         match clientData.OutQueue.Count with
         | 0 -> ""
-        | 1 -> 
-            clientData.OutQueue.PopMessage.ToMessageString
-        | _ -> 
-            messagesToString clientData.OutQueue.PopMessages
+        | 1 -> clientData.OutQueue.PopMessage.ToMessageString
+        | _ -> messagesToString clientData.OutQueue.PopMessages
 
     /// Contains an internal async loop that looks at clientData.OutQueue and sends the messages
     /// Has a 10ms sleep duration between each message sent 
@@ -64,8 +53,10 @@ module internal IRCStreamWriter =
             async {
                 do! Async.AwaitEvent (clientData.SendMessageEvent)
 
-                let outboundMessage = getOutboundMessages(clientData)
-                sendIrcMessage stream outboundMessage
+                getOutboundMessages(clientData)
+                |> function 
+                | x when x <> "" -> stream |> sendIrcMessage <| x
+                | _ -> ()
 
                 match clientData.TokenSource.IsCancellationRequested with
                 | false -> return! writeLoop()

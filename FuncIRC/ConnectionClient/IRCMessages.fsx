@@ -1,4 +1,3 @@
-#load "IRCClient.fsx"
 #load "IRCClientData.fsx"
 #load "MessageSubscription.fsx"
 #load "MessageQueue.fsx"
@@ -8,7 +7,6 @@
 
 namespace FuncIRC
 
-open IRCClient
 open IRCClientData
 open MessageTypes
 open MessageSubscription
@@ -81,7 +79,7 @@ module IRCMessages =
             | UserRealName (nick, user, realName)           -> [ capMessage; nickMessage nick; userMessage user realName ]
             | User (nick, user)                             -> [ capMessage; nickMessage nick; userMessage user user ]
             | Nick (nick)                                   -> [ capMessage; nickMessage nick; userMessage nick nick ]
-
+ 
         [//                                                 VERB                                HANDLER
             MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_WELCOME.Value))       rplWelcomeHandler
             MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_YOURHOST.Value))      rplYourHostHandler
