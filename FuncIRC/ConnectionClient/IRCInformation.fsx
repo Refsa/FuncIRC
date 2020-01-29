@@ -15,14 +15,18 @@ module IRCInformation =
 
     type IRCServerInfo =
         {
-            Name: string
-            Created: DateTime
-            GlobalUserCount: int
-            LocalUserCount: int
+            Name: string;
+            Created: DateTime;
+            GlobalUserInfo: int * int;
+            LocalUserInfo: int * int;
         }
 
-    type IRCChannelInfo =  
+    type IRCChannelInfo =
         {
             Name: string
             UserCount: int
         }
+
+//#region Defaults
+    let default_IRCServerInfo = {Name = "DEFAULT"; Created = DateTime.MinValue; GlobalUserInfo = (-1, -1); LocalUserInfo = (-1, -1)}
+//#endregion

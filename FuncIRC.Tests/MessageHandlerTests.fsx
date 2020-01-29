@@ -63,8 +63,8 @@ module MessageHandlerTests =
         rplCreatedHandler (message, clientData)
 
         let serverInfo = clientData.GetServerInfo
-        Assert.AreNotEqual (serverInfo, {Name = "DEFAULT"; Created = DateTime.MinValue; GlobalUserCount = -1; LocalUserCount = -1})
-        Assert.AreEqual (serverInfo, {Name = "DEFAULT"; Created = DateTime.Parse("23:25:21 Jan 24 2020"); GlobalUserCount = -1; LocalUserCount = -1})
+        Assert.AreNotEqual (serverInfo, default_IRCServerInfo)
+        Assert.AreEqual (serverInfo, {default_IRCServerInfo with Created = DateTime.Parse("23:25:21 Jan 24 2020");})
 
     [<Test>]
     let ``RPL_MYINFO handler should do nothing``() =
@@ -141,13 +141,18 @@ module MessageHandlerTests =
         Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
     [<Test>]
-    let ``RPL_LOCALUSERS handler should respond with trailing params``() =
+    let ``RPL_LOCALUSERS handler should update server info on IRCClientData with local users info``() =
         let clientData = ircClientData()
-        let parameters = Some (toParameters [|"Nick"; "Current local users: 0  Max: 0"|])
+        let parameters = Some (toParameters [|"Nick"; "Current local users: 1  Max: 10"|])
         let verb = Some (Verb "RPL_LOCALUSERS")
         let message = Message.NewSimpleMessage verb parameters
 
-        Assert.Warn ("Not Implemented")
+        rplLocalUsersHandler (message, clientData)
+
+        let wantedServerInfo = { default_IRCServerInfo with LocalUserInfo = (1, 10) }
+
+        Assert.AreNotEqual (clientData.GetServerInfo, default_IRCServerInfo)
+        Assert.AreEqual (clientData.GetServerInfo, wantedServerInfo)
 
     [<Test>]
     let ``RPL_GLOBALUSERS handler should respond with trailing params``() =

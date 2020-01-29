@@ -12,7 +12,6 @@ open MessageTypes
 
 // TODO: Remove recursive dependency in module
 module IRCClientData =
-
 //#region IRCClientData implementation
     type IRCClientData() =
         // # FIELDS
@@ -33,7 +32,7 @@ module IRCClientData =
 
         // # MUTABLES
         let mutable userInfoSelf: IRCUserInfo option = None
-        let mutable serverInfo: IRCServerInfo = {Name = "DEFAULT"; Created = DateTime.MinValue; GlobalUserCount = -1; LocalUserCount = -1}
+        let mutable serverInfo: IRCServerInfo = default_IRCServerInfo
 
 //#region private members
         /// Messages from the outbound message queue
@@ -50,7 +49,7 @@ module IRCClientData =
         member internal this.SetUserInfoSelf userInfo = userInfoSelf <- Some userInfo
         member internal this.ServerInfo 
             with get()     = serverInfo
-            and set(value) = serverInfo <- value 
+            and set(value) = serverInfo <- value
 
         // # EVENTS Triggers
         /// Dispatches the clientDisconnected event
