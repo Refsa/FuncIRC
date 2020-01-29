@@ -47,6 +47,8 @@ module MessageHandlerTests =
         let verb = Some (Verb "RPL_YOURHOST")
         let message = Message.NewSimpleMessage verb parameters
 
+        rplYourHostHandler (message, clientData)
+
         Assert.AreEqual (clientData.GetOutboundMessages, "")
         Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
@@ -65,13 +67,16 @@ module MessageHandlerTests =
         Assert.AreEqual (serverInfo, {Name = "DEFAULT"; Created = DateTime.Parse("23:25:21 Jan 24 2020"); GlobalUserCount = -1; LocalUserCount = -1})
 
     [<Test>]
-    let ``RPL_MYINFO handler should respond with params if there was any``() =
+    let ``RPL_MYINFO handler should do nothing``() =
         let clientData = ircClientData()
-        let parameters = Some (toParameters [|"Nick"; "127.0.0.1 InspIRCd-3 iosw biklmnopstv"; "bklov"|])
+        let parameters = Some (toParameters [|"Nick"; "127.0.0.1"; "InspIRCd-3"; "iosw"; "biklmnopstv"; "bklov"|])
         let verb = Some (Verb "RPL_MYINFO")
         let message = Message.NewSimpleMessage verb parameters
 
-        Assert.Warn ("Not Implemented")
+        rplMyInfoHandler (message, clientData)
+
+        Assert.AreEqual (clientData.GetOutboundMessages, "")
+        Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
     [<Test>]
     let ``RPL_ISUPPORT handler should respond with everything except trailing params``() =
