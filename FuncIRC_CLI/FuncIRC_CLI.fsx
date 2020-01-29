@@ -28,7 +28,7 @@ open FuncIRC.MessageTypes
 open FuncIRC.ClientSetup
 open FuncIRC.IRCClientData
 open FuncIRC.NumericReplies
-open FuncIRC.MessageSubscription
+open FuncIRC.Subscription
 
 open Application
 open ApplicationState

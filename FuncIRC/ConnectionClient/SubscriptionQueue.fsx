@@ -1,13 +1,13 @@
-#load "MessageSubscription.fsx"
+#load "Subscription.fsx"
 #load "../IRC/MessageTypes.fsx"
 
 namespace FuncIRC
 
 open System
-open MessageSubscription
+open Subscription
 open MessageTypes
 
-module MessageSubscriptionQueue =
+module SubscriptionQueue =
     type SubscriptionQueue<'M>() =
         let mutable subscriptions: 'M array = Array.empty
 

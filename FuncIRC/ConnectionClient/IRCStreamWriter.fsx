@@ -1,4 +1,4 @@
-#load "MessageSubscription.fsx"
+#load "Subscription.fsx"
 #load "MessageQueue.fsx"
 #load "IRCClientData.fsx"
 #load "../IRC/NumericReplies.fsx"
@@ -8,7 +8,7 @@
 namespace FuncIRC
 
 open IRCClientData
-open MessageSubscription
+open Subscription
 open MessageHandlers
 open MessageTypes
 open MessageQueue

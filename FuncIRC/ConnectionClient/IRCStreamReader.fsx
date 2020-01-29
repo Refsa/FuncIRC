@@ -1,6 +1,6 @@
 #load "ConnectionClient.fsx"
 #load "IRCClientData.fsx"
-#load "MessageSubscription.fsx"
+#load "Subscription.fsx"
 #load "../IRC/MessageParser.fsx"
 #load "../IRC/MessageParserInternals.fsx"
 #load "../IRC/MessageTypes.fsx"
@@ -17,7 +17,7 @@ open MessageParserInternals
 open MessageTypes
 open NumericReplies
 open VerbHandlers
-open MessageSubscription
+open Subscription
 open IRCClientData
 open System.Net.Sockets
 open StringHelpers

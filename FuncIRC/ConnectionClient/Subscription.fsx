@@ -7,7 +7,7 @@ open System
 open MessageTypes
 open NumericReplies
 
-module MessageSubscription =
+module Subscription =
     (*type ResponseType =
         | Error
         | NotImplemented

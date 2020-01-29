@@ -1,5 +1,5 @@
-#load "MessageSubscriptionQueue.fsx"
-#load "MessageSubscription.fsx"
+#load "SubscriptionQueue.fsx"
+#load "Subscription.fsx"
 #load "MessageQueue.fsx"
 #load "../IRC/MessageTypes.fsx"
 
@@ -7,13 +7,12 @@ namespace FuncIRC
 
 open System
 open System.Threading
-open MessageSubscriptionQueue
+open SubscriptionQueue
 open MessageQueue
 open MessageTypes
-open MessageSubscription
+open Subscription
 
 module rec IRCClientData =
-
     type MessageSubscription = Subscription<Message, IRCClientData>
     type MessageSubscriptionQueue = SubscriptionQueue<MessageSubscription>
 

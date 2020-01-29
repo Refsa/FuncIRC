@@ -2,7 +2,7 @@
 #load "ConnectionClient/IRCClientData.fsx"
 #load "ConnectionClient/IRCStreamReader.fsx"
 #load "ConnectionClient/IRCStreamWriter.fsx"
-#load "ConnectionClient/MessageSubscription.fsx"
+#load "ConnectionClient/Subscription.fsx"
 #load "IRC/MessageTypes.fsx"
 #load "IRC/MessageHandlers.fsx"
 
@@ -12,7 +12,7 @@ open IRCClient
 open IRCClientData
 open IRCStreamReader
 open IRCStreamWriter
-open MessageSubscription
+open Subscription
 open MessageTypes
 open MessageHandlers
 open System.Threading.Tasks

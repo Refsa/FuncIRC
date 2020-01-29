@@ -1,5 +1,5 @@
 #load "ConnectionClient.fsx"
-#load "MessageSubscription.fsx"
+#load "Subscription.fsx"
 #load "../IRC/MessageTypes.fsx"
 #load "IRCClientData.fsx"
 #load "MessageQueue.fsx"
