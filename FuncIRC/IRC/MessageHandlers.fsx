@@ -59,3 +59,14 @@ module MessageHandlers =
     /// RPL_GLOBALUSERS handler
     let rplGlobalUsersHandler (message: Message, clientData: IRCClientData) =
         printfn "RPL_GLOBALUSERS: %A" [| for p in message.Params.Value.Value -> p.Value |]
+
+//#region MOTD handlers
+    let rplMotdStartHandler (message: Message, clientData: IRCClientData) =
+        ()
+
+    let rplMotdHandler (message: Message, clientData: IRCClientData) =
+        ()
+
+    let rplEndOfMotdHandler (message: Message, clientData: IRCClientData) =
+        ()
+//#endregion MOTD handlers

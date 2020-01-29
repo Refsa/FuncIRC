@@ -155,7 +155,7 @@ module MessageHandlerTests =
         Assert.AreEqual (clientData.GetServerInfo, wantedServerInfo)
 
     [<Test>]
-    let ``RPL_GLOBALUSERS handler should respond with trailing params``() =
+    let ``RPL_GLOBALUSERS handler should update server info on IRCClientData with global users info``() =
         let clientData = ircClientData()
         let parameters = Some (toParameters [|"Nick"; "Current global users: 1  Max: 10"|])
         let verb = Some (Verb "RPL_GLOBALUSERS")
@@ -168,29 +168,55 @@ module MessageHandlerTests =
         Assert.AreNotEqual (clientData.GetServerInfo, default_IRCServerInfo)
         Assert.AreEqual (clientData.GetServerInfo, wantedServerInfo)
 
+//#region MOTD handler tests
+    let motdContents =
+        [
+            "-  _____                        _____   _____    _____      _";
+            "- |_   _|                      |_   _| |  __ \  / ____|    | |";
+            "-   | |    _ __    ___   _ __    | |   | |__) || |       __| |";
+            "-   | |   | '_ \  / __| | '_ \   | |   |  _  / | |      / _` |";
+            "-  _| |_  | | | | \__ \ | |_) | _| |_  | | \ \ | |____ | (_| |";
+            "- |_____| |_| |_| |___/ | .__/ |_____| |_|  \_\ \_____| \__,_|";
+            "-     __________________| |_______________________________";
+            "-    |__________________|_|_______________________________|";
+        ]
+
     [<Test>]
-    let ``RPL_MOTDSTART handler should respond with trailing params``() =
+    let ``RPL_MOTDSTART handler should do nothing``() =
         let clientData = ircClientData()
         let parameters = Some (toParameters [|"Nick"; "127.0.0.1 message of the day"|])
         let verb = Some (Verb "RPL_MOTDSTART")
         let message = Message.NewSimpleMessage verb parameters
 
-        Assert.Warn ("Not Implemented")
+        rplMotdStartHandler (message, clientData)
+
+        Assert.AreEqual (clientData.GetOutboundMessages, "")
+        Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
     [<Test>]
-    let ``RPL_MOTD handler should respond with trailing params``() =
+    let ``RPL_MOTD handler should update MOTD content of IRCClientData with all the received MOTD message lines``() =
         let clientData = ircClientData()
-        let parameters = Some (toParameters [|"Nick"; " _____                        _____   _____    _____      _"|])
         let verb = Some (Verb "RPL_MOTD")
-        let message = Message.NewSimpleMessage verb parameters
+
+        motdContents
+        |> List.iter (
+            fun mc ->
+                let parameters = Some (toParameters [|"Nick"; mc|])
+                let message = Message.NewSimpleMessage verb parameters
+                rplMotdHandler (message, clientData)
+        )
 
         Assert.Warn ("Not Implemented")
 
     [<Test>]
-    let ``RPL_ENDOFMOTD handler should respond with trailing params``() =
+    let ``RPL_ENDOFMOTD handler should do nothing``() =
         let clientData = ircClientData()
         let parameters = Some (toParameters [|"Nick"; "End of message of the day."|])
         let verb = Some (Verb "RPL_ENDOFMOTD")
         let message = Message.NewSimpleMessage verb parameters
 
-        Assert.Warn ("Not Implemented")
+        rplEndOfMotdHandler (message, clientData)
+
+        Assert.AreEqual (clientData.GetOutboundMessages, "")
+        Assert.AreEqual (clientData.GetUserInfoSelf, None)
+//#endregion MOTD handler tests
