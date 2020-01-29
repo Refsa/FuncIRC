@@ -88,7 +88,7 @@ module MessageHandlerTests =
         Assert.Warn ("Not Implemented")
 
     [<Test>]
-    let ``RPL_LUSERCLIENT handler should do nothing but might change``() =
+    let ``RPL_LUSERCLIENT handler should do nothing for now``() =
         let clientData = ircClientData()
         let testParams = "There are 0 users and 0 invisible on 1 servers"
         let parameters = Some (toParameters [|"Nick"; testParams|])
@@ -102,31 +102,43 @@ module MessageHandlerTests =
         Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
     [<Test>]
-    let ``RPL_LUSERUNKNOWN handler should respond with trailing params``() =
+    let ``RPL_LUSERUNKNOWN handler should do nothing for now``() =
         let clientData = ircClientData()
         let parameters = Some (toParameters [|"Nick"; "1"; "unknown connections"|])
         let verb = Some (Verb "RPL_LUSERUNKNOWN")
         let message = Message.NewSimpleMessage verb parameters
 
-        Assert.Warn ("Not Implemented")
+        rplLUserUnknownHandler (message, clientData)
+
+        Assert.Warn ("Uncertain about how RPL_LUSERUNKNOWN should be handled")
+        Assert.AreEqual (clientData.GetOutboundMessages, "")
+        Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
     [<Test>]
-    let ``RPL_LUSERCHANNELS handler should respond with trailing params``() =
+    let ``RPL_LUSERCHANNELS handler should do nothing for now``() =
         let clientData = ircClientData()
         let parameters = Some (toParameters [|"Nick"; "0"; "channels formed"|])
         let verb = Some (Verb "RPL_LUSERCHANNELS")
         let message = Message.NewSimpleMessage verb parameters
 
-        Assert.Warn ("Not Implemented")
+        rplLUserChannelsHandler (message, clientData)
+
+        Assert.Warn ("Uncertain about how RPL_LUSERCHANNELS should be handled")
+        Assert.AreEqual (clientData.GetOutboundMessages, "")
+        Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
     [<Test>]
-    let ``RPL_LUSERME handler should respond with trailing params``() =
+    let ``RPL_LUSERME handler should do nothing for now``() =
         let clientData = ircClientData()
         let parameters = Some (toParameters [|"Nick"; "I have 0 clients and 0 servers"|])
         let verb = Some (Verb "RPL_LUSERME")
         let message = Message.NewSimpleMessage verb parameters
 
-        Assert.Warn ("Not Implemented")
+        rplLUserMeHandler (message, clientData)
+
+        Assert.Warn ("Uncertain about how RPL_LUSERME should be handled")
+        Assert.AreEqual (clientData.GetOutboundMessages, "")
+        Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
     [<Test>]
     let ``RPL_LOCALUSERS handler should respond with trailing params``() =
