@@ -17,21 +17,27 @@ module internal MessageHandlers =
 module MessageHandlers =
 #endif
 
+//#region PING message handler
     /// PONG message const 
     let private pongMessage = Message.NewSimpleMessage (Some (Verb "PONG")) None
     /// PING message handler
     let pongMessageHandler (message: Message, clientData: IRCClientData) =
         clientData.AddOutMessage pongMessage
+//#endregion PING message handler
 
     /// RPL_WELCOME handler
     let rplWelcomeHandler (message: Message, clientData: IRCClientData) =
-        printfn "RPL_WELCOME: %s" message.Params.Value.Value.[1].Value
+        ()
+        //printfn "RPL_WELCOME: %s" message.Params.Value.Value.[1].Value
 
     /// RPL_YOURHOST handler
     let rplYourHostHandler (message: Message, clientData: IRCClientData) =
-        printfn "RPL_YOURHOST: %s" message.Params.Value.Value.[1].Value
+        ()
+        //printfn "RPL_YOURHOST: %s" message.Params.Value.Value.[1].Value
 
 //#region RPL_CREATED handler
+    /// Regex to capture DateTimes in the format of: 23:25:21 Jan 24 2020
+    /// TODO: Add testing of different DateTime formats
     let dateTimeRegex = @"(\d{2}:\d{2}:\d{2}.+)"
     /// RPL_CREATED handler
     let rplCreatedHandler (message: Message, clientData: IRCClientData) =
@@ -54,23 +60,28 @@ module MessageHandlers =
 
     /// RPL_MYINFO handler
     let rplMyInfoHandler (message: Message, clientData: IRCClientData) =
-        printfn "RPL_MYINFO: "
+        ()
+        //printfn "RPL_MYINFO: "
 
     /// RPL_LUSERCLIENT handler
     let rplLUserClientHandler (message: Message, clientData: IRCClientData) =
-        printfn "RPL_LUSERCLIENT: %A" [| for p in message.Params.Value.Value -> p.Value |]
+        ()
+        //printfn "RPL_LUSERCLIENT: %A" [| for p in message.Params.Value.Value -> p.Value |]
 
     /// RPL_LUSERUNKNOWN handler
     let rplLUserUnknownHandler (message: Message, clientData: IRCClientData) =
-        printfn "RPL_LUSERUNKNOWN: %A" [| for p in message.Params.Value.Value -> p.Value |]
+        ()
+        //printfn "RPL_LUSERUNKNOWN: %A" [| for p in message.Params.Value.Value -> p.Value |]
 
     /// RPL_LUSERCHANNELS handler
     let rplLUserChannelsHandler (message: Message, clientData: IRCClientData) =
-        printfn "RPL_LUSERCHANNELS: %A" [| for p in message.Params.Value.Value -> p.Value |]
+        ()
+        //printfn "RPL_LUSERCHANNELS: %A" [| for p in message.Params.Value.Value -> p.Value |]
 
     /// RPL_LUSERME handler
     let rplLUserMeHandler (message: Message, clientData: IRCClientData) =
-        printfn "RPL_LUSERME: %A" [| for p in message.Params.Value.Value -> p.Value |]
+        ()
+        //printfn "RPL_LUSERME: %A" [| for p in message.Params.Value.Value -> p.Value |]
 
     /// RPL_ISUPPORT handler
     let rplISupportHandler (message: Message, clientData: IRCClientData) =
