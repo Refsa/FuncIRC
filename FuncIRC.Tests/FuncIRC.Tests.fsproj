@@ -23,6 +23,7 @@
     <ItemGroup>
         <Compile Include="TestMessages.fsx" />
         <Compile Include="MessageParserTests.fsx" />
+        <Compile Include="MessageHandlerTests.fsx" />
         
         <Compile Include="PerformanceTests/MessageParser.performance.fsx" />
 

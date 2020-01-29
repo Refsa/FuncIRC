@@ -8,7 +8,11 @@ open MessageTypes
 open IRCClientData
 open NumericReplies
 
+#if !DEBUG
 module internal MessageHandlers =
+#else
+module MessageHandlers =
+#endif
 
     /// PONG message const 
     let private pongMessage = Message.NewSimpleMessage (Some (Verb "PONG")) None

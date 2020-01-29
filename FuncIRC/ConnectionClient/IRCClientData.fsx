@@ -32,7 +32,7 @@ module IRCClientData =
         let sendMessage:         Event<_> = new Event<_>()
 
         // # MUTABLES
-        let mutable userInfoSelf: IRCUserInfo ValueOption = ValueOption.ValueNone
+        let mutable userInfoSelf: IRCUserInfo option = None
 
 //#region private members
         /// Messages from the outbound message queue
@@ -46,7 +46,7 @@ module IRCClientData =
         /// CancellationToken from this.TokenSource
         member internal this.Token       = tokenSource.Token
         /// User info of the connected client
-        member internal this.SetUserInfoSelf userInfo = userInfoSelf <- userInfo
+        member internal this.SetUserInfoSelf userInfo = userInfoSelf <- Some userInfo
 
         // # EVENTS Triggers
         /// Dispatches the clientDisconnected event
@@ -86,7 +86,11 @@ module IRCClientData =
 //#endregion
 
 //#region Internal extension methods to IRCClientData
+#if !DEBUG
     type internal IRCClientData with
+#else
+    type IRCClientData with
+#endif
         /// Retreives outbound messages, if any, from the outbound MessageQueue in IRCClientData
         member this.GetOutboundMessages =
             match this.OutQueue with

@@ -15,7 +15,7 @@ module GeneralHelpers =
 
     let stringIsEmpty (target: string) = target = ""
 
-    let arrayRemove arr method = arr |> Array.where (method >> not)
+    let arrayRemove (arr: 'a array) (method: 'a -> bool) = arr |> Array.where (method >> not)
 
     let stringArrayRemoveEmpty (stringArray: string array) =
         stringArray
