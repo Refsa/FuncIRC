@@ -157,11 +157,16 @@ module MessageHandlerTests =
     [<Test>]
     let ``RPL_GLOBALUSERS handler should respond with trailing params``() =
         let clientData = ircClientData()
-        let parameters = Some (toParameters [|"Nick"; "Current global users: 0  Max: 0"|])
+        let parameters = Some (toParameters [|"Nick"; "Current global users: 1  Max: 10"|])
         let verb = Some (Verb "RPL_GLOBALUSERS")
         let message = Message.NewSimpleMessage verb parameters
 
-        Assert.Warn ("Not Implemented")
+        rplGlobalUsersHandler (message, clientData)
+
+        let wantedServerInfo = { default_IRCServerInfo with GlobalUserInfo = (1, 10) }
+
+        Assert.AreNotEqual (clientData.GetServerInfo, default_IRCServerInfo)
+        Assert.AreEqual (clientData.GetServerInfo, wantedServerInfo)
 
     [<Test>]
     let ``RPL_MOTDSTART handler should respond with trailing params``() =
