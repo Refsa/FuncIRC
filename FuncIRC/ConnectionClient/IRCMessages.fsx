@@ -79,19 +79,23 @@ module IRCMessages =
             | UserRealName (nick, user, realName)           -> [ capMessage; nickMessage nick; userMessage user realName ]
             | User (nick, user)                             -> [ capMessage; nickMessage nick; userMessage user user ]
             | Nick (nick)                                   -> [ capMessage; nickMessage nick; userMessage nick nick ]
- 
-        [//                                                 VERB                                HANDLER
-            MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_WELCOME.Value))       rplWelcomeHandler
-            MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_YOURHOST.Value))      rplYourHostHandler
-            MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_CREATED.Value))       rplCreatedHandler
-            MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_MYINFO.Value))        rplMyInfoHandler
-            MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_LUSERCLIENT.Value))   rplLUserClientHandler
-            MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_LUSERUNKNOWN.Value))  rplLUserUnknownHandler
-            MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_LUSERCHANNELS.Value)) rplLUserChannelsHandler
-            MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_LUSERME.Value))       rplLUserMeHandler
-            MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_LOCALUSERS.Value))    rplLocalUsersHandler
-            MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_GLOBALUSERS.Value))   rplGlobalUsersHandler
-        ] |> List.iter clientData.AddSubscription
+
+        clientData.MessageSubscriptionEvent
+        |> Event.add (
+            fun (m, c) -> 
+                match m.Verb.Value.Value with
+                | verb when verb = (NumericsReplies.RPL_WELCOME.ToString()) -> rplWelcomeHandler (m, c) |> ignore
+                | verb when verb = (NumericsReplies.RPL_YOURHOST.ToString()) -> rplYourHostHandler (m, c) |> ignore
+                | verb when verb = (NumericsReplies.RPL_CREATED.ToString()) -> rplCreatedHandler (m, c) |> ignore
+                | verb when verb = (NumericsReplies.RPL_MYINFO.ToString()) -> rplMyInfoHandler (m, c) |> ignore
+                | verb when verb = (NumericsReplies.RPL_LUSERCLIENT.ToString()) -> rplLUserClientHandler (m, c) |> ignore
+                | verb when verb = (NumericsReplies.RPL_LUSERUNKNOWN.ToString()) -> rplLUserUnknownHandler (m, c) |> ignore
+                | verb when verb = (NumericsReplies.RPL_LUSERCHANNELS.ToString()) -> rplLUserChannelsHandler (m, c) |> ignore
+                | verb when verb = (NumericsReplies.RPL_LUSERME.ToString()) -> rplLUserMeHandler (m, c) |> ignore
+                | verb when verb = (NumericsReplies.RPL_LOCALUSERS.ToString()) -> rplLocalUsersHandler (m, c) |> ignore
+                | verb when verb = (NumericsReplies.RPL_GLOBALUSERS.ToString()) -> rplGlobalUsersHandler (m, c) |> ignore
+                | _ -> ()
+        )
 
         clientData.AddOutMessages messages
 

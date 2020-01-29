@@ -12,16 +12,8 @@ open MessageQueue
 open MessageTypes
 open Subscription
 
-module rec IRCClientData =
-    type MessageSubscription = Subscription<Message, IRCClientData>
-    type MessageSubscriptionQueue = SubscriptionQueue<MessageSubscription>
-
-    let messageSubscriptionEquals (x: MessageSubscription, y: MessageSubscription) =
-        x.Timestamp = y.Timestamp && x.Verb = y.Verb && x.Continuous = y.Continuous
-    
-    let messageSubscriptionVerbEquals (x: MessageSubscription, v: Verb) =
-        x.Verb = v
-
+// TODO: Remove recursive dependency in module
+module IRCClientData =
     type IRCUserInfo =
         {
             Source: Source
@@ -43,14 +35,14 @@ module rec IRCClientData =
     type IRCClientData() =
         // # FIELDS
         let tokenSource:       CancellationTokenSource  = new CancellationTokenSource()
-        let subscriptionQueue: MessageSubscriptionQueue = MessageSubscriptionQueue()
         let outQueue:          MessageQueue             = MessageQueue()
         let inQueue:           MessageQueue             = MessageQueue()
 
         // # EVENTS
-        let clientDisconnected: Event<_> = new Event<_>()
-        let disconnectClient:   Event<_> = new Event<_>()
-        let sendMessage:        Event<_> = new Event<_>()
+        let clientDisconnected:  Event<_> = new Event<_>()
+        let disconnectClient:    Event<_> = new Event<_>()
+        let sendMessage:         Event<_> = new Event<_>()
+        let messageSubscription: Event<_> = new Event<_>()
 
         // # MUTABLES
         let mutable userInfoSelf: IRCUserInfo ValueOption = ValueOption.ValueNone
@@ -63,7 +55,6 @@ module rec IRCClientData =
         // # FIELDS
         member internal this.TokenSource       = tokenSource
         member internal this.Token             = tokenSource.Token
-        member internal this.SubscriptionQueue = subscriptionQueue
         member internal this.OutQueue          = outQueue
         member internal this.InQueue           = inQueue
 
@@ -72,25 +63,28 @@ module rec IRCClientData =
         // # EVENTS Triggers
         member internal this.ClientDisconnected() = clientDisconnected.Trigger()
         member internal this.SendMessageTrigger() = sendMessage.Trigger()
+        member internal this.MessageSubscriptionTrigger(message: Message) = messageSubscription.Trigger (message, this)
+
         // # Internal EVENTS
         [<CLIEvent>]
         member internal this.DisconnectClientEvent = disconnectClient.Publish
         [<CLIEvent>]
-        member internal this.SendMessageEvent      = sendMessage.Publish
+        member internal this.SendMessageEvent = sendMessage.Publish
 //#endregion
 
 //#region external members
-        member this.GetUserInfoSelf              = userInfoSelf
+        member this.GetUserInfoSelf = userInfoSelf
 
-        member this.AddSubscription subscription = subscriptionQueue.AddSubscription subscription
         // TODO: Add outboud message validation
-        member this.AddOutMessage message        = outQueue.AddMessage message; this.SendMessageTrigger ()
-        member this.AddOutMessages messages      = outQueue.AddMessages messages; this.SendMessageTrigger ()
+        member this.AddOutMessage message   = outQueue.AddMessage message; this.SendMessageTrigger ()
+        member this.AddOutMessages messages = outQueue.AddMessages messages; this.SendMessageTrigger ()
 //#endregion
 
 //#region External Events
         [<CLIEvent>]
         member this.ClientDisconnectedEvent = clientDisconnected.Publish
+        [<CLIEvent>]
+        member this.MessageSubscriptionEvent = messageSubscription.Publish
 
         member this.DisconnectClient() = disconnectClient.Trigger()
 //#endregion

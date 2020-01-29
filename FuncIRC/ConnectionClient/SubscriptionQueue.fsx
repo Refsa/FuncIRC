@@ -8,6 +8,7 @@ open Subscription
 open MessageTypes
 
 module SubscriptionQueue =
+    [<Sealed>]
     type SubscriptionQueue<'M>() =
         let mutable subscriptions: 'M array = Array.empty
 

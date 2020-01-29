@@ -39,8 +39,9 @@ module Subscription =
             #endif
             Continuous: bool
             AdditionalData: string option
-        } with
-        
+        }
+    
+    type Subscription<'M, 'T> with
         static member NewRepeat verb callback = 
             { Timestamp = DateTime.UtcNow; Verb = verb; Callback = callback; Continuous = true; AdditionalData = None }
 

@@ -23,17 +23,6 @@ open System.Net.Sockets
 open StringHelpers
 
 module internal IRCStreamReader =
-    /// Runs the callback function on all registered subscriptions for given verb
-    let runMessageSubscriptionCallbacks (clientData: IRCClientData) (verb: Verb) (callbackParams: Message) =
-        clientData.SubscriptionQueue.GetSubscriptions verb messageSubscriptionVerbEquals
-        |> Array.iter 
-            (fun (x: MessageSubscription) -> 
-                x.Callback (callbackParams, clientData) |> ignore
-
-                if not x.Continuous then
-                    clientData.SubscriptionQueue.RemoveSubscription x messageSubscriptionEquals
-            )
-
     /// Parses the whole message string from the server and runs the corresponding sub-handlers for tags, source, verb and params
     let receivedDataHandler (data: string, clientData: IRCClientData) =
         data.Trim(' ').Replace("\r\n", "")
@@ -50,7 +39,7 @@ module internal IRCStreamReader =
                     | IsVerbName command -> Verb command
                     | IsNumeric numeric -> Verb (numericReplies.[numeric].ToString())
 
-                runMessageSubscriptionCallbacks clientData verbName message
+                clientData.MessageSubscriptionTrigger {message with Verb = Some verbName}
             | None -> ()
 
     /// Responsible for reading the incoming byte stream

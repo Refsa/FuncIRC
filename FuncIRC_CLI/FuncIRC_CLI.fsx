@@ -103,11 +103,17 @@ module CLI =
             }
         messageLoop()
 
-    let printPrivMsg (message: Message) =
+    let printPrivMsg (message: Message, clientData: IRCClientData) =
         printfn "PRIVMSG: %s %s: %s" 
                     message.Params.Value.Value.[0].Value 
                     message.Source.Value.Nick.Value 
                     message.Params.Value.Value.[1].Value
+        None
+
+    let joinChannelOnConnect (message: Message, clientData: IRCClientData) =
+        clientData.AddOutMessage (joinChannelMessage "#testchannel")
+        //Async.StartAsTask ((sendPrivMsgTask ("spam", "#testchannel", 2000, clientData))) |> ignore
+        None
 
     let spammerLoginDetail = ("spammernick", "spammeruser", "spammer name", "")
     let testUserLoginDetail = ("testnick", "testuser", "some name", "")
@@ -128,14 +134,14 @@ module CLI =
         let serverAddress = ("127.0.0.1", 6697)
         let clientData    = startIrcClient serverAddress
 
-        [
-            (MessageSubscription.NewRepeat (Verb "PRIVMSG") (fun (m, c) -> printPrivMsg m; None));
-            (MessageSubscription.NewSingle (Verb (NumericsReplies.RPL_MYINFO.ToString())) 
-                                           (fun (m: Message, c: IRCClientData) -> 
-                                                c.AddOutMessage (joinChannelMessage "#testchannel")
-                                                //Async.StartAsTask ((sendPrivMsgTask ("spam", "#testchannel", 2000, clientData))) |> ignore
-                                                None ));
-        ] |> List.iter clientData.AddSubscription
+        clientData.MessageSubscriptionEvent
+        |> Event.add (
+            fun (m, c) ->
+                match m.Verb.Value.Value with
+                | verb when verb = "PRIVMSG" -> printPrivMsg(m, c) |> ignore
+                | verb when verb = (NumericsReplies.RPL_MYINFO.ToString()) -> joinChannelOnConnect(m, c) |> ignore
+                | _ -> ()
+        )
 
         clientData |> sendRegistrationMessage <| testUserLoginDetail
 
