@@ -51,74 +51,110 @@ module MessageHandlerTests =
 
     [<Test>]
     let ``RPL_CREATED handler should respond with trailing params if there was any``() =
+        let clientData = ircClientData()
         let testParams = "This server was created 23:25:21 Jan 24 2020"
         let parameters = Some (toParameters [|"Nick"; testParams|])
-        let verb = Verb "RPL_CREATED"
+        let verb = Some (Verb "RPL_CREATED")
+        let message = Message.NewSimpleMessage verb parameters
+
         Assert.Warn ("Not Implemented")
 
     [<Test>]
     let ``RPL_MYINFO handler should respond with params if there was any``() =
-        let testParams = toParameters [|"Nick"; "127.0.0.1 InspIRCd-3 iosw biklmnopstv"; "bklov"|]
-        let verb = Verb "RPL_MYINFO"
+        let clientData = ircClientData()
+        let parameters = Some (toParameters [|"Nick"; "127.0.0.1 InspIRCd-3 iosw biklmnopstv"; "bklov"|])
+        let verb = Some (Verb "RPL_MYINFO")
+        let message = Message.NewSimpleMessage verb parameters
+
         Assert.Warn ("Not Implemented")
 
     [<Test>]
     let ``RPL_ISUPPORT handler should respond with everything except trailing params``() =
-        let testParams = toParameters [|"Nick"; "AWAYLEN=200"; "CASEMAPPING=ascii"; "CHANLIMIT=#:20"; "CHANMODES=b,k,l,imnpst"; "CHANNELLEN=64"; "CHANTYPES=#"; "ELIST=CMNTU"; "HOSTLEN=64"; "KEYLEN=32"; "KICKLEN=255"; "LINELEN=512"; "MAXLIST=b:100"; "are supported by this server"|]
-        let verb = Verb "RPL_ISUPPORT"
+        let clientData = ircClientData()
+        let parameters = Some (toParameters [|"Nick"; "AWAYLEN=200"; "CASEMAPPING=ascii"; "CHANLIMIT=#:20"; "CHANMODES=b,k,l,imnpst"; "CHANNELLEN=64"; "CHANTYPES=#"; "ELIST=CMNTU"; "HOSTLEN=64"; "KEYLEN=32"; "KICKLEN=255"; "LINELEN=512"; "MAXLIST=b:100"; "are supported by this server"|])
+        let verb = Some (Verb "RPL_ISUPPORT")
+        let message = Message.NewSimpleMessage verb parameters
+
         Assert.Warn ("Not Implemented")
 
     [<Test>]
     let ``RPL_LUSERCLIENT handler should respond with trailing params``() =
+        let clientData = ircClientData()
         let testParams = "There are 0 users and 0 invisible on 1 servers"
         let parameters = Some (toParameters [|"Nick"; testParams|])
-        let verb = Verb "RPL_LUSERCLIENT"
+        let verb = Some (Verb "RPL_LUSERCLIENT")
+        let message = Message.NewSimpleMessage verb parameters
+
         Assert.Warn ("Not Implemented")
 
     [<Test>]
     let ``RPL_LUSERUNKNOWN handler should respond with trailing params``() =
-        let testParams = toParameters [|"Nick"; "1"; "unknown connections"|]
-        let verb = Verb "RPL_LUSERUNKNOWN"
+        let clientData = ircClientData()
+        let parameters = Some (toParameters [|"Nick"; "1"; "unknown connections"|])
+        let verb = Some (Verb "RPL_LUSERUNKNOWN")
+        let message = Message.NewSimpleMessage verb parameters
+
         Assert.Warn ("Not Implemented")
 
     [<Test>]
     let ``RPL_LUSERCHANNELS handler should respond with trailing params``() =
-        let testParams = toParameters [|"Nick"; "0"; "channels formed"|]
-        let verb = Verb "RPL_LUSERCHANNELS"
+        let clientData = ircClientData()
+        let parameters = Some (toParameters [|"Nick"; "0"; "channels formed"|])
+        let verb = Some (Verb "RPL_LUSERCHANNELS")
+        let message = Message.NewSimpleMessage verb parameters
+
         Assert.Warn ("Not Implemented")
 
     [<Test>]
     let ``RPL_LUSERME handler should respond with trailing params``() =
-        let testParams = toParameters [|"Nick"; "I have 0 clients and 0 servers"|]
-        let verb = Verb "RPL_LUSERME"
+        let clientData = ircClientData()
+        let parameters = Some (toParameters [|"Nick"; "I have 0 clients and 0 servers"|])
+        let verb = Some (Verb "RPL_LUSERME")
+        let message = Message.NewSimpleMessage verb parameters
+
         Assert.Warn ("Not Implemented")
 
     [<Test>]
     let ``RPL_LOCALUSERS handler should respond with trailing params``() =
-        let testParams = toParameters [|"Nick"; "Current local users: 0  Max: 0"|]
-        let verb = Verb "RPL_LOCALUSERS"
+        let clientData = ircClientData()
+        let parameters = Some (toParameters [|"Nick"; "Current local users: 0  Max: 0"|])
+        let verb = Some (Verb "RPL_LOCALUSERS")
+        let message = Message.NewSimpleMessage verb parameters
+
         Assert.Warn ("Not Implemented")
 
     [<Test>]
     let ``RPL_GLOBALUSERS handler should respond with trailing params``() =
-        let testParams = toParameters [|"Nick"; "Current global users: 0  Max: 0"|]
-        let verb = Verb "RPL_GLOBALUSERS"
+        let clientData = ircClientData()
+        let parameters = Some (toParameters [|"Nick"; "Current global users: 0  Max: 0"|])
+        let verb = Some (Verb "RPL_GLOBALUSERS")
+        let message = Message.NewSimpleMessage verb parameters
+
         Assert.Warn ("Not Implemented")
 
     [<Test>]
     let ``RPL_MOTDSTART handler should respond with trailing params``() =
-        let testParams = toParameters [|"Nick"; "127.0.0.1 message of the day"|]
-        let verb = Verb "RPL_MOTDSTART"
+        let clientData = ircClientData()
+        let parameters = Some (toParameters [|"Nick"; "127.0.0.1 message of the day"|])
+        let verb = Some (Verb "RPL_MOTDSTART")
+        let message = Message.NewSimpleMessage verb parameters
+
         Assert.Warn ("Not Implemented")
 
     [<Test>]
     let ``RPL_MOTD handler should respond with trailing params``() =
-        let testParams = toParameters [|"Nick"; " _____                        _____   _____    _____      _"|]
-        let verb = Verb "RPL_MOTD"
+        let clientData = ircClientData()
+        let parameters = Some (toParameters [|"Nick"; " _____                        _____   _____    _____      _"|])
+        let verb = Some (Verb "RPL_MOTD")
+        let message = Message.NewSimpleMessage verb parameters
+
         Assert.Warn ("Not Implemented")
 
     [<Test>]
     let ``RPL_ENDOFMOTD handler should respond with trailing params``() =
-        let testParams = toParameters [|"Nick"; "End of message of the day."|]
-        let verb = Verb "RPL_ENDOFMOTD"
+        let clientData = ircClientData()
+        let parameters = Some (toParameters [|"Nick"; "End of message of the day."|])
+        let verb = Some (Verb "RPL_ENDOFMOTD")
+        let message = Message.NewSimpleMessage verb parameters
+
         Assert.Warn ("Not Implemented")
