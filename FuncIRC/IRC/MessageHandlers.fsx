@@ -108,13 +108,21 @@ module MessageHandlers =
         let currentLocalUsers =
             matchRegexGroup wantedParam currentUsersRegex
             |> function
-            | Some r -> int (r.[0].Groups.[1].Value)
+            | Some r -> 
+                try
+                    int (r.[0].Groups.[1].Value)
+                with
+                | _ -> -1
             | None -> -1
             
         let maxLocalUsers =
             matchRegexGroup wantedParam maxUsersRegex
             |> function
-            | Some r -> int (r.[0].Groups.[1].Value)
+            | Some r -> 
+                try
+                    int (r.[0].Groups.[1].Value)
+                with
+                | _ -> -1
             | None -> -1
 
         clientData.ServerInfo <- {clientData.ServerInfo with LocalUserInfo = (currentLocalUsers, maxLocalUsers)}
@@ -126,13 +134,21 @@ module MessageHandlers =
         let currentGlobalUsers =
             matchRegexGroup wantedParam currentUsersRegex
             |> function
-            | Some r -> int (r.[0].Groups.[1].Value)
+            | Some r -> 
+                try
+                    int (r.[0].Groups.[1].Value)
+                with
+                | _ -> -1
             | None -> -1
             
         let maxGlobalUsers =
             matchRegexGroup wantedParam maxUsersRegex
             |> function
-            | Some r -> int (r.[0].Groups.[1].Value)
+            | Some r -> 
+                try
+                    int (r.[0].Groups.[1].Value)
+                with
+                | _ -> -1
             | None -> -1
 
         clientData.ServerInfo <- {clientData.ServerInfo with GlobalUserInfo = (currentGlobalUsers, maxGlobalUsers)}
