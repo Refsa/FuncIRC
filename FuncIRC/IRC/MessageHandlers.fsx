@@ -77,7 +77,21 @@ module MessageHandlers =
 
     /// RPL_GLOBALUSERS handler
     let rplGlobalUsersHandler (message: Message, clientData: IRCClientData) =
-        printfn "RPL_GLOBALUSERS: %A" [| for p in message.Params.Value.Value -> p.Value |]
+        let wantedParam = message.Params.Value.Value.[1].Value
+       
+        let currentGlobalUsers =
+            matchRegexGroup wantedParam currentUsersRegex
+            |> function
+            | Some r -> int (r.[0].Groups.[1].Value)
+            | None -> -1
+            
+        let maxGlobalUsers =
+            matchRegexGroup wantedParam maxUsersRegex
+            |> function
+            | Some r -> int (r.[0].Groups.[1].Value)
+            | None -> -1
+
+        clientData.ServerInfo <- {clientData.ServerInfo with GlobalUserInfo = (currentGlobalUsers, maxGlobalUsers)}
 
 //#region MOTD handlers
     let rplMotdStartHandler (message: Message, clientData: IRCClientData) =
