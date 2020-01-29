@@ -74,7 +74,17 @@ module MessageHandlers =
 
     /// RPL_ISUPPORT handler
     let rplISupportHandler (message: Message, clientData: IRCClientData) =
-        ()
+        let paramsLen = message.Params.Value.Value.Length
+        let wantedParams = message.Params.Value.Value.[1..paramsLen-2]
+
+        let features =
+            [| 
+                for param in wantedParams ->
+                    let paramSplit = param.Value.Split('=')
+                    (paramSplit.[0], paramSplit.[1]) 
+            |]
+        
+        clientData.ServerFeatures <- clientData.ServerFeatures |> Array.append features
 
 //#region RPL_LOCALUSERS/RPL_GLOBALUSERS handlers
     let currentUsersRegex = @"users.+?(\d)"
