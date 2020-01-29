@@ -31,6 +31,11 @@ module IRCInformation =
         | MOTD of string list
         member x.Value = let (MOTD motd) = x in motd
 
+
+    type IRCServerFeatures =
+        | Features of (string * string) array
+        member x.Value = let (Features features) = x in features
+
 //#region Defaults
     let default_IRCServerInfo = {Name = "DEFAULT"; Created = DateTime.MinValue; GlobalUserInfo = (-1, -1); LocalUserInfo = (-1, -1)}
 //#endregion
