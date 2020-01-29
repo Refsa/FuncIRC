@@ -40,10 +40,14 @@ module MessageHandlerTests =
         Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
     [<Test>]
-    let ``RPL_YOURHOST handler should respond with trailing params if there was any``() =
+    let ``RPL_YOURHOST handler should do nothing``() =
+        let clientData = ircClientData()
         let parameters = Some (toParameters [|"Nick"; "Your host is 127.0.0.1, running version InspIRCd-3"|])
-        let verb = Verb "RPL_YOURHOST"
-        Assert.Warn ("Not Implemented")
+        let verb = Some (Verb "RPL_YOURHOST")
+        let message = Message.NewSimpleMessage verb parameters
+
+        Assert.AreEqual (clientData.GetOutboundMessages, "")
+        Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
     [<Test>]
     let ``RPL_CREATED handler should respond with trailing params if there was any``() =
