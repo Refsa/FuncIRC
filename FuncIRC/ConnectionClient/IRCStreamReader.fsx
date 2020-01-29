@@ -4,7 +4,6 @@
 #load "../IRC/MessageParserInternals.fsx"
 #load "../IRC/MessageTypes.fsx"
 #load "../IRC/NumericReplies.fsx"
-#load "../IRC/VerbHandlers.fsx"
 #load "../IRC/MessageHandlers.fsx"
 #load "../Utils/StringHelpers.fsx"
 
@@ -15,7 +14,6 @@ open MessageParser
 open MessageParserInternals
 open MessageTypes
 open NumericReplies
-open VerbHandlers
 open IRCClientData
 open System.Net.Sockets
 open StringHelpers

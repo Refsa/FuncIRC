@@ -1,33 +1,19 @@
 #load "MessageQueue.fsx"
+#load "IRCInformation.fsx"
 #load "../IRC/MessageTypes.fsx"
 
 namespace FuncIRC
 
 open System
+open IRCInformation
 open System.Threading
 open MessageQueue
 open MessageTypes
 
 // TODO: Remove recursive dependency in module
 module IRCClientData =
-    type IRCUserInfo =
-        {
-            Source: Source
-        }
 
-    type IRCServerInfo =
-        {
-            Name: string
-            GlobalUserCount: int
-            LocalUserCount: int
-        }
-
-    type IRCChannelInfo =  
-        {
-            Name: string
-            UserCount: int
-        }
-
+//#region IRCClientData implementation
     type IRCClientData() =
         // # FIELDS
         /// CancellationTokenSource for the internal tasks
@@ -48,22 +34,23 @@ module IRCClientData =
         // # MUTABLES
         let mutable userInfoSelf: IRCUserInfo ValueOption = ValueOption.ValueNone
 
+//#region private members
+        /// Messages from the outbound message queue
+        member private this.OutQueue    = outQueue
+//#endregion
+
 //#region internal members
         // # FIELDS
         /// CancellationTokenSource for internal tasks
-        member internal this.TokenSource       = tokenSource
+        member internal this.TokenSource = tokenSource
         /// CancellationToken from this.TokenSource
-        member internal this.Token             = tokenSource.Token
-        /// Messages from the outbound message queue
-        member internal this.OutQueue          = outQueue
-
+        member internal this.Token       = tokenSource.Token
+        /// User info of the connected client
         member internal this.SetUserInfoSelf userInfo = userInfoSelf <- userInfo
 
         // # EVENTS Triggers
         /// Dispatches the clientDisconnected event
         member internal this.ClientDisconnected() = clientDisconnected.Trigger()
-        /// Dispatches the sendMessage event
-        member internal this.SendMessageTrigger() = sendMessage.Trigger()
         /// Dispatches the messageSubscription event
         member internal this.MessageSubscriptionTrigger(message: Message) = messageSubscription.Trigger (message, this)
 
@@ -81,9 +68,9 @@ module IRCClientData =
 
         // TODO: Add outboud message validation
         /// Adds one message to the outbound queue and triggers the sendMessage event
-        member this.AddOutMessage message   = outQueue.AddMessage message; this.SendMessageTrigger ()
+        member this.AddOutMessage message   = outQueue.AddMessage message; sendMessage.Trigger()
         /// Adds multiple messages to the outbound queue and triggers the sendMessage event
-        member this.AddOutMessages messages = outQueue.AddMessages messages; this.SendMessageTrigger ()
+        member this.AddOutMessages messages = outQueue.AddMessages messages; sendMessage.Trigger()
 //#endregion
 
 //#region External Events
@@ -96,4 +83,14 @@ module IRCClientData =
 
         /// Event trigger for the disconnectClient event
         member this.DisconnectClient() = disconnectClient.Trigger()
+//#endregion
+
+//#region Internal extension methods to IRCClientData
+    type internal IRCClientData with
+        /// Retreives outbound messages, if any, from the outbound MessageQueue in IRCClientData
+        member this.GetOutboundMessages =
+            match this.OutQueue with
+            | EmptyQueue -> ""
+            | SingleItemInQueue item     -> item.ToMessageString
+            | MultipleItemsInQueue items -> messagesToString items
 //#endregion

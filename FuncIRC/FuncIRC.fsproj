@@ -17,7 +17,6 @@
     <Compile Include="IRC/Validators.fsx" />
     <Compile Include="IRC/IrcUtils.fsx" />
     <Compile Include="IRC/MessageParser.fsx" />
-    <Compile Include="IRC/VerbHandlers.fsx" />
 
     <Compile Include="ConnectionClient/ConnectionClient.fsx" />
     <Compile Include="ConnectionClient/MessageQueue.fsx" />

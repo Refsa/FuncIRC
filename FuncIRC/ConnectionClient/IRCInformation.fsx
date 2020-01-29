@@ -7,9 +7,20 @@ open MessageTypes
 open ConnectionClient
 
 module IRCInformation =
-    type IRCClientInformation =
+    type IRCUserInfo =
         {
-            Nick: string
-            User: string
-            Host: string
+            Source: Source
+        }
+
+    type IRCServerInfo =
+        {
+            Name: string
+            GlobalUserCount: int
+            LocalUserCount: int
+        }
+
+    type IRCChannelInfo =  
+        {
+            Name: string
+            UserCount: int
         }

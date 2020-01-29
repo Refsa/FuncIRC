@@ -85,6 +85,12 @@ module MessageTypes =
             match this.Params with
             | Some parameters -> parameters.ToString
             | None -> ""
+
+    /// Construct a single outboud IRC message from a list of messages
+    let messagesToString (messages: Message list) =
+        let mutable outboundMessage = ""
+        messages |> List.iter (fun (m: Message) -> outboundMessage <- outboundMessage + m.ToMessageString + "\r\n" )
+        outboundMessage
 //#endregion
 
 //#region ToType functions
@@ -104,4 +110,13 @@ module MessageTypes =
             Some (int (verb.Value))
         with
         | _ -> None
+//#endregion
+
+//#region Verb extensions
+    let (|IsNumeric|IsVerbName|) (verb: Verb) =
+        let numeric = verbToInt verb
+
+        match numeric with
+        | Some numeric -> IsNumeric numeric
+        | None -> IsVerbName verb.Value
 //#endregion
