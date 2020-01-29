@@ -9,6 +9,7 @@ open MessageTypes
 open IRCClientData
 open NumericReplies
 open RegexHelpers
+open System
 
 #if !DEBUG
 module internal MessageHandlers =
@@ -30,9 +31,26 @@ module MessageHandlers =
     let rplYourHostHandler (message: Message, clientData: IRCClientData) =
         printfn "RPL_YOURHOST: %s" message.Params.Value.Value.[1].Value
 
+//#region RPL_CREATED handler
+    let dateTimeRegex = @"(\d{2}:\d{2}:\d{2}.+)"
     /// RPL_CREATED handler
     let rplCreatedHandler (message: Message, clientData: IRCClientData) =
-        printfn "RPL_CREATED: %s" message.Params.Value.Value.[1].Value
+        let wantedParam = message.Params.Value.Value.[1].Value
+
+        let createdDateTimeString =
+            matchRegex wantedParam dateTimeRegex
+            |> function
+            | Some r -> r.[0]
+            | None -> ""
+
+        let createdDateTime =
+            try
+                DateTime.Parse (createdDateTimeString)
+            with 
+            | _ -> DateTime.MinValue
+
+        clientData.ServerInfo <- {clientData.ServerInfo with Created = createdDateTime}
+//#endregion RPL_CREATED handler
 
     /// RPL_MYINFO handler
     let rplMyInfoHandler (message: Message, clientData: IRCClientData) =
@@ -54,6 +72,7 @@ module MessageHandlers =
     let rplLUserMeHandler (message: Message, clientData: IRCClientData) =
         printfn "RPL_LUSERME: %A" [| for p in message.Params.Value.Value -> p.Value |]
 
+//#region RPL_LOCALUSERS/RPL_GLOBALUSERS handlers
     let currentUsersRegex = @"users.+?(\d)"
     let maxUsersRegex = @"[mM]ax.+?(\d+)"
 
@@ -92,6 +111,7 @@ module MessageHandlers =
             | None -> -1
 
         clientData.ServerInfo <- {clientData.ServerInfo with GlobalUserInfo = (currentGlobalUsers, maxGlobalUsers)}
+//#endregion RPL_LOCALUSERS/RPL_GLOBALUSERS handlers
 
 //#region MOTD handlers
     let rplMotdStartHandler (message: Message, clientData: IRCClientData) =
