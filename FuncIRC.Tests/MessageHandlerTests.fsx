@@ -85,7 +85,24 @@ module MessageHandlerTests =
         let verb = Some (Verb "RPL_ISUPPORT")
         let message = Message.NewSimpleMessage verb parameters
 
-        Assert.Warn ("Not Implemented")
+        let wantedFeatures = 
+            Features [| 
+                        ("AWAYLEN", "200"); ("CASEMAPPING", "ascii"); ("CHANLIMIT", "#:20"); 
+                        ("CHANMODES", "b,k,l,imnpst"); ("CHANNELLEN", "64"); ("CHANTYPES", "#"); 
+                        ("ELIST", "CMNTU"); ("HOSTLEN", "64"); ("KEYLEN", "32"); ("KICKLEN", "255"); 
+                        ("LINELEN", "512"); ("MAXLIST", "b:100") 
+                    |]
+
+        rplISupportHandler (message, clientData)
+
+        Assert.AreEqual (wantedFeatures.Value.Length, clientData.GetServerFeatures.Length)
+        let serverFeatureContentEquals = Array.forall2 (fun a b -> a=b) wantedFeatures.Value clientData.GetServerFeatures
+
+        if not serverFeatureContentEquals then
+            clientData.GetServerFeatures
+            |> Array.iter (fun (k, v) -> printfn "%s=%s" k v)
+
+        Assert.True (serverFeatureContentEquals)
 
     [<Test>]
     let ``RPL_LUSERCLIENT handler should do nothing for now``() =

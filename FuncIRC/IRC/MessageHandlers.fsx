@@ -72,6 +72,10 @@ module MessageHandlers =
     let rplLUserMeHandler (message: Message, clientData: IRCClientData) =
         printfn "RPL_LUSERME: %A" [| for p in message.Params.Value.Value -> p.Value |]
 
+    /// RPL_ISUPPORT handler
+    let rplISupportHandler (message: Message, clientData: IRCClientData) =
+        ()
+
 //#region RPL_LOCALUSERS/RPL_GLOBALUSERS handlers
     let currentUsersRegex = @"users.+?(\d)"
     let maxUsersRegex = @"[mM]ax.+?(\d+)"

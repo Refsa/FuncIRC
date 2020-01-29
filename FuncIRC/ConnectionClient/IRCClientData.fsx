@@ -31,10 +31,10 @@ module IRCClientData =
         let sendMessage:         Event<_> = new Event<_>()
 
         // # MUTABLES
-        let mutable userInfoSelf: IRCUserInfo option = None
-        let mutable serverInfo: IRCServerInfo = default_IRCServerInfo
-        let mutable serverMOTD: IRCServerMOTD = MOTD []
-        let mutable serverFeatuers: IRCServerFeatures = Features [||]
+        let mutable userInfoSelf:   IRCUserInfo option = None
+        let mutable serverInfo:     IRCServerInfo      = default_IRCServerInfo
+        let mutable serverMOTD:     IRCServerMOTD      = MOTD []
+        let mutable serverFeatuers: IRCServerFeatures  = Features [||]
 
 //#region private members
         /// Messages from the outbound message queue
@@ -55,7 +55,7 @@ module IRCClientData =
             and set(value) = serverInfo <- value
         /// Server MOTD
         member internal this.ServerMOTD
-            with get() = serverMOTD.Value
+            with get()     = serverMOTD.Value
             and set(value) = serverMOTD <- MOTD value
         /// Server Features
         member internal this.ServerFeatures
