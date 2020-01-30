@@ -329,8 +329,8 @@ module MessageHandlerTests =
     [<Test>]
     let ``ERR_NICKCOLLISION``() =
         let clientData = ircClientData()
-        let message = Message.NewSimpleMessage (Some (Verb "ERR_NICKCOLLISION")) None
-        let wantedErrorResponse = ""
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_NICKCOLLISION")) (Some (toParameters [|"Client"; "collisionnick"; "something about colliding nicks"|]))
+        let wantedErrorResponse = "Nickname [collisionnick] threw a nick collision response from server"
 
         let mutable errorResponse = ""
         clientData.ErrorNumericReceivedEvent
