@@ -250,7 +250,7 @@ module MessageHandlerTests =
     let ``ERR_NEEDMOREPARAMS``() =
         let clientData = ircClientData()
         let message = Message.NewSimpleMessage (Some (Verb "ERR_NEEDMOREPARAMS")) (Some (toParameters [|"Nick"; "Command"; "Not enough parameters"|]))
-        let wantedErrorResponse = ""
+        let wantedErrorResponse = "Command: Did not have enough parameters"
 
         let mutable errorResponse = ""
         clientData.ErrorNumericReceivedEvent
@@ -281,8 +281,8 @@ module MessageHandlerTests =
     [<Test>]
     let ``ERR_NONICKNAMEGIVEN``() =
         let clientData = ircClientData()
-        let message = Message.NewSimpleMessage (Some (Verb "ERR_NONICKNAMEGIVEN")) None
-        let wantedErrorResponse = ""
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_NONICKNAMEGIVEN")) (Some (toParameters [|"no nickname given"|]))
+        let wantedErrorResponse = "No Nickname was supplied to the NICK command"
 
         let mutable errorResponse = ""
         clientData.ErrorNumericReceivedEvent
