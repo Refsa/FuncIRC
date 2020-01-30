@@ -248,25 +248,97 @@ module MessageHandlerTests =
 //#region Error responses from server
     [<Test>]
     let ``ERR_NEEDMOREPARAMS``() =
-        Assert.Pass()
+        let clientData = ircClientData()
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_NEEDMOREPARAMS")) None
+        let wantedErrorResponse = ""
+
+        let mutable errorResponse = ""
+        clientData.ErrorNumericReceivedEvent
+        |> Event.add (
+            fun m -> errorResponse <- m
+        )
+
+        errNeedMoreParamsHandler (message, clientData)
+
+        Assert.AreEqual (wantedErrorResponse, errorResponse)
 
     [<Test>]
     let ``ERR_ALREADYREGISTERED``() =
-        Assert.Pass()
+        let clientData = ircClientData()
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_ALREADYREGISTERED")) None
+        let wantedErrorResponse = ""
+
+        let mutable errorResponse = ""
+        clientData.ErrorNumericReceivedEvent
+        |> Event.add (
+            fun m -> errorResponse <- m
+        )
+
+        errAlreadyRegisteredHandler (message, clientData)
+
+        Assert.AreEqual (wantedErrorResponse, errorResponse)
 
     [<Test>]
     let ``ERR_NONICKNAMEGIVEN``() =
-        Assert.Pass()
+        let clientData = ircClientData()
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_NONICKNAMEGIVEN")) None
+        let wantedErrorResponse = ""
+
+        let mutable errorResponse = ""
+        clientData.ErrorNumericReceivedEvent
+        |> Event.add (
+            fun m -> errorResponse <- m
+        )
+
+        errNoNicknameGivenHandler (message, clientData)
+
+        Assert.AreEqual (wantedErrorResponse, errorResponse)
 
     [<Test>]
     let ``ERR_ERRONEUSNICKNAME``() =
-        Assert.Pass()
+        let clientData = ircClientData()
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_ERRONEUSNICKNAME")) None
+        let wantedErrorResponse = ""
+
+        let mutable errorResponse = ""
+        clientData.ErrorNumericReceivedEvent
+        |> Event.add (
+            fun m -> errorResponse <- m
+        )
+
+        errErroneusNicknameHandler (message, clientData)
+
+        Assert.AreEqual (wantedErrorResponse, errorResponse)
 
     [<Test>]
     let ``ERR_NICKNAMEINUSE``() =
-        Assert.Pass()
+        let clientData = ircClientData()
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_NICKNAMEINUSE")) None
+        let wantedErrorResponse = ""
+
+        let mutable errorResponse = ""
+        clientData.ErrorNumericReceivedEvent
+        |> Event.add (
+            fun m -> errorResponse <- m
+        )
+
+        errNicknameInUseHandler (message, clientData)
+
+        Assert.AreEqual (wantedErrorResponse, errorResponse)
 
     [<Test>]
     let ``ERR_NICKCOLLISION``() =
-        Assert.Pass()
+        let clientData = ircClientData()
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_NICKCOLLISION")) None
+        let wantedErrorResponse = ""
+
+        let mutable errorResponse = ""
+        clientData.ErrorNumericReceivedEvent
+        |> Event.add (
+            fun m -> errorResponse <- m
+        )
+
+        errNickCollisionHandler (message, clientData)
+
+        Assert.AreEqual (wantedErrorResponse, errorResponse)
 //#endregion Error responsed from server
