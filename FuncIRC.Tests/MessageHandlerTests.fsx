@@ -265,7 +265,7 @@ module MessageHandlerTests =
     [<Test>]
     let ``ERR_ALREADYREGISTERED``() =
         let clientData = ircClientData()
-        let message = Message.NewSimpleMessage (Some (Verb "ERR_ALREADYREGISTERED")) (Some (toParameters [|"Nick"; "You may not reregister"|]))
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_ALREADYREGISTERED")) (Some (toParameters [|"Client"; "You may not reregister"|]))
         let wantedErrorResponse = "Already Registered: You have already registered with the server, cant change details at this time"
 
         let mutable errorResponse = ""
@@ -281,7 +281,7 @@ module MessageHandlerTests =
     [<Test>]
     let ``ERR_NONICKNAMEGIVEN``() =
         let clientData = ircClientData()
-        let message = Message.NewSimpleMessage (Some (Verb "ERR_NONICKNAMEGIVEN")) (Some (toParameters [|"no nickname given"|]))
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_NONICKNAMEGIVEN")) (Some (toParameters [|"Client"; "no nickname given"|]))
         let wantedErrorResponse = "No Nickname was supplied to the NICK command"
 
         let mutable errorResponse = ""
@@ -297,8 +297,8 @@ module MessageHandlerTests =
     [<Test>]
     let ``ERR_ERRONEUSNICKNAME``() =
         let clientData = ircClientData()
-        let message = Message.NewSimpleMessage (Some (Verb "ERR_ERRONEUSNICKNAME")) None
-        let wantedErrorResponse = ""
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_ERRONEUSNICKNAME")) (Some (toParameters [|"Client"; "somebannednick"; "Erroneus nickname"|]))
+        let wantedErrorResponse = "Nickname [somebannednick] was not accepted by server: Erroneus Nickname"
 
         let mutable errorResponse = ""
         clientData.ErrorNumericReceivedEvent
