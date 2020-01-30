@@ -1,7 +1,7 @@
 namespace FuncIRC
 
 /// General values related to IRCv3 protocol
-module IrcUtils =
+module internal IrcUtils =
 
     let plaintextPort = 6667 // TCP
     let tlsPort = 6697 // TCP TLS

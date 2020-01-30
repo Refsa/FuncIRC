@@ -1,29 +1,51 @@
-#load "ConnectionClient.fsx"
-#load "IRCClient.fsx"
+#load "MessageQueue.fsx"
+#load "IRCClientData.fsx"
+#load "../IRC/NumericReplies.fsx"
+#load "../IRC/MessageTypes.fsx"
+#load "../IRC/MessageHandlers.fsx"
 
 namespace FuncIRC
 
-module IRCStreamWriter =
-    open System.Text
-    open IRCClient
-    open ConnectionClient
+open IRCClientData
+open MessageHandlers
+open MessageTypes
+open MessageQueue
+open IRCClientData
+open System.Text
+open System.Threading
+open System.Net.Sockets
 
+module internal IRCStreamWriter =
     /// Verifies and sends the message string to the client stream
     /// Preferred syntax for sending messages is client |> sendIrcMessage <| message
-    let sendIrcMessage (client: Client) (message: string) =
+    let sendIrcMessage (stream: NetworkStream) (message: string) =
         let messageData =
             match message with
             | message when message.EndsWith("\r\n") -> Encoding.UTF8.GetBytes (message)
             | _ -> Encoding.UTF8.GetBytes (message + "\r\n")
 
-        client.Stream.Write (messageData, 0, messageData.Length)
+        try
+            printfn "Sending Message(s):\n\t%s" (message.Replace("\r\n", "\n\t"))
+            stream.Write (messageData, 0, messageData.Length) 
+        with
+            | e -> printfn "Exception when writing message(s) to stream: %s" e.Message
 
-    /// Creates a registration message and sends it to the client
-    let sendRegistrationMessage (client: Client) (nick: string, user: string, realName: string, pass: string) =
-        let message = 
-            match () with
-            | _ when pass <> "" && nick <> "" && user <> "" -> "CAP LS 302\r\nPASS " + pass + "\r\nNICK " + nick + "\r\nUSER 0 * " + user + "\r\n"
-            | _ when nick <> "" && user <> "" -> "CAP LS 302\r\nNICK " + nick + "\r\nUSER " + user + " 0 * " + realName + "\r\n"
-            | _ -> raise RegistrationContentException
+    /// Contains an internal async loop that looks at clientData.OutQueue and sends the messages
+    /// Has a 10ms sleep duration between each message sent 
+    /// will send multiple messages at the same time
+    let writeStream (clientData: IRCClientData) (stream: NetworkStream) =
+        let rec writeLoop() =
+            async {
+                do! Async.AwaitEvent (clientData.SendMessageEvent)
 
-        client |> sendIrcMessage <| message
+                clientData.GetOutboundMessages
+                |> function
+                | m when m = "" -> ()
+                | m -> stream |> sendIrcMessage <| m
+
+                match clientData.TokenSource.IsCancellationRequested with
+                | false -> return! writeLoop()
+                | true -> ()
+            }
+
+        writeLoop()

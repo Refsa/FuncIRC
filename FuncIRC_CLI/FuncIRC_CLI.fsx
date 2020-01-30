@@ -3,12 +3,15 @@
 #load "IRCTestInfo.fsx"
 #load "Utils/ConsoleHelpers.fsx"
 #load "Utils/GeneralHelpers.fsx"
-#load "View/CLIView.fsx"
-#load "Update/Application.fsx"
+
 #load "Model/ApplicationState.fsx"
 #load "Model/NavigationState.fsx"
+
+#load "Update/Application.fsx"
 #load "Update/Navigation.fsx"
 #load "Update/ButtonFunctions.fsx"
+
+#load "View/CLIView.fsx"
 #load "View/LoginView.fsx"
 #load "View/StartupView.fsx"
 
@@ -20,11 +23,11 @@ open System.Text
 open System.Threading
 open System.Threading.Tasks
 
-open FuncIRC.ConnectionClient
-open FuncIRC.IRCStreamReader
-open FuncIRC.IRCStreamWriter
-open FuncIRC.IRCClient
+open FuncIRC.IRCMessages
 open FuncIRC.MessageTypes
+open FuncIRC.ClientSetup
+open FuncIRC.IRCClientData
+open FuncIRC.NumericReplies
 
 open Application
 open ApplicationState
@@ -85,25 +88,34 @@ module CLI =
         with
             :? OperationCanceledException -> ()
 
-    let messageCallback (client: Client, message: Message) =
-        match message.Verb.Value.Value with
-        | "001" -> client |> sendIrcMessage <| "JOIN #testchannel"
-        | "PRIVMSG" -> printfn "CLI PRIVMSG Handler: %A" message.Params.Value
-        | _ -> ()
+    let sendPrivMsgTask(message: string, channel: string, timeout: int, clientData: IRCClientData) =
+        let outMessage = channelMessage message channel
+        let mutable counter = 0
 
-    let ircLoop (client: Client, token: CancellationTokenSource) =
-        Async.StartAsTask((readStream client receivedDataHandler messageCallback), TaskCreationOptions(), token.Token) |> ignore
+        let rec messageLoop() =
+            async {
+                clientData.AddOutMessage {outMessage with Params = Some (toParameters [|channel; message + "_" + counter.ToString()|])}
+                Thread.Sleep (timeout)
 
-        client |> sendRegistrationMessage <| ("testnick", "testuser", "some name", "")
+                counter <- counter + 1
+                return! messageLoop()
+            }
+        messageLoop()
 
-        printfn "### CLI LOOP ###"
-        while Console.ReadKey().Key <> ConsoleKey.Q do
-            ()
+    let printPrivMsg (message: Message, clientData: IRCClientData) =
+        printfn "PRIVMSG: %s %s: %s" 
+                    message.Params.Value.Value.[0].Value 
+                    message.Source.Value.Nick.Value 
+                    message.Params.Value.Value.[1].Value
+        None
 
-        if client.Connected then
-            client |> sendIrcMessage <| "QUIT bye everyone"
+    let joinChannelOnConnect (message: Message, clientData: IRCClientData) =
+        clientData.AddOutMessage (joinChannelMessage "#testchannel")
+        //Async.StartAsTask ((sendPrivMsgTask ("spam", "#testchannel", 2000, clientData))) |> ignore
+        None
 
-        token
+    let spammerLoginDetail = ("spammernick", "spammeruser", "spammer name", "")
+    let testUserLoginDetail = ("testnick", "testuser", "some name", "")
 
     [<EntryPoint>]
     let main argv =
@@ -113,16 +125,30 @@ module CLI =
         //|> fun cs ->
         //    Console.SetWindowSize (cs.Width, cs.Height)
         //    Console.SetBufferSize (cs.Width, cs.Height)
-
         //Console.Clear()
         //Console.SetCursorPosition (0, 0)
-
         //testAsyncTask()
         //(app.Run())
 
-        ircClient "127.0.0.1" 6697 
-        |> ircClientHandler
-        |> ircLoop
-        |> closeIrcClient
+        let serverAddress = ("127.0.0.1", 6697)
+        let clientData    = startIrcClient serverAddress
+
+        clientData.MessageSubscriptionEvent
+        |> Event.add (
+            fun (m, c) ->
+                match m.Verb.Value.Value with
+                | verb when verb = "PRIVMSG" -> printPrivMsg(m, c) |> ignore
+                | verb when verb = (NumericsReplies.RPL_MYINFO.ToString()) -> joinChannelOnConnect(m, c) |> ignore
+                | _ -> ()
+        )
+
+        clientData |> sendRegistrationMessage <| testUserLoginDetail
+
+        printfn "### CLI LOOP ###\n\n"
+        while Console.ReadKey().Key <> ConsoleKey.Q do
+            ()
+
+        clientData |> sendQuitMessage <| "Bye everyone!"
+        clientData.DisconnectClient()
 
         0 // return an integer exit code
