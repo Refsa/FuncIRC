@@ -166,3 +166,27 @@ module MessageHandlers =
     let rplEndOfMotdHandler (message: Message, clientData: IRCClientData) =
         ()
 //#endregion MOTD handlers
+
+    // General error message
+    let errNeedMoreParamsHandler (message: Message, clientData: IRCClientData) =
+        ()
+
+    /// Related to USER and PASS verb
+    let errAlreadyRegisteredHandler (message: Message, clientData: IRCClientData) =
+        ()
+
+    /// Related to NICK verb
+    let errNoNicknameGivenHandler (message: Message, clientData: IRCClientData) =
+        ()
+
+    /// Related to NICK verb
+    let errErroneusNicknameHandler (message: Message, clientData: IRCClientData) =
+        ()
+
+    /// Related to NICK verb
+    let errNicknameInUserHandler (message: Message, clientData: IRCClientData) =
+        ()
+
+    /// Related to NICK verb
+    let errNickCollisionHandler (message: Message, clientData: IRCClientData) =
+        ()

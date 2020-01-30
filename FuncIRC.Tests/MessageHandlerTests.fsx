@@ -244,3 +244,29 @@ module MessageHandlerTests =
         Assert.AreEqual (clientData.GetOutboundMessages, "")
         Assert.AreEqual (clientData.GetUserInfoSelf, None)
 //#endregion MOTD handler tests
+
+//#region Error responses from server
+    [<Test>]
+    let ``ERR_NEEDMOREPARAMS``() =
+        Assert.Pass()
+
+    [<Test>]
+    let ``ERR_ALREADYREGISTERED``() =
+        Assert.Pass()
+
+    [<Test>]
+    let ``ERR_NONICKNAMEGIVEN``() =
+        Assert.Pass()
+
+    [<Test>]
+    let ``ERR_ERRONEUSNICKNAME``() =
+        Assert.Pass()
+
+    [<Test>]
+    let ``ERR_NICKNAMEINUSE``() =
+        Assert.Pass()
+
+    [<Test>]
+    let ``ERR_NICKCOLLISION``() =
+        Assert.Pass()
+//#endregion Error responsed from server
