@@ -249,7 +249,7 @@ module MessageHandlerTests =
     [<Test>]
     let ``ERR_NEEDMOREPARAMS``() =
         let clientData = ircClientData()
-        let message = Message.NewSimpleMessage (Some (Verb "ERR_NEEDMOREPARAMS")) None
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_NEEDMOREPARAMS")) (Some (toParameters [|"Nick"; "Command"; "Not enough parameters"|]))
         let wantedErrorResponse = ""
 
         let mutable errorResponse = ""
@@ -265,8 +265,8 @@ module MessageHandlerTests =
     [<Test>]
     let ``ERR_ALREADYREGISTERED``() =
         let clientData = ircClientData()
-        let message = Message.NewSimpleMessage (Some (Verb "ERR_ALREADYREGISTERED")) None
-        let wantedErrorResponse = ""
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_ALREADYREGISTERED")) (Some (toParameters [|"Nick"; "You may not reregister"|]))
+        let wantedErrorResponse = "Already Registered: You have already registered with the server, cant change details at this time"
 
         let mutable errorResponse = ""
         clientData.ErrorNumericReceivedEvent
