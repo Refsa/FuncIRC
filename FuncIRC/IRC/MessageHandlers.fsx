@@ -169,24 +169,30 @@ module MessageHandlers =
 
     // General error message
     let errNeedMoreParamsHandler (message: Message, clientData: IRCClientData) =
-        ()
+        let errorResponse = message.Params.Value.Value.[1].Value + ": Did not have enough parameters"
+        clientData.ErrorNumericReceivedTrigger (errorResponse)
 
     /// Related to USER and PASS verb
     let errAlreadyRegisteredHandler (message: Message, clientData: IRCClientData) =
-        ()
+        let errorResponse = "Already Registered: You have already registered with the server, cant change details at this time"
+        clientData.ErrorNumericReceivedTrigger (errorResponse)
 
     /// Related to NICK verb
     let errNoNicknameGivenHandler (message: Message, clientData: IRCClientData) =
-        ()
+        let errorResponse = "No Nickname was supplied to the NICK command"
+        clientData.ErrorNumericReceivedTrigger (errorResponse)
 
     /// Related to NICK verb
     let errErroneusNicknameHandler (message: Message, clientData: IRCClientData) =
-        ()
+        let errorResponse = "Nickname [" + message.Params.Value.Value.[1].Value + "] was not accepted by server: Erroneus Nickname"
+        clientData.ErrorNumericReceivedTrigger (errorResponse)
 
     /// Related to NICK verb
     let errNicknameInUseHandler (message: Message, clientData: IRCClientData) =
-        ()
+        let errorResponse = "Nickname [" + message.Params.Value.Value.[1].Value + "] is already in use on server"
+        clientData.ErrorNumericReceivedTrigger (errorResponse)
 
     /// Related to NICK verb
     let errNickCollisionHandler (message: Message, clientData: IRCClientData) =
-        ()
+        let errorResponse = "Nickname [" + message.Params.Value.Value.[1].Value + "] threw a nick collision response from server"
+        clientData.ErrorNumericReceivedTrigger (errorResponse)
