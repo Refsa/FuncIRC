@@ -184,7 +184,7 @@ module MessageHandlers =
         ()
 
     /// Related to NICK verb
-    let errNicknameInUserHandler (message: Message, clientData: IRCClientData) =
+    let errNicknameInUseHandler (message: Message, clientData: IRCClientData) =
         ()
 
     /// Related to NICK verb

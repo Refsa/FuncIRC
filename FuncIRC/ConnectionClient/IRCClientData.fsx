@@ -22,13 +22,15 @@ module IRCClientData =
 
         // # EVENTS
         /// Event when the client was disconnected from server
-        let clientDisconnected:  Event<_> = new Event<_>()
+        let clientDisconnected:   Event<_> = new Event<_>()
         /// Event when wanting to disconnect the client
-        let disconnectClient:    Event<_> = new Event<_>()
+        let disconnectClient:     Event<_> = new Event<_>()
         /// Event when a new message has been received
-        let messageSubscription: Event<_> = new Event<_>()
+        let messageSubscription:  Event<_> = new Event<_>()
         /// Event when wanting to send messages
-        let sendMessage:         Event<_> = new Event<_>()
+        let sendMessage:          Event<_> = new Event<_>()
+        /// Error numeric from server
+        let errorNumericReceived: Event<_> = new Event<_>()
 
         // # MUTABLES
         let mutable userInfoSelf:   IRCUserInfo option = None
@@ -67,6 +69,8 @@ module IRCClientData =
         member internal this.ClientDisconnected() = clientDisconnected.Trigger()
         /// Dispatches the messageSubscription event
         member internal this.MessageSubscriptionTrigger(message: Message) = messageSubscription.Trigger (message, this)
+        /// Dispatches the errorNumericReceived event
+        member internal this.ErrorNumericReceivedTrigger (error: string) = errorNumericReceived.Trigger (error)
 
         // # Internal EVENTS
         /// Event binder for disconnectClient event
@@ -97,6 +101,9 @@ module IRCClientData =
         /// Event binder for the messageSubscription event
         [<CLIEvent>]
         member this.MessageSubscriptionEvent = messageSubscription.Publish
+        /// Event binder for the errorNumericReceived event
+        [<CLIEvent>]
+        member this.ErrorNumericReceivedEvent = errorNumericReceived.Publish
 
         /// Event trigger for the disconnectClient event
         member this.DisconnectClient() = disconnectClient.Trigger()
