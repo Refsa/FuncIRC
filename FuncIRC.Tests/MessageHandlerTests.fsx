@@ -313,8 +313,8 @@ module MessageHandlerTests =
     [<Test>]
     let ``ERR_NICKNAMEINUSE``() =
         let clientData = ircClientData()
-        let message = Message.NewSimpleMessage (Some (Verb "ERR_NICKNAMEINUSE")) None
-        let wantedErrorResponse = ""
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_NICKNAMEINUSE")) (Some (toParameters [|"Client"; "unavailablenick"; "Nickname is already in use"|]))
+        let wantedErrorResponse = "Nickname [unavailablenick] is already in use on server"
 
         let mutable errorResponse = ""
         clientData.ErrorNumericReceivedEvent
