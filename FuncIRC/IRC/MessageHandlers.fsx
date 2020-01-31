@@ -101,12 +101,9 @@ module MessageHandlers =
     let currentUsersRegex = @"users.+?(\d)"
     let maxUsersRegex = @"[mM]ax.+?(\d+)"
 
-    /// RPL_LOCALUSERS handler
-    let rplLocalUsersHandler (message: Message, clientData: IRCClientData) =
-        let wantedParam = message.Params.Value.Value.[1].Value
-       
-        let currentLocalUsers =
-            matchRegexGroup wantedParam currentUsersRegex
+    let getCurrentAndMaxUsers param =
+        let currentUsers =
+            matchRegexGroup param currentUsersRegex
             |> function
             | Some r -> 
                 try
@@ -115,8 +112,8 @@ module MessageHandlers =
                 | _ -> -1
             | None -> -1
             
-        let maxLocalUsers =
-            matchRegexGroup wantedParam maxUsersRegex
+        let maxUsers =
+            matchRegexGroup param maxUsersRegex
             |> function
             | Some r -> 
                 try
@@ -124,34 +121,20 @@ module MessageHandlers =
                 with
                 | _ -> -1
             | None -> -1
+        
+        (currentUsers, maxUsers)
 
-        clientData.ServerInfo <- {clientData.ServerInfo with LocalUserInfo = (currentLocalUsers, maxLocalUsers)}
+    /// RPL_LOCALUSERS handler
+    let rplLocalUsersHandler (message: Message, clientData: IRCClientData) =
+        let wantedParam = message.Params.Value.Value.[1].Value
+
+        clientData.ServerInfo <- {clientData.ServerInfo with LocalUserInfo = getCurrentAndMaxUsers wantedParam}
 
     /// RPL_GLOBALUSERS handler
     let rplGlobalUsersHandler (message: Message, clientData: IRCClientData) =
         let wantedParam = message.Params.Value.Value.[1].Value
-       
-        let currentGlobalUsers =
-            matchRegexGroup wantedParam currentUsersRegex
-            |> function
-            | Some r -> 
-                try
-                    int (r.[0].Groups.[1].Value)
-                with
-                | _ -> -1
-            | None -> -1
-            
-        let maxGlobalUsers =
-            matchRegexGroup wantedParam maxUsersRegex
-            |> function
-            | Some r -> 
-                try
-                    int (r.[0].Groups.[1].Value)
-                with
-                | _ -> -1
-            | None -> -1
 
-        clientData.ServerInfo <- {clientData.ServerInfo with GlobalUserInfo = (currentGlobalUsers, maxGlobalUsers)}
+        clientData.ServerInfo <- {clientData.ServerInfo with GlobalUserInfo = getCurrentAndMaxUsers wantedParam}
 //#endregion RPL_LOCALUSERS/RPL_GLOBALUSERS handlers
 
 //#region MOTD handlers
