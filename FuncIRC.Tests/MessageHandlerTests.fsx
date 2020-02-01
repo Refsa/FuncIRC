@@ -28,6 +28,7 @@ module MessageHandlerTests =
         Assert.AreEqual (outboundMessages.Length, 1)
         Assert.AreEqual (outboundMessages.[0], "PONG")
 
+//#region Connection numerics
     [<Test>]
     let ``RPL_WELCOME handler should do nothing``() =
         let clientData = ircClientData()
@@ -184,6 +185,7 @@ module MessageHandlerTests =
 
         Assert.AreNotEqual (clientData.GetServerInfo, default_IRCServerInfo)
         Assert.AreEqual (clientData.GetServerInfo, wantedServerInfo)
+//#endregion Connection numerics 
 
 //#region MOTD handler tests
     let motdContents =
@@ -245,100 +247,63 @@ module MessageHandlerTests =
         Assert.AreEqual (clientData.GetUserInfoSelf, None)
 //#endregion MOTD handler tests
 
-//#region Error responses from server
-    [<Test>]
-    let ``ERR_NEEDMOREPARAMS``() =
-        let clientData = ircClientData()
-        let message = Message.NewSimpleMessage (Some (Verb "ERR_NEEDMOREPARAMS")) (Some (toParameters [|"Nick"; "Command"; "Not enough parameters"|]))
-        let wantedErrorResponse = "Command: Did not have enough parameters"
+//#region Channel messages
+    let ``RPL_ENDOFNAMES``(clientData, usersInChannel) =
+        let parameters = Some (toParameters [|"Nick"; "#channel"; "End of /NAMES list"|])
+        let verb = Some (Verb "RPL_ENDOFMOTD")
+        let message = Message.NewSimpleMessage verb parameters
 
-        let mutable errorResponse = ""
-        clientData.ErrorNumericReceivedEvent
-        |> Event.add (
-            fun m -> errorResponse <- m
-        )
+        rplEndOfNamesHandler (message, clientData)
 
-        errNeedMoreParamsHandler (message, clientData)
+        let channelInfo = clientData.GetChannelInfo "#channel"
+        Assert.True (channelInfo.IsSome)
 
-        Assert.AreEqual (wantedErrorResponse, errorResponse)
+        let channelInfo = channelInfo.Value
+        let channelUsersEqual = Array.forall2 (fun a b -> a=b) channelInfo.Users usersInChannel
 
-    [<Test>]
-    let ``ERR_ALREADYREGISTERED``() =
-        let clientData = ircClientData()
-        let message = Message.NewSimpleMessage (Some (Verb "ERR_ALREADYREGISTERED")) (Some (toParameters [|"Client"; "You may not reregister"|]))
-        let wantedErrorResponse = "Already Registered: You have already registered with the server, cant change details at this time"
-
-        let mutable errorResponse = ""
-        clientData.ErrorNumericReceivedEvent
-        |> Event.add (
-            fun m -> errorResponse <- m
-        )
-
-        errAlreadyRegisteredHandler (message, clientData)
-
-        Assert.AreEqual (wantedErrorResponse, errorResponse)
+        Assert.AreEqual ("#channel", channelInfo.Name)
+        Assert.AreEqual (usersInChannel.Length, channelInfo.UserCount)
+        Assert.AreEqual ("Public", channelInfo.Status)
+        Assert.True (channelUsersEqual, "The users in channelInfo were not the same as the input")
 
     [<Test>]
-    let ``ERR_NONICKNAMEGIVEN``() =
+    let ``RPL_NAMREPLY``() =
         let clientData = ircClientData()
-        let message = Message.NewSimpleMessage (Some (Verb "ERR_NONICKNAMEGIVEN")) (Some (toParameters [|"Client"; "no nickname given"|]))
-        let wantedErrorResponse = "No Nickname was supplied to the NICK command"
+        let usersInChannel1 = [|"nick1"; "nick2"; "nick3"; "nick4"; "nick5"|]
+        let usersInChannel2 = [|"nick6"; "nick7"; "nick8"; "nick9"; "nick10"|]
 
-        let mutable errorResponse = ""
-        clientData.ErrorNumericReceivedEvent
-        |> Event.add (
-            fun m -> errorResponse <- m
-        )
+        let parameters = Some (toParameters ( usersInChannel1 |> Array.append [|"Nick"; "="; "#channel"|] ) )
+        let verb = Some (Verb "RPL_NAMREPLY")
+        let message = Message.NewSimpleMessage verb parameters
+        rplNamReplyHandler (message, clientData)
 
-        errNoNicknameGivenHandler (message, clientData)
+        ``RPL_ENDOFNAMES`` (clientData, usersInChannel1)
 
-        Assert.AreEqual (wantedErrorResponse, errorResponse)
+        let parameters = Some (toParameters ( usersInChannel2 |> Array.append [|"Nick"; "="; "#channel"|] ) )
+        let verb = Some (Verb "RPL_NAMREPLY")
+        let message = Message.NewSimpleMessage verb parameters
+        rplNamReplyHandler (message, clientData)
+
+        ``RPL_ENDOFNAMES`` (clientData, usersInChannel1 |> Array.append usersInChannel2)
 
     [<Test>]
-    let ``ERR_ERRONEUSNICKNAME``() =
+    let ``RPL_TOPIC``() =
         let clientData = ircClientData()
-        let message = Message.NewSimpleMessage (Some (Verb "ERR_ERRONEUSNICKNAME")) (Some (toParameters [|"Client"; "somebannednick"; "Erroneus nickname"|]))
-        let wantedErrorResponse = "Nickname [somebannednick] was not accepted by server: Erroneus Nickname"
+        let message = Message.NewSimpleMessage (Some (Verb "RPL_TOPIC")) (Some (toParameters [|"Nick"; "#channel"; "channel topic"|]))
 
-        let mutable errorResponse = ""
-        clientData.ErrorNumericReceivedEvent
-        |> Event.add (
-            fun m -> errorResponse <- m
-        )
+        rplTopicHandler (message, clientData)
 
-        errErroneusNicknameHandler (message, clientData)
-
-        Assert.AreEqual (wantedErrorResponse, errorResponse)
+        let channelInfo = clientData.GetChannelInfo "#channel"
+        Assert.True (channelInfo.IsSome, "channelInfo of clientData was None, it's supposed to be set to a value")
+        let channelInfo = channelInfo.Value
+        Assert.AreEqual (channelInfo.Topic, "channel topic")
 
     [<Test>]
-    let ``ERR_NICKNAMEINUSE``() =
+    let ``RPL_AWAY internal handler should do nothing``() =
         let clientData = ircClientData()
-        let message = Message.NewSimpleMessage (Some (Verb "ERR_NICKNAMEINUSE")) (Some (toParameters [|"Client"; "unavailablenick"; "Nickname is already in use"|]))
-        let wantedErrorResponse = "Nickname [unavailablenick] is already in use on server"
+        let parameters = Some (toParameters [|"Client"; "Nick"; "I am away"|])
+        let verb = Some (Verb "RPL_AWAY")
+        let message = Message.NewSimpleMessage verb parameters
 
-        let mutable errorResponse = ""
-        clientData.ErrorNumericReceivedEvent
-        |> Event.add (
-            fun m -> errorResponse <- m
-        )
-
-        errNicknameInUseHandler (message, clientData)
-
-        Assert.AreEqual (wantedErrorResponse, errorResponse)
-
-    [<Test>]
-    let ``ERR_NICKCOLLISION``() =
-        let clientData = ircClientData()
-        let message = Message.NewSimpleMessage (Some (Verb "ERR_NICKCOLLISION")) (Some (toParameters [|"Client"; "collisionnick"; "something about colliding nicks"|]))
-        let wantedErrorResponse = "Nickname [collisionnick] threw a nick collision response from server"
-
-        let mutable errorResponse = ""
-        clientData.ErrorNumericReceivedEvent
-        |> Event.add (
-            fun m -> errorResponse <- m
-        )
-
-        errNickCollisionHandler (message, clientData)
-
-        Assert.AreEqual (wantedErrorResponse, errorResponse)
-//#endregion Error responsed from server
+        Assert.Pass()
+//#endregion Channel messages

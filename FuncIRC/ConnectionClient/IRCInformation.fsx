@@ -24,7 +24,15 @@ module IRCInformation =
     type IRCChannelInfo =
         {
             Name: string
+            Status: string
+            Topic: string
             UserCount: int
+            Users: string array
+        }
+
+    type IRCServerChannels =
+        {
+            mutable Channels: Map<string, IRCChannelInfo>
         }
 
     type IRCServerMOTD = 

@@ -16,6 +16,14 @@ module internal MessageParserInternals =
     let sourceRegex  = @"^(:[\S.]+)"
     let commandRegex = @"^([a-zA-Z0-9]+.+)"
 
+    /// Parses the channel status marker of a message parameter
+    let parseChannelStatus statusString =
+        match statusString with
+        | "=" -> "Public"
+        | "@" -> "Secret"
+        | "*" -> "Private"
+        | _ -> "None"
+
     /// Trims the tags string of extranous characters and splits it with ';' character
     let extractTags (tagsString: string) =
         ((tagsString.TrimStart('@').TrimStart(' ').Split(';')) |> Array.toList)

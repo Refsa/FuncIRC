@@ -37,6 +37,7 @@ module IRCClientData =
         let mutable serverInfo:     IRCServerInfo      = default_IRCServerInfo
         let mutable serverMOTD:     IRCServerMOTD      = MOTD []
         let mutable serverFeatuers: IRCServerFeatures  = Features [||]
+        let mutable serverChannels: IRCServerChannels  = {Channels = Map.empty}
 
 //#region private members
         /// Messages from the outbound message queue
@@ -63,6 +64,12 @@ module IRCClientData =
         member internal this.ServerFeatures
             with get()     = serverFeatuers.Value
             and set(value) = serverFeatuers <- Features value
+        /// Server Channels
+        member internal this.SetChannelInfo channel info =
+            if serverChannels.Channels.ContainsKey channel then
+                serverChannels.Channels <- serverChannels.Channels |> Map.remove channel |> Map.add channel info
+            else
+                serverChannels.Channels <- serverChannels.Channels |> Map.add channel info
 
         // # EVENTS Triggers
         /// Dispatches the clientDisconnected event
@@ -86,6 +93,11 @@ module IRCClientData =
         member this.GetServerInfo     = serverInfo
         member this.GetServerMOTD     = serverMOTD.Value
         member this.GetServerFeatures = serverFeatuers.Value
+        member this.GetChannelInfo channel =
+            if serverChannels.Channels.ContainsKey channel then
+                Some serverChannels.Channels.[channel]
+            else
+                None
 
         // TODO: Add outboud message validation
         /// Adds one message to the outbound queue and triggers the sendMessage event
