@@ -189,20 +189,26 @@ module MessageHandlers =
 
     /// Related to JOIN verb
     let errNoSuchChannelHandler (message: Message, clientData: IRCClientData) =
-        ()
+        let errorResponse = "[" + message.Params.Value.Value.[1].Value + "] does not exist"
+        clientData.ErrorNumericReceivedTrigger (errorResponse)
 
     let errTooManyChannelsHandler (message: Message, clientData: IRCClientData) =
-        ()
+        let errorResponse = "[" + message.Params.Value.Value.[1].Value + "] You have joined too many channels"
+        clientData.ErrorNumericReceivedTrigger (errorResponse)
 
     let errBadChannelKeyHandler  (message: Message, clientData: IRCClientData) =
-        ()
+        let errorResponse = "[" + message.Params.Value.Value.[1].Value + "] cannot join channel, bad channel key"
+        clientData.ErrorNumericReceivedTrigger (errorResponse)
 
     let errBannedFromChanHandler (message: Message, clientData: IRCClientData) =
-        ()
+        let errorResponse = "[" + message.Params.Value.Value.[1].Value + "] you are banned from this channel"
+        clientData.ErrorNumericReceivedTrigger (errorResponse)
 
     let errChannelIsFullHandler (message: Message, clientData: IRCClientData) =
-        ()
+        let errorResponse = "[" + message.Params.Value.Value.[1].Value + "] is full, you cannot join it"
+        clientData.ErrorNumericReceivedTrigger (errorResponse)
 
     let errInviteOnlyChanHandler (message: Message, clientData: IRCClientData) =
-        ()
+        let errorResponse = "[" + message.Params.Value.Value.[1].Value + "] is invite only"
+        clientData.ErrorNumericReceivedTrigger (errorResponse)
 //#endregion Error numerics
