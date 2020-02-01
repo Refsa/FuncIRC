@@ -24,6 +24,7 @@ module IRCInformation =
     type IRCChannelInfo =
         {
             Name: string
+            Status: string
             UserCount: int
             Users: string array
         }

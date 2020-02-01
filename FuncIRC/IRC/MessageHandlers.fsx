@@ -7,6 +7,7 @@ namespace FuncIRC
 
 open MessageTypes
 open IRCClientData
+open IRCInformation
 open NumericReplies
 open RegexHelpers
 open System
@@ -150,10 +151,27 @@ module MessageHandlers =
         ()
 //#endregion MOTD handlers
 
+
 //#region Channel messages
+    let parseChannelStatus statusString =
+        match statusString with
+        | "=" -> "Public"
+        | "@" -> "Secret"
+        | "*" -> "Private"
+        | _ -> "None"
 
     let rplNamReplyHandler (message: Message, clientData: IRCClientData) =
-        ()
+        let channelStatus = parseChannelStatus (message.Params.Value.Value.[1].Value)
+        let channelName = message.Params.Value.Value.[2].Value
+        let channelUsers = [| for cu in message.Params.Value.Value.[3..] -> cu.Value |]
+
+        clientData.GetChannelInfo channelName
+        |> function
+        | Some ci ->
+            {ci with UserCount = ci.UserCount + channelUsers.Length; Users = ci.Users |> Array.append channelUsers}
+        | None -> 
+            {Name = channelName; Status = channelStatus; UserCount = channelUsers.Length; Users = channelUsers}
+        |> clientData.SetChannelInfo channelName
 
     let rplEndOfNamesHandler (message: Message, clientData: IRCClientData) =
         ()

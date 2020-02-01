@@ -259,7 +259,7 @@ module MessageHandlerTests =
     let ``RPL_NAMREPLY``() =
         let clientData = ircClientData()
         let usersInChannel = [|"nick1"; "nick2"; "nick3"; "nick4"; "nick5"|]
-        let parameters = Some (toParameters ([|"Nick"; "@"; "#channel"|] |> Array.append usersInChannel))
+        let parameters = Some (toParameters ( usersInChannel |> Array.append [|"Nick"; "="; "#channel"|] ) )
         let verb = Some (Verb "RPL_NAMREPLY")
         let message = Message.NewSimpleMessage verb parameters
 
@@ -267,11 +267,13 @@ module MessageHandlerTests =
         let channelInfo = clientData.GetChannelInfo "#channel"
 
         Assert.True (channelInfo.IsSome)
+
         let channelInfo = channelInfo.Value
         let channelUsersEqual = Array.forall2 (fun a b -> a=b) channelInfo.Users usersInChannel
 
         Assert.AreEqual ("#channel", channelInfo.Name)
         Assert.AreEqual (5, channelInfo.UserCount)
+        Assert.AreEqual ("Public", channelInfo.Status)
         Assert.True (channelUsersEqual)
 
         ``RPL_ENDOFNAMES`` (clientData)
