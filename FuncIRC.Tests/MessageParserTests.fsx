@@ -100,7 +100,7 @@ module MessageParserTests =
 
         average <- average / (int64) runs
         
-        Assert.LessOrEqual (average, (int64) 60)
+        Assert.LessOrEqual (average, (int64) 100)
         System.Console.WriteLine ("parseMessageString used " + average.ToString() + " ticks per message")
 
     [<Test>]
