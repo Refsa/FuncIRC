@@ -152,7 +152,11 @@ module MessageHandlers =
 
 //#region Channel messages
 
+    let rplNamReplyHandler (message: Message, clientData: IRCClientData) =
+        ()
 
+    let rplEndOfNamesHandler (message: Message, clientData: IRCClientData) =
+        ()
 
 //#endregion
 
@@ -192,22 +196,27 @@ module MessageHandlers =
         let errorResponse = "[" + message.Params.Value.Value.[1].Value + "] does not exist"
         clientData.ErrorNumericReceivedTrigger (errorResponse)
 
+    /// Related to JOIN verb
     let errTooManyChannelsHandler (message: Message, clientData: IRCClientData) =
         let errorResponse = "[" + message.Params.Value.Value.[1].Value + "] You have joined too many channels"
         clientData.ErrorNumericReceivedTrigger (errorResponse)
 
+    /// Related to JOIN verb
     let errBadChannelKeyHandler  (message: Message, clientData: IRCClientData) =
         let errorResponse = "[" + message.Params.Value.Value.[1].Value + "] cannot join channel, bad channel key"
         clientData.ErrorNumericReceivedTrigger (errorResponse)
 
+    /// Related to JOIN verb
     let errBannedFromChanHandler (message: Message, clientData: IRCClientData) =
         let errorResponse = "[" + message.Params.Value.Value.[1].Value + "] you are banned from this channel"
         clientData.ErrorNumericReceivedTrigger (errorResponse)
 
+    /// Related to JOIN verb
     let errChannelIsFullHandler (message: Message, clientData: IRCClientData) =
         let errorResponse = "[" + message.Params.Value.Value.[1].Value + "] is full, you cannot join it"
         clientData.ErrorNumericReceivedTrigger (errorResponse)
 
+    /// Related to JOIN verb
     let errInviteOnlyChanHandler (message: Message, clientData: IRCClientData) =
         let errorResponse = "[" + message.Params.Value.Value.[1].Value + "] is invite only"
         clientData.ErrorNumericReceivedTrigger (errorResponse)

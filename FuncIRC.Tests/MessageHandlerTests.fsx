@@ -246,13 +246,35 @@ module MessageHandlerTests =
 //#endregion MOTD handler tests
 
 //#region Channel messages
-    [<Test>]
-    let ``RPL_NAMREPLY``() =
-        ()
+    let ``RPL_ENDOFNAMES``(clientData) =
+        let parameters = Some (toParameters [|"Nick"; "#channel"; "End of /NAMES list"|])
+        let verb = Some (Verb "RPL_ENDOFMOTD")
+        let message = Message.NewSimpleMessage verb parameters
+
+        rplEndOfNamesHandler (message, clientData)
+
+        Assert.True (true)
 
     [<Test>]
-    let ``RPL_ENDOFNAMES``() =
-        ()
+    let ``RPL_NAMREPLY``() =
+        let clientData = ircClientData()
+        let usersInChannel = [|"nick1"; "nick2"; "nick3"; "nick4"; "nick5"|]
+        let parameters = Some (toParameters ([|"Nick"; "@"; "#channel"|] |> Array.append usersInChannel))
+        let verb = Some (Verb "RPL_NAMREPLY")
+        let message = Message.NewSimpleMessage verb parameters
+
+        rplNamReplyHandler (message, clientData)
+        let channelInfo = clientData.GetChannelInfo "#channel"
+
+        Assert.True (channelInfo.IsSome)
+        let channelInfo = channelInfo.Value
+        let channelUsersEqual = Array.forall2 (fun a b -> a=b) channelInfo.Users usersInChannel
+
+        Assert.AreEqual ("#channel", channelInfo.Name)
+        Assert.AreEqual (5, channelInfo.UserCount)
+        Assert.True (channelUsersEqual)
+
+        ``RPL_ENDOFNAMES`` (clientData)
 //#endregion Channel messages
 
 //#region Error responses from server
