@@ -25,6 +25,7 @@
     <Compile Include="ConnectionClient/IRCClient.fsx" />
     <Compile Include="ConnectionClient/IRCMessages.fsx" />
     <Compile Include="IRC/MessageHandlers.fsx" />
+    <Compile Include="IRC/ErrorNumericsHandlers.fsx" />
     
     <Compile Include="ConnectionClient/IRCStreamReader.fsx" />
     <Compile Include="ConnectionClient/IRCStreamWriter.fsx" />
