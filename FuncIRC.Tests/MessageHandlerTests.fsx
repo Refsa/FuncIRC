@@ -428,9 +428,18 @@ module MessageHandlerTests =
     let ``ERR_NOSUCHNICK``() =
         let clientData = ircClientData()
         let message = Message.NewSimpleMessage (Some (Verb "ERR_NOSUCHNICK")) (Some (toParameters [|"Client"; "othernick"; "No such nick/channel"|]))
-        let wantedErrorResponse = "[othernick] does not exist in channel"
+        let wantedErrorResponse = "[othernick] user does not exist in channel"
 
         let wasCorrectResponse = verifyErrorResponse wantedErrorResponse errNoSuchNickHandler message clientData
+        Assert.True (wasCorrectResponse)
+
+    [<Test>]
+    let ``ERR_NOSUCHSERVER``() =
+        let clientData = ircClientData()
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_NOSUCHSERVER")) (Some (toParameters [|"Client"; "servername"; "No such server"|]))
+        let wantedErrorResponse = "[servername] does not exist"
+
+        let wasCorrectResponse = verifyErrorResponse wantedErrorResponse errNoSuchServerHandler message clientData
         Assert.True (wasCorrectResponse)
 
     [<Test>]
