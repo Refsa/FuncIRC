@@ -421,14 +421,71 @@ module MessageHandlerTests =
 
         let wasCorrectResponse = verifyErrorResponse wantedErrorResponse errInviteOnlyChanHandler message clientData
         Assert.True (wasCorrectResponse)
+    // / JOIN related
 
+    // # PRIVMSG related
     [<Test>]
     let ``ERR_NOSUCHNICK``() =
         let clientData = ircClientData()
-        let message = Message.NewSimpleMessage (Some (Verb "ERR_INVITEONLYCHAN")) (Some (toParameters [|"Client"; "#channel"; "Cannot join channel (+i)"|]))
-        let wantedErrorResponse = "[#channel] is invite only"
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_NOSUCHNICK")) (Some (toParameters [|"Client"; "othernick"; "No such nick/channel"|]))
+        let wantedErrorResponse = "[othernick] does not exist in channel"
 
-        ()
-    // / JOIN related
+        let wasCorrectResponse = verifyErrorResponse wantedErrorResponse errNoSuchNickHandler message clientData
+        Assert.True (wasCorrectResponse)
+
+    [<Test>]
+    let ``ERR_CANNOTSENDTOCHAN``() =
+        let clientData = ircClientData()
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_CANNOTSENDTOCHAN")) (Some (toParameters [|"Client"; "#channel"; "Cannot send to channel"|]))
+        let wantedErrorResponse = "Cannot send to [#channel]"
+
+        let wasCorrectResponse = verifyErrorResponse wantedErrorResponse errCannotSendToChanHandler message clientData
+        Assert.True (wasCorrectResponse)
+
+    [<Test>]
+    let ``ERR_TOOMANYTARGETS``() =
+        let clientData = ircClientData()
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_TOOMANYTARGETS")) (Some (toParameters [|"Client"; "too many targets for PRIVMSG"|]))
+        let wantedErrorResponse = "Too many targets for PRIVMSG"
+
+        let wasCorrectResponse = verifyErrorResponse wantedErrorResponse errTooManyTargetsHandler message clientData
+        Assert.True (wasCorrectResponse)
+
+    [<Test>]
+    let ``ERR_NORECEIPIENT``() =
+        let clientData = ircClientData()
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_NORECEIPIENT")) (Some (toParameters [|"Client"; "No receipient for PRIVMSG"|]))
+        let wantedErrorResponse = "No receipient for PRIVMSG"
+
+        let wasCorrectResponse = verifyErrorResponse wantedErrorResponse errNoReceipientHandler message clientData
+        Assert.True (wasCorrectResponse)
+
+    [<Test>]
+    let ``ERR_NOTEXTOTSEND``() =
+        let clientData = ircClientData()
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_NOTEXTOTSEND")) (Some (toParameters [|"Client"; "No text to send"|]))
+        let wantedErrorResponse = "No text to send in PRIVMSG"
+
+        let wasCorrectResponse = verifyErrorResponse wantedErrorResponse errNoTextToSendHandler message clientData
+        Assert.True (wasCorrectResponse)
+
+    [<Test>]
+    let ``ERR_NOTOPLEVEL``() =
+        let clientData = ircClientData()
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_NOTOPLEVEL")) (Some (toParameters [|"Client"; "No top level for message"|]))
+        let wantedErrorResponse = "No top level for PRIVMSG"
+
+        let wasCorrectResponse = verifyErrorResponse wantedErrorResponse errNoTopLevelHandler message clientData
+        Assert.True (wasCorrectResponse)
+
+    [<Test>]
+    let ``ERR_WILDTOPLEVEL``() =
+        let clientData = ircClientData()
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_WILDTOPLEVEL")) (Some (toParameters [|"Client"; "Wild top level for message"|]))
+        let wantedErrorResponse = "Wild top level for PRIVMSG"
+
+        let wasCorrectResponse = verifyErrorResponse wantedErrorResponse errWildTopLevelHandler message clientData
+        Assert.True (wasCorrectResponse)
+    // / PRIVMSG related
 
 //#endregion Error responses from server
