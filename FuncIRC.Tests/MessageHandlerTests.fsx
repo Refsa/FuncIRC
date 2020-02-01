@@ -246,37 +246,43 @@ module MessageHandlerTests =
 //#endregion MOTD handler tests
 
 //#region Channel messages
-    let ``RPL_ENDOFNAMES``(clientData) =
+    let ``RPL_ENDOFNAMES``(clientData, usersInChannel) =
         let parameters = Some (toParameters [|"Nick"; "#channel"; "End of /NAMES list"|])
         let verb = Some (Verb "RPL_ENDOFMOTD")
         let message = Message.NewSimpleMessage verb parameters
 
         rplEndOfNamesHandler (message, clientData)
 
-        Assert.True (true)
-
-    [<Test>]
-    let ``RPL_NAMREPLY``() =
-        let clientData = ircClientData()
-        let usersInChannel = [|"nick1"; "nick2"; "nick3"; "nick4"; "nick5"|]
-        let parameters = Some (toParameters ( usersInChannel |> Array.append [|"Nick"; "="; "#channel"|] ) )
-        let verb = Some (Verb "RPL_NAMREPLY")
-        let message = Message.NewSimpleMessage verb parameters
-
-        rplNamReplyHandler (message, clientData)
         let channelInfo = clientData.GetChannelInfo "#channel"
-
         Assert.True (channelInfo.IsSome)
 
         let channelInfo = channelInfo.Value
         let channelUsersEqual = Array.forall2 (fun a b -> a=b) channelInfo.Users usersInChannel
 
         Assert.AreEqual ("#channel", channelInfo.Name)
-        Assert.AreEqual (5, channelInfo.UserCount)
+        Assert.AreEqual (usersInChannel.Length, channelInfo.UserCount)
         Assert.AreEqual ("Public", channelInfo.Status)
         Assert.True (channelUsersEqual)
 
-        ``RPL_ENDOFNAMES`` (clientData)
+    [<Test>]
+    let ``RPL_NAMREPLY``() =
+        let clientData = ircClientData()
+        let usersInChannel1 = [|"nick1"; "nick2"; "nick3"; "nick4"; "nick5"|]
+        let usersInChannel2 = [|"nick6"; "nick7"; "nick8"; "nick9"; "nick10"|]
+
+        let parameters = Some (toParameters ( usersInChannel1 |> Array.append [|"Nick"; "="; "#channel"|] ) )
+        let verb = Some (Verb "RPL_NAMREPLY")
+        let message = Message.NewSimpleMessage verb parameters
+        rplNamReplyHandler (message, clientData)
+
+        ``RPL_ENDOFNAMES`` (clientData, usersInChannel1)
+
+        let parameters = Some (toParameters ( usersInChannel2 |> Array.append [|"Nick"; "="; "#channel"|] ) )
+        let verb = Some (Verb "RPL_NAMREPLY")
+        let message = Message.NewSimpleMessage verb parameters
+        rplNamReplyHandler (message, clientData)
+
+        ``RPL_ENDOFNAMES`` (clientData, usersInChannel1 |> Array.append usersInChannel2)
 //#endregion Channel messages
 
 //#region Error responses from server

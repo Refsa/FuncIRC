@@ -1,6 +1,7 @@
 #load "../ConnectionClient/IRCClientData.fsx"
 #load "../Utils/RegexHelpers.fsx"
 #load "MessageTypes.fsx"
+#load "MessageParserInternals.fsx"
 #load "NumericReplies.fsx"
 
 namespace FuncIRC
@@ -9,6 +10,7 @@ open MessageTypes
 open IRCClientData
 open IRCInformation
 open NumericReplies
+open MessageParserInternals
 open RegexHelpers
 open System
 
@@ -151,15 +153,7 @@ module MessageHandlers =
         ()
 //#endregion MOTD handlers
 
-
 //#region Channel messages
-    let parseChannelStatus statusString =
-        match statusString with
-        | "=" -> "Public"
-        | "@" -> "Secret"
-        | "*" -> "Private"
-        | _ -> "None"
-
     let rplNamReplyHandler (message: Message, clientData: IRCClientData) =
         let channelStatus = parseChannelStatus (message.Params.Value.Value.[1].Value)
         let channelName = message.Params.Value.Value.[2].Value
