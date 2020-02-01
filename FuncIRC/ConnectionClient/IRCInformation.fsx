@@ -25,6 +25,7 @@ module IRCInformation =
         {
             Name: string
             Status: string
+            Topic: string
             UserCount: int
             Users: string array
         }

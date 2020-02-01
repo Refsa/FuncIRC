@@ -164,12 +164,14 @@ module MessageHandlers =
         | Some ci ->
             {ci with UserCount = ci.UserCount + channelUsers.Length; Users = ci.Users |> Array.append channelUsers}
         | None -> 
-            {Name = channelName; Status = channelStatus; UserCount = channelUsers.Length; Users = channelUsers}
+            {Name = channelName; Status = channelStatus; Topic = ""; UserCount = channelUsers.Length; Users = channelUsers}
         |> clientData.SetChannelInfo channelName
 
     let rplEndOfNamesHandler (message: Message, clientData: IRCClientData) =
         ()
 
+    let rplTopicHandler (message: Message, clientData: IRCClientData) =
+        ()
 //#endregion
 
 //#region Error numerics

@@ -262,7 +262,7 @@ module MessageHandlerTests =
         Assert.AreEqual ("#channel", channelInfo.Name)
         Assert.AreEqual (usersInChannel.Length, channelInfo.UserCount)
         Assert.AreEqual ("Public", channelInfo.Status)
-        Assert.True (channelUsersEqual)
+        Assert.True (channelUsersEqual, "The users in channelInfo were not the same as the input")
 
     [<Test>]
     let ``RPL_NAMREPLY``() =
@@ -283,6 +283,18 @@ module MessageHandlerTests =
         rplNamReplyHandler (message, clientData)
 
         ``RPL_ENDOFNAMES`` (clientData, usersInChannel1 |> Array.append usersInChannel2)
+
+    [<Test>]
+    let ``RPL_TOPIC``() =
+        let clientData = ircClientData()
+        let message = Message.NewSimpleMessage (Some (Verb "RPL_TOPIC")) (Some (toParameters [|"Nick"; "#channel"; "channel topic"|]))
+
+        rplTopicHandler (message, clientData)
+
+        let channelInfo = clientData.GetChannelInfo "#channel"
+        Assert.True (channelInfo.IsSome, "channelInfo of clientData was None, it's supposed to be set to a value")
+        let channelInfo = channelInfo.Value
+        Assert.AreEqual (channelInfo.Topic, "channel topic")
 //#endregion Channel messages
 
 //#region Error responses from server
