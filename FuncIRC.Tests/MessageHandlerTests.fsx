@@ -28,6 +28,7 @@ module MessageHandlerTests =
         Assert.AreEqual (outboundMessages.Length, 1)
         Assert.AreEqual (outboundMessages.[0], "PONG")
 
+//#region Connection numerics
     [<Test>]
     let ``RPL_WELCOME handler should do nothing``() =
         let clientData = ircClientData()
@@ -184,6 +185,7 @@ module MessageHandlerTests =
 
         Assert.AreNotEqual (clientData.GetServerInfo, default_IRCServerInfo)
         Assert.AreEqual (clientData.GetServerInfo, wantedServerInfo)
+//#endregion Connection numerics 
 
 //#region MOTD handler tests
     let motdContents =

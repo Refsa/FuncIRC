@@ -40,7 +40,7 @@ module MessageHandlers =
 
 //#region RPL_CREATED handler
     /// Regex to capture DateTimes in the format of: 23:25:21 Jan 24 2020
-    /// TODO: Add testing of different DateTime formats
+    /// TODO: Add capturing of different DateTime formats
     let dateTimeRegex = @"(\d{2}:\d{2}:\d{2}.+)"
     /// RPL_CREATED handler
     let rplCreatedHandler (message: Message, clientData: IRCClientData) =
