@@ -245,7 +245,21 @@ module MessageHandlerTests =
         Assert.AreEqual (clientData.GetUserInfoSelf, None)
 //#endregion MOTD handler tests
 
+//#region Channel messages
+    [<Test>]
+    let ``RPL_NAMREPLY``() =
+        ()
+
+    [<Test>]
+    let ``RPL_ENDOFNAMES``() =
+        ()
+//#endregion Channel messages
+
 //#region Error responses from server
+    [<Test>]
+    let ``ERROR verb``() =
+        ()
+
     [<Test>]
     let ``ERR_NEEDMOREPARAMS``() =
         let clientData = ircClientData()
@@ -341,4 +355,103 @@ module MessageHandlerTests =
         errNickCollisionHandler (message, clientData)
 
         Assert.AreEqual (wantedErrorResponse, errorResponse)
-//#endregion Error responsed from server
+
+    // # JOIN related
+    [<Test>]
+    let ``ERR_NOSUCHCHANNEL``() =
+        let clientData = ircClientData()
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_NOSUCHCHANNEL")) (Some (toParameters [|"Client"; "#channel"; "No such channel"|]))
+        let wantedErrorResponse = "[#channel] does not exist"
+
+        let mutable errorResponse = ""
+        clientData.ErrorNumericReceivedEvent
+        |> Event.add (
+            fun m -> errorResponse <- m
+        )
+
+        errNoSuchChannelHandler (message, clientData)
+
+        Assert.AreEqual (wantedErrorResponse, errorResponse)
+
+    [<Test>]
+    let ``ERR_TOOMANYCHANNELS``() =
+        let clientData = ircClientData()
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_TOOMANYCHANNELS")) (Some (toParameters [|"Client"; "#channel"; "you have joined too many channels"|]))
+        let wantedErrorResponse = "[#channel] You have joined too many channels"
+
+        let mutable errorResponse = ""
+        clientData.ErrorNumericReceivedEvent
+        |> Event.add (
+            fun m -> errorResponse <- m
+        )
+
+        errTooManyChannelsHandler (message, clientData)
+
+        Assert.AreEqual (wantedErrorResponse, errorResponse)
+
+    [<Test>]
+    let ``ERR_BADCHANNELKEY``() =
+        let clientData = ircClientData()
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_BADCHANNELKEY")) (Some (toParameters [|"Client"; "#channel"; "Cannot join channel (+k)"|]))
+        let wantedErrorResponse = "[#channel] cannot join channel, bad channel key"
+
+        let mutable errorResponse = ""
+        clientData.ErrorNumericReceivedEvent
+        |> Event.add (
+            fun m -> errorResponse <- m
+        )
+
+        errBadChannelKeyHandler (message, clientData)
+
+        Assert.AreEqual (wantedErrorResponse, errorResponse)
+
+    [<Test>]
+    let ``ERR_BANNEDFROMCHAN``() =
+        let clientData = ircClientData()
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_BANNEDFROMCHAN")) (Some (toParameters [|"Client"; "#channel"; "Cannot joint channel (+b)"|]))
+        let wantedErrorResponse = "[#channel] you are banned from this channel"
+
+        let mutable errorResponse = ""
+        clientData.ErrorNumericReceivedEvent
+        |> Event.add (
+            fun m -> errorResponse <- m
+        )
+
+        errBannedFromChanHandler (message, clientData)
+
+        Assert.AreEqual (wantedErrorResponse, errorResponse)
+
+    [<Test>]
+    let ``ERR_CHANNELISFULL``() =
+        let clientData = ircClientData()
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_CHANNELISFULL")) (Some (toParameters [|"Client"; "#channel"; "Cannot join channel (+l)"|]))
+        let wantedErrorResponse = "[#channel] is full, you cannot join it"
+
+        let mutable errorResponse = ""
+        clientData.ErrorNumericReceivedEvent
+        |> Event.add (
+            fun m -> errorResponse <- m
+        )
+
+        errChannelIsFullHandler (message, clientData)
+
+        Assert.AreEqual (wantedErrorResponse, errorResponse)
+
+    [<Test>]
+    let ``ERR_INVITEONLYCHAN``() =
+        let clientData = ircClientData()
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_INVITEONLYCHAN")) (Some (toParameters [|"Client"; "#channel"; "Cannot join channel (+i)"|]))
+        let wantedErrorResponse = "[#channel] is invite only"
+
+        let mutable errorResponse = ""
+        clientData.ErrorNumericReceivedEvent
+        |> Event.add (
+            fun m -> errorResponse <- m
+        )
+
+        errInviteOnlyChanHandler (message, clientData)
+
+        Assert.AreEqual (wantedErrorResponse, errorResponse)
+    // / JOIN related
+
+//#endregion Error responses from server

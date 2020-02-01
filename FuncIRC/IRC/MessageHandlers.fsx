@@ -98,7 +98,7 @@ module MessageHandlers =
         clientData.ServerFeatures <- clientData.ServerFeatures |> Array.append features
 
 //#region RPL_LOCALUSERS/RPL_GLOBALUSERS handlers
-    let currentUsersRegex = @"users.+?(\d)"
+    let currentUsersRegex = @"[uU]sers.+?(\d)"
     let maxUsersRegex = @"[mM]ax.+?(\d+)"
 
     let getCurrentAndMaxUsers param =
@@ -150,6 +150,13 @@ module MessageHandlers =
         ()
 //#endregion MOTD handlers
 
+//#region Channel messages
+
+
+
+//#endregion
+
+//#region Error numerics
     // General error message
     let errNeedMoreParamsHandler (message: Message, clientData: IRCClientData) =
         let errorResponse = message.Params.Value.Value.[1].Value + ": Did not have enough parameters"
@@ -179,3 +186,23 @@ module MessageHandlers =
     let errNickCollisionHandler (message: Message, clientData: IRCClientData) =
         let errorResponse = "Nickname [" + message.Params.Value.Value.[1].Value + "] threw a nick collision response from server"
         clientData.ErrorNumericReceivedTrigger (errorResponse)
+
+    /// Related to JOIN verb
+    let errNoSuchChannelHandler (message: Message, clientData: IRCClientData) =
+        ()
+
+    let errTooManyChannelsHandler (message: Message, clientData: IRCClientData) =
+        ()
+
+    let errBadChannelKeyHandler  (message: Message, clientData: IRCClientData) =
+        ()
+
+    let errBannedFromChanHandler (message: Message, clientData: IRCClientData) =
+        ()
+
+    let errChannelIsFullHandler (message: Message, clientData: IRCClientData) =
+        ()
+
+    let errInviteOnlyChanHandler (message: Message, clientData: IRCClientData) =
+        ()
+//#endregion Error numerics
