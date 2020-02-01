@@ -295,6 +295,15 @@ module MessageHandlerTests =
         Assert.True (channelInfo.IsSome, "channelInfo of clientData was None, it's supposed to be set to a value")
         let channelInfo = channelInfo.Value
         Assert.AreEqual (channelInfo.Topic, "channel topic")
+
+    [<Test>]
+    let ``RPL_AWAY internal handler should do nothing``() =
+        let clientData = ircClientData()
+        let parameters = Some (toParameters [|"Client"; "Nick"; "I am away"|])
+        let verb = Some (Verb "RPL_AWAY")
+        let message = Message.NewSimpleMessage verb parameters
+
+        Assert.Pass()
 //#endregion Channel messages
 
 //#region Error responses from server
