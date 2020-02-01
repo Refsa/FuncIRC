@@ -2,17 +2,33 @@ namespace FuncIRC
 
 open System
 open System.Net.Sockets
+open System.Net.Security
 
 module internal ConnectionClient =
     exception ClientConnectionException
 
     /// Wrapper for TcpClient
     [<Sealed>]
-    type TCPClient(server: string, port: int) =
+    type TCPClient(server: string, port: int, ?useSsl: bool) =
         let client: TcpClient ref = ref null
-        let stream: NetworkStream ref = ref null
+        let networkStream: NetworkStream ref = ref null
+        let sslStream: SslStream ref = ref null
 
-        member this.Stream = stream.Value
+        let (|UsingSSL|NoSSL|) stream =
+            match useSsl with
+            | Some useSsl when useSsl -> UsingSSL sslStream
+            | _ -> NoSSL networkStream
+
+        member this.WriteToStream messageData = 
+            match useSsl with
+            | NoSSL stream -> stream.Value.Write (messageData, 0, messageData.Length)
+            | UsingSSL sslStream -> sslStream.Value.Write (messageData, 0, messageData.Length)
+
+        member this.ReadFromStream (data: byte array) (startOffset: int) (length: int) =
+            match useSsl with
+            | NoSSL stream -> stream.Value.Read (data, 0, data.Length)
+            | UsingSSL sslStream -> sslStream.Value.Read (data, 0, data.Length)
+
         member this.Client = client.Value
         member this.Connected = this.Client.Connected
         member this.Address = server + ":" + string port
@@ -24,7 +40,7 @@ module internal ConnectionClient =
 
             try
                 client := new TcpClient (server, port)
-                stream := client.Value.GetStream()
+                networkStream := client.Value.GetStream()
                 true
             with
             | :? ArgumentNullException as ane -> (*printfn "ArgumentNullException %s" ane.Message;*) false
@@ -36,11 +52,16 @@ module internal ConnectionClient =
         interface IDisposable with
             member this.Dispose() =
                 printfn "Disposing TCP Client"
-                stream.Value.Close()
+                networkStream.Value.Close()
+                sslStream.Value.Close()
                 client.Value.Close()
-                stream.Value.Dispose()
+
+                networkStream.Value.Dispose()
+                sslStream.Value.Dispose()
                 client.Value.Dispose()
-                stream := null
+
+                networkStream := null
+                sslStream := null
                 client := null
 
     /// Attempts to connect with the given server on the given port through TCP
