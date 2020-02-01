@@ -298,6 +298,17 @@ module MessageHandlerTests =
 //#endregion Channel messages
 
 //#region Error responses from server
+    let verifyErrorResponse wantedResponse handler message (clientData: IRCClientData) =
+        let mutable errorResponse = ""
+        clientData.ErrorNumericReceivedEvent
+        |> Event.add (
+            fun m -> errorResponse <- m
+        )
+
+        handler (message, clientData)
+
+        wantedResponse = errorResponse
+
     [<Test>]
     let ``ERROR verb``() =
         ()
@@ -308,15 +319,8 @@ module MessageHandlerTests =
         let message = Message.NewSimpleMessage (Some (Verb "ERR_NEEDMOREPARAMS")) (Some (toParameters [|"Nick"; "Command"; "Not enough parameters"|]))
         let wantedErrorResponse = "Command: Did not have enough parameters"
 
-        let mutable errorResponse = ""
-        clientData.ErrorNumericReceivedEvent
-        |> Event.add (
-            fun m -> errorResponse <- m
-        )
-
-        errNeedMoreParamsHandler (message, clientData)
-
-        Assert.AreEqual (wantedErrorResponse, errorResponse)
+        let wasCorrectResponse = verifyErrorResponse wantedErrorResponse errNeedMoreParamsHandler message clientData
+        Assert.True (wasCorrectResponse)
 
     [<Test>]
     let ``ERR_ALREADYREGISTERED``() =
@@ -324,15 +328,8 @@ module MessageHandlerTests =
         let message = Message.NewSimpleMessage (Some (Verb "ERR_ALREADYREGISTERED")) (Some (toParameters [|"Client"; "You may not reregister"|]))
         let wantedErrorResponse = "Already Registered: You have already registered with the server, cant change details at this time"
 
-        let mutable errorResponse = ""
-        clientData.ErrorNumericReceivedEvent
-        |> Event.add (
-            fun m -> errorResponse <- m
-        )
-
-        errAlreadyRegisteredHandler (message, clientData)
-
-        Assert.AreEqual (wantedErrorResponse, errorResponse)
+        let wasCorrectResponse = verifyErrorResponse wantedErrorResponse errAlreadyRegisteredHandler message clientData
+        Assert.True (wasCorrectResponse)
 
     [<Test>]
     let ``ERR_NONICKNAMEGIVEN``() =
@@ -340,15 +337,8 @@ module MessageHandlerTests =
         let message = Message.NewSimpleMessage (Some (Verb "ERR_NONICKNAMEGIVEN")) (Some (toParameters [|"Client"; "no nickname given"|]))
         let wantedErrorResponse = "No Nickname was supplied to the NICK command"
 
-        let mutable errorResponse = ""
-        clientData.ErrorNumericReceivedEvent
-        |> Event.add (
-            fun m -> errorResponse <- m
-        )
-
-        errNoNicknameGivenHandler (message, clientData)
-
-        Assert.AreEqual (wantedErrorResponse, errorResponse)
+        let wasCorrectResponse = verifyErrorResponse wantedErrorResponse errNoNicknameGivenHandler message clientData
+        Assert.True (wasCorrectResponse)
 
     [<Test>]
     let ``ERR_ERRONEUSNICKNAME``() =
@@ -356,15 +346,8 @@ module MessageHandlerTests =
         let message = Message.NewSimpleMessage (Some (Verb "ERR_ERRONEUSNICKNAME")) (Some (toParameters [|"Client"; "somebannednick"; "Erroneus nickname"|]))
         let wantedErrorResponse = "Nickname [somebannednick] was not accepted by server: Erroneus Nickname"
 
-        let mutable errorResponse = ""
-        clientData.ErrorNumericReceivedEvent
-        |> Event.add (
-            fun m -> errorResponse <- m
-        )
-
-        errErroneusNicknameHandler (message, clientData)
-
-        Assert.AreEqual (wantedErrorResponse, errorResponse)
+        let wasCorrectResponse = verifyErrorResponse wantedErrorResponse errErroneusNicknameHandler message clientData
+        Assert.True (wasCorrectResponse)
 
     [<Test>]
     let ``ERR_NICKNAMEINUSE``() =
@@ -372,15 +355,8 @@ module MessageHandlerTests =
         let message = Message.NewSimpleMessage (Some (Verb "ERR_NICKNAMEINUSE")) (Some (toParameters [|"Client"; "unavailablenick"; "Nickname is already in use"|]))
         let wantedErrorResponse = "Nickname [unavailablenick] is already in use on server"
 
-        let mutable errorResponse = ""
-        clientData.ErrorNumericReceivedEvent
-        |> Event.add (
-            fun m -> errorResponse <- m
-        )
-
-        errNicknameInUseHandler (message, clientData)
-
-        Assert.AreEqual (wantedErrorResponse, errorResponse)
+        let wasCorrectResponse = verifyErrorResponse wantedErrorResponse errNicknameInUseHandler message clientData
+        Assert.True (wasCorrectResponse)
 
     [<Test>]
     let ``ERR_NICKCOLLISION``() =
@@ -388,15 +364,8 @@ module MessageHandlerTests =
         let message = Message.NewSimpleMessage (Some (Verb "ERR_NICKCOLLISION")) (Some (toParameters [|"Client"; "collisionnick"; "something about colliding nicks"|]))
         let wantedErrorResponse = "Nickname [collisionnick] threw a nick collision response from server"
 
-        let mutable errorResponse = ""
-        clientData.ErrorNumericReceivedEvent
-        |> Event.add (
-            fun m -> errorResponse <- m
-        )
-
-        errNickCollisionHandler (message, clientData)
-
-        Assert.AreEqual (wantedErrorResponse, errorResponse)
+        let wasCorrectResponse = verifyErrorResponse wantedErrorResponse errNickCollisionHandler message clientData
+        Assert.True (wasCorrectResponse)
 
     // # JOIN related
     [<Test>]
@@ -405,15 +374,8 @@ module MessageHandlerTests =
         let message = Message.NewSimpleMessage (Some (Verb "ERR_NOSUCHCHANNEL")) (Some (toParameters [|"Client"; "#channel"; "No such channel"|]))
         let wantedErrorResponse = "[#channel] does not exist"
 
-        let mutable errorResponse = ""
-        clientData.ErrorNumericReceivedEvent
-        |> Event.add (
-            fun m -> errorResponse <- m
-        )
-
-        errNoSuchChannelHandler (message, clientData)
-
-        Assert.AreEqual (wantedErrorResponse, errorResponse)
+        let wasCorrectResponse = verifyErrorResponse wantedErrorResponse errNoSuchChannelHandler message clientData
+        Assert.True (wasCorrectResponse)
 
     [<Test>]
     let ``ERR_TOOMANYCHANNELS``() =
@@ -421,15 +383,8 @@ module MessageHandlerTests =
         let message = Message.NewSimpleMessage (Some (Verb "ERR_TOOMANYCHANNELS")) (Some (toParameters [|"Client"; "#channel"; "you have joined too many channels"|]))
         let wantedErrorResponse = "[#channel] You have joined too many channels"
 
-        let mutable errorResponse = ""
-        clientData.ErrorNumericReceivedEvent
-        |> Event.add (
-            fun m -> errorResponse <- m
-        )
-
-        errTooManyChannelsHandler (message, clientData)
-
-        Assert.AreEqual (wantedErrorResponse, errorResponse)
+        let wasCorrectResponse = verifyErrorResponse wantedErrorResponse errTooManyChannelsHandler message clientData
+        Assert.True (wasCorrectResponse)
 
     [<Test>]
     let ``ERR_BADCHANNELKEY``() =
@@ -437,15 +392,8 @@ module MessageHandlerTests =
         let message = Message.NewSimpleMessage (Some (Verb "ERR_BADCHANNELKEY")) (Some (toParameters [|"Client"; "#channel"; "Cannot join channel (+k)"|]))
         let wantedErrorResponse = "[#channel] cannot join channel, bad channel key"
 
-        let mutable errorResponse = ""
-        clientData.ErrorNumericReceivedEvent
-        |> Event.add (
-            fun m -> errorResponse <- m
-        )
-
-        errBadChannelKeyHandler (message, clientData)
-
-        Assert.AreEqual (wantedErrorResponse, errorResponse)
+        let wasCorrectResponse = verifyErrorResponse wantedErrorResponse errBadChannelKeyHandler message clientData
+        Assert.True (wasCorrectResponse)
 
     [<Test>]
     let ``ERR_BANNEDFROMCHAN``() =
@@ -453,15 +401,8 @@ module MessageHandlerTests =
         let message = Message.NewSimpleMessage (Some (Verb "ERR_BANNEDFROMCHAN")) (Some (toParameters [|"Client"; "#channel"; "Cannot joint channel (+b)"|]))
         let wantedErrorResponse = "[#channel] you are banned from this channel"
 
-        let mutable errorResponse = ""
-        clientData.ErrorNumericReceivedEvent
-        |> Event.add (
-            fun m -> errorResponse <- m
-        )
-
-        errBannedFromChanHandler (message, clientData)
-
-        Assert.AreEqual (wantedErrorResponse, errorResponse)
+        let wasCorrectResponse = verifyErrorResponse wantedErrorResponse errBannedFromChanHandler message clientData
+        Assert.True (wasCorrectResponse)
 
     [<Test>]
     let ``ERR_CHANNELISFULL``() =
@@ -469,15 +410,8 @@ module MessageHandlerTests =
         let message = Message.NewSimpleMessage (Some (Verb "ERR_CHANNELISFULL")) (Some (toParameters [|"Client"; "#channel"; "Cannot join channel (+l)"|]))
         let wantedErrorResponse = "[#channel] is full, you cannot join it"
 
-        let mutable errorResponse = ""
-        clientData.ErrorNumericReceivedEvent
-        |> Event.add (
-            fun m -> errorResponse <- m
-        )
-
-        errChannelIsFullHandler (message, clientData)
-
-        Assert.AreEqual (wantedErrorResponse, errorResponse)
+        let wasCorrectResponse = verifyErrorResponse wantedErrorResponse errChannelIsFullHandler message clientData
+        Assert.True (wasCorrectResponse)
 
     [<Test>]
     let ``ERR_INVITEONLYCHAN``() =
@@ -485,15 +419,16 @@ module MessageHandlerTests =
         let message = Message.NewSimpleMessage (Some (Verb "ERR_INVITEONLYCHAN")) (Some (toParameters [|"Client"; "#channel"; "Cannot join channel (+i)"|]))
         let wantedErrorResponse = "[#channel] is invite only"
 
-        let mutable errorResponse = ""
-        clientData.ErrorNumericReceivedEvent
-        |> Event.add (
-            fun m -> errorResponse <- m
-        )
+        let wasCorrectResponse = verifyErrorResponse wantedErrorResponse errInviteOnlyChanHandler message clientData
+        Assert.True (wasCorrectResponse)
 
-        errInviteOnlyChanHandler (message, clientData)
+    [<Test>]
+    let ``ERR_NOSUCHNICK``() =
+        let clientData = ircClientData()
+        let message = Message.NewSimpleMessage (Some (Verb "ERR_INVITEONLYCHAN")) (Some (toParameters [|"Client"; "#channel"; "Cannot join channel (+i)"|]))
+        let wantedErrorResponse = "[#channel] is invite only"
 
-        Assert.AreEqual (wantedErrorResponse, errorResponse)
+        ()
     // / JOIN related
 
 //#endregion Error responses from server

@@ -181,6 +181,9 @@ module MessageHandlers =
         | None ->
             {Name = ""; Status = ""; Topic = channelTopic; UserCount = 0; Users = [||]}
         |> clientData.SetChannelInfo channelName
+
+    let rplAwayHandler (message: Message, clientData: IRCClientData) =
+        ()
 //#endregion
 
 //#region Error numerics
@@ -241,6 +244,46 @@ module MessageHandlers =
 
     /// Related to JOIN verb
     let errInviteOnlyChanHandler (message: Message, clientData: IRCClientData) =
+        let errorResponse = "[" + message.Params.Value.Value.[1].Value + "] is invite only"
+        clientData.ErrorNumericReceivedTrigger (errorResponse)
+
+    /// Related to PRIVMSG verb
+    let errNoSuchNickHandler (message: Message, clientData: IRCClientData) =
+        let errorResponse = "[" + message.Params.Value.Value.[1].Value + "] is invite only"
+        clientData.ErrorNumericReceivedTrigger (errorResponse)
+
+    /// Related to PRIVMSG verb
+    let errNoSuchServerHandler (message: Message, clientData: IRCClientData) =
+        let errorResponse = "[" + message.Params.Value.Value.[1].Value + "] is invite only"
+        clientData.ErrorNumericReceivedTrigger (errorResponse)
+
+    /// Related to PRIVMSG verb
+    let errCannotSendToChanHandler (message: Message, clientData: IRCClientData) =
+        let errorResponse = "[" + message.Params.Value.Value.[1].Value + "] is invite only"
+        clientData.ErrorNumericReceivedTrigger (errorResponse)
+
+    /// Related to PRIVMSG verb
+    let errTooManyTargetsHandler (message: Message, clientData: IRCClientData) =
+        let errorResponse = "[" + message.Params.Value.Value.[1].Value + "] is invite only"
+        clientData.ErrorNumericReceivedTrigger (errorResponse)
+
+    /// Related to PRIVMSG verb
+    let errNoReceipientHandler (message: Message, clientData: IRCClientData) =
+        let errorResponse = "[" + message.Params.Value.Value.[1].Value + "] is invite only"
+        clientData.ErrorNumericReceivedTrigger (errorResponse)
+
+    /// Related to PRIVMSG verb
+    let errNoTextToSendHandler (message: Message, clientData: IRCClientData) =
+        let errorResponse = "[" + message.Params.Value.Value.[1].Value + "] is invite only"
+        clientData.ErrorNumericReceivedTrigger (errorResponse)
+
+    /// Related to PRIVMSG verb
+    let errNoTopLevelHandler (message: Message, clientData: IRCClientData) =
+        let errorResponse = "[" + message.Params.Value.Value.[1].Value + "] is invite only"
+        clientData.ErrorNumericReceivedTrigger (errorResponse)
+
+    /// Related to PRIVMSG verb
+    let errWildTopLevelHandler (message: Message, clientData: IRCClientData) =
         let errorResponse = "[" + message.Params.Value.Value.[1].Value + "] is invite only"
         clientData.ErrorNumericReceivedTrigger (errorResponse)
 //#endregion Error numerics
