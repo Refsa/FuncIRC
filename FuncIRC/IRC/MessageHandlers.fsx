@@ -171,7 +171,16 @@ module MessageHandlers =
         ()
 
     let rplTopicHandler (message: Message, clientData: IRCClientData) =
-        ()
+        let channelName = message.Params.Value.Value.[1].Value
+        let channelTopic = message.Params.Value.Value.[2].Value
+
+        clientData.GetChannelInfo channelName
+        |> function
+        | Some ci ->
+            {ci with Topic = channelTopic}
+        | None ->
+            {Name = ""; Status = ""; Topic = channelTopic; UserCount = 0; Users = [||]}
+        |> clientData.SetChannelInfo channelName
 //#endregion
 
 //#region Error numerics
