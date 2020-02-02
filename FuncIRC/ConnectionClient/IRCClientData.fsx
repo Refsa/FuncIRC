@@ -36,7 +36,7 @@ module IRCClientData =
         let mutable userInfoSelf:   IRCUserInfo option = None
         let mutable serverInfo:     IRCServerInfo      = default_IRCServerInfo
         let mutable serverMOTD:     IRCServerMOTD      = MOTD []
-        let mutable serverFeatuers: IRCServerFeatures  = Features [||]
+        let mutable serverFeatuers: IRCServerFeatures  = Features Map.empty
         let mutable serverChannels: IRCServerChannels  = {Channels = Map.empty}
 
 //#region private members

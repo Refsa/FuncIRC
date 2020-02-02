@@ -79,40 +79,42 @@ module MessageHandlerTests =
         Assert.AreEqual (clientData.GetOutboundMessages, "")
         Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
+//#region RPL_ISUPPORT
     let addISupportFeaturesAndVerify (wantedFeatures: IRCServerFeatures, message, clientData) =
         rplISupportHandler (message, clientData)
 
-        Assert.AreEqual (wantedFeatures.Value.Length, clientData.GetServerFeatures.Length)
-        let serverFeatureContentEquals = Array.forall2 (fun a b -> a=b) wantedFeatures.Value clientData.GetServerFeatures
+        Assert.AreEqual (wantedFeatures.Value.Count, clientData.GetServerFeatures.Count)
+        let serverFeatureContentEquals = Array.forall2 (fun a b -> a=b) (wantedFeatures.Value |> Map.toArray) (clientData.GetServerFeatures |> Map.toArray)
 
-        if not serverFeatureContentEquals then
-            clientData.GetServerFeatures
-            |> Array.iter (fun (k, v) -> printfn "%s=%s" k v)
+        //if not serverFeatureContentEquals then
+        //    clientData.GetServerFeatures
+        //    |> Map.iter (fun k -> printfn "%s=%s" k k)
 
         serverFeatureContentEquals
 
     [<Test>]
     let ``RPL_ISUPPORT handler should append the incoming parameters to IRCServerFeatures on IRCClientData``() =
+        // wanted outcome of RPL_ISUPPORT handler
+        let wantedFeatures1 = 
+            [| 
+                ("AWAYLEN", "200"); ("CASEMAPPING", "ascii"); ("CHANLIMIT", "#:20"); 
+                ("CHANMODES", "b,k,l,imnpst"); ("CHANNELLEN", "64"); ("CHANTYPES", "#"); 
+                ("ELIST", "CMNTU"); ("HOSTLEN", "64"); ("KEYLEN", "32"); ("KICKLEN", "255"); 
+                ("LINELEN", "512"); ("MAXLIST", "b:100") 
+            |]
+        let wantedFeatures2 = 
+            wantedFeatures1 
+            |> Array.append 
+                [| 
+                    ("MAXTARGETS", "20"); ("MODES", "20"); ("NETWORK", "Refsa"); 
+                    ("NICKLEN", "30"); ("PREFIX", "(ov)@+"); ("SAFELIST", ""); 
+                    ("STATUSMSG", "@+"); ("TOPICLEN", "307"); ("USERLEN", "10"); ("WHOX", "") 
+                |]
+
+        // Setup data required to run test        
         let isupportParams1 = [|"AWAYLEN=200"; "CASEMAPPING=ascii"; "CHANLIMIT=#:20"; "CHANMODES=b,k,l,imnpst"; "CHANNELLEN=64"; "CHANTYPES=#"; "ELIST=CMNTU"; "HOSTLEN=64"; "KEYLEN=32"; "KICKLEN=255"; "LINELEN=512"; "MAXLIST=b:100"; "are supported by this server"|]
         let isupportParams2 = [|"MAXTARGETS=20"; "MODES=20"; "NETWORK=Refsa"; "NICKLEN=30"; "PREFIX=(ov)@+"; "SAFELIST"; "STATUSMSG=@+"; "TOPICLEN=307"; "USERLEN=10"; "WHOX"; "are supported by this server"|]
 
-        // wanted outcome of RPL_ISUPPORT handler
-        let wantedFeatures1 = 
-            Features [| 
-                        ("AWAYLEN", "200"); ("CASEMAPPING", "ascii"); ("CHANLIMIT", "#:20"); 
-                        ("CHANMODES", "b,k,l,imnpst"); ("CHANNELLEN", "64"); ("CHANTYPES", "#"); 
-                        ("ELIST", "CMNTU"); ("HOSTLEN", "64"); ("KEYLEN", "32"); ("KICKLEN", "255"); 
-                        ("LINELEN", "512"); ("MAXLIST", "b:100") 
-                    |]
-        let wantedFeatures2 = 
-            Features (wantedFeatures1.Value |> Array.append 
-                        [| 
-                            ("MAXTARGETS", "20"); ("MODES", "20"); ("NETWORK", "Refsa"); 
-                            ("NICKLEN", "30"); ("PREFIX", "(ov)@+"); ("SAFELIST", ""); 
-                            ("STATUSMSG", "@+"); ("TOPICLEN", "307"); ("USERLEN", "10"); ("WHOX", "") 
-                        |])
-
-        /// Setup data required to run test        
         let clientData = ircClientData()
         let parameters1 = Some (toParameters (isupportParams1 |> Array.append [|"Nick";|]) )
         let parameters2 = Some (toParameters (isupportParams2 |> Array.append [|"Nick";|]) )
@@ -121,11 +123,12 @@ module MessageHandlerTests =
         let message2 = Message.NewSimpleMessage verb parameters2
 
         // Verify that first RPL_ISUPPORT message is handled correctly
-        let message1valid = addISupportFeaturesAndVerify (wantedFeatures1, message1, clientData)
+        let message1valid = addISupportFeaturesAndVerify (Features (wantedFeatures1 |> Map.ofArray), message1, clientData)
         Assert.True (message1valid, "First pass of ISupport params was not valid")
         // Verify that the second RPL_ISUPPORT message is handled correctly
-        let message2valid = addISupportFeaturesAndVerify (wantedFeatures2, message2, clientData)
+        let message2valid = addISupportFeaturesAndVerify (Features (wantedFeatures2 |> Map.ofArray), message2, clientData)
         Assert.True (message2valid, "Second pass of ISupport params was not valid")
+//#endregion RPL_ISUPPORT
 
     [<Test>]
     let ``RPL_LUSERCLIENT handler should do nothing for now``() =

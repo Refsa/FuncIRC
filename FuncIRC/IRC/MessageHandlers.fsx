@@ -3,6 +3,7 @@
 #load "MessageTypes.fsx"
 #load "MessageParserInternals.fsx"
 #load "NumericReplies.fsx"
+#load "../ConnectionClient/ServerFeaturesHandler.fsx"
 
 namespace FuncIRC
 
@@ -12,6 +13,7 @@ open IRCInformation
 open NumericReplies
 open MessageParserInternals
 open RegexHelpers
+open ServerFeaturesHandler
 open System
 
 #if !DEBUG
@@ -62,29 +64,15 @@ module MessageHandlers =
 //#endregion RPL_CREATED handler
 
     /// RPL_MYINFO handler
-    let rplMyInfoHandler (message: Message, clientData: IRCClientData) =
-        ()
-        //printfn "RPL_MYINFO: "
-
+    let rplMyInfoHandler (message: Message, clientData: IRCClientData) = ()
     /// RPL_LUSERCLIENT handler
-    let rplLUserClientHandler (message: Message, clientData: IRCClientData) =
-        ()
-        //printfn "RPL_LUSERCLIENT: %A" [| for p in message.Params.Value.Value -> p.Value |]
-
+    let rplLUserClientHandler (message: Message, clientData: IRCClientData) = ()
     /// RPL_LUSERUNKNOWN handler
-    let rplLUserUnknownHandler (message: Message, clientData: IRCClientData) =
-        ()
-        //printfn "RPL_LUSERUNKNOWN: %A" [| for p in message.Params.Value.Value -> p.Value |]
-
+    let rplLUserUnknownHandler (message: Message, clientData: IRCClientData) = ()
     /// RPL_LUSERCHANNELS handler
-    let rplLUserChannelsHandler (message: Message, clientData: IRCClientData) =
-        ()
-        //printfn "RPL_LUSERCHANNELS: %A" [| for p in message.Params.Value.Value -> p.Value |]
-
+    let rplLUserChannelsHandler (message: Message, clientData: IRCClientData) = ()
     /// RPL_LUSERME handler
-    let rplLUserMeHandler (message: Message, clientData: IRCClientData) =
-        ()
-        //printfn "RPL_LUSERME: %A" [| for p in message.Params.Value.Value -> p.Value |]
+    let rplLUserMeHandler (message: Message, clientData: IRCClientData) = ()
 
     /// RPL_ISUPPORT handler
     let rplISupportHandler (message: Message, clientData: IRCClientData) =
@@ -100,7 +88,8 @@ module MessageHandlers =
                     | _ -> (paramSplit.[0], paramSplit.[1])
             |]
         
-        clientData.ServerFeatures <- clientData.ServerFeatures |> Array.append features
+        serverFeaturesHandler (features, clientData)
+        clientData.ServerFeatures <- clientData.ServerFeatures |> Map.toArray |> Array.append features |> Array.distinct |> Map.ofArray
 
 //#region RPL_LOCALUSERS/RPL_GLOBALUSERS handlers
     let currentUsersRegex = @"[uU]sers.+?(\d)"

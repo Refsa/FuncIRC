@@ -41,7 +41,7 @@ module IRCInformation =
 
 
     type IRCServerFeatures =
-        | Features of (string * string) array
+        | Features of Map<string, string>
         member x.Value = let (Features features) = x in features
 
 //#region Defaults
