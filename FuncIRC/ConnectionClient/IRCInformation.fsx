@@ -8,6 +8,13 @@ open ConnectionClient
 open System
 
 module IRCInformation =
+    type Casemapping =
+        | ASCII
+        | RFC1459
+        | RFC1459Strict
+        | RFC7613
+        | Unknown
+
     type IRCUserInfo =
         {
             Source: Source
@@ -19,6 +26,8 @@ module IRCInformation =
             Created: DateTime;
             GlobalUserInfo: int * int;
             LocalUserInfo: int * int;
+            Casemapping: Casemapping
+            LineLength: int
         }
 
     type IRCChannelInfo =
@@ -45,5 +54,13 @@ module IRCInformation =
         member x.Value = let (Features features) = x in features
 
 //#region Defaults
-    let default_IRCServerInfo = {Name = "DEFAULT"; Created = DateTime.MinValue; GlobalUserInfo = (-1, -1); LocalUserInfo = (-1, -1)}
+    let default_IRCServerInfo = 
+        {
+            Name = "DEFAULT"; 
+            Created = DateTime.MinValue; 
+            GlobalUserInfo = (-1, -1); 
+            LocalUserInfo = (-1, -1); 
+            Casemapping = Casemapping.Unknown;
+            LineLength = 512;
+        }
 //#endregion
