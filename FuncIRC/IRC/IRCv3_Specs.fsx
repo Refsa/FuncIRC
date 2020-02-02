@@ -144,6 +144,11 @@ module Specs =
         :127.0.0.1 372 testnick :-        -------------------------------------------
         :127.0.0.1 372 testnick :-
         :127.0.0.1 376 testnick :End of message of the day.
+
+        Server Features: 
+
+        AWAYLEN=200 CASEMAPPING=ascii CHANLIMIT=#:20 CHANMODES=b,k,l,imnpst CHANNELLEN=64 CHANTYPES=# ELIST=CMNTU HOSTLEN=64 KEYLEN=32 KICKLEN=255 LINELEN=512 MAXLIST=b:100
+        MAXTARGETS=20 MODES=20 NETWORK=Refsa NICKLEN=30 PREFIX=(ov)@+ SAFELIST STATUSMSG=@+ TOPICLEN=307 USERLEN=10 WHOX
     *)
 
     // Capability negotation:

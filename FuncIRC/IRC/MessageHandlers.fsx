@@ -95,7 +95,9 @@ module MessageHandlers =
             [| 
                 for param in wantedParams ->
                     let paramSplit = param.Value.Split('=')
-                    (paramSplit.[0], paramSplit.[1]) 
+                    match paramSplit.Length with
+                    | 1 -> (paramSplit.[0], "")
+                    | _ -> (paramSplit.[0], paramSplit.[1])
             |]
         
         clientData.ServerFeatures <- clientData.ServerFeatures |> Array.append features
