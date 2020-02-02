@@ -67,4 +67,14 @@ module ServerFeaturesHandlerTests =
         serverFeaturesHandler (feature, clientData)
         Assert.AreEqual ( [| '#'; '%'; '@' |], clientData.GetServerInfo.ChannelPrefixes, "Channel Types was not parsed correctly" )
 
-    
+    [<Test>]
+    let ``CHANLEN should set max channel length in IRCClientData if given a valid int as string``() =
+        let clientData = IRCClientData()
+        let validFeature = [| ("CHANNELLEN", "64") |]
+        let invalidFeature = [| ("CHANNELLEN", "abcd") |]
+
+        serverFeaturesHandler (validFeature, clientData)
+        Assert.AreEqual (64, clientData.GetServerInfo.MaxChannelLength)
+
+        serverFeaturesHandler (invalidFeature, clientData)
+        Assert.AreEqual (64, clientData.GetServerInfo.MaxChannelLength)
