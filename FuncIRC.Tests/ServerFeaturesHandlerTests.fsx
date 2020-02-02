@@ -50,11 +50,21 @@ module ServerFeaturesHandlerTests =
         let clientData = IRCClientData()
         let feature = [| ("LINELEN", "abcd") |]
         serverFeaturesHandler (feature, clientData)
-        Assert.AreEqual (512, clientData.GetServerInfo.LineLength)
+        Assert.AreEqual (512, clientData.GetServerInfo.LineLength, "Line length set an undefined value")
 
     [<Test>]
     let ``LINELEN feature should parse strings to int if the value is an int``() =
         let clientData = IRCClientData()
         let feature = [| ("LINELEN", "1024") |]
         serverFeaturesHandler (feature, clientData)
-        Assert.AreEqual (1024, clientData.GetServerInfo.LineLength)
+        Assert.AreEqual (1024, clientData.GetServerInfo.LineLength, "LineLength was not set correctly")
+
+    [<Test>]
+    let ``CHANTYPES feature should destruct incoming string into a char array and set ChannelPrefixes in IRCClientData``() =
+        let clientData = IRCClientData()
+        let feature = [| ("CHANTYPES", "#%@") |]
+
+        serverFeaturesHandler (feature, clientData)
+        Assert.AreEqual ( [| '#'; '%'; '@' |], clientData.GetServerInfo.ChannelPrefixes, "Channel Types was not parsed correctly" )
+
+    
