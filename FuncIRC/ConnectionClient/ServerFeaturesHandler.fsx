@@ -52,7 +52,11 @@ module ServerFeaturesHandler =
         ()
 
     let chanLengthFeatureHandler (chanLenFeature, clientData: IRCClientData) =
-        ()
+        try
+            let parsed = int chanLenFeature
+            clientData.ServerInfo <- {clientData.ServerInfo with MaxChannelLength = parsed}
+        with
+        | _ -> () // Using default channel length
 
     let noFeatureHandler (noFeature, clientData: IRCClientData) =
         ()
