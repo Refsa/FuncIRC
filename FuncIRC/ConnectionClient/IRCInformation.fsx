@@ -31,7 +31,17 @@ module IRCInformation =
             LineLength: int
 
             ChannelPrefixes: char array
+
             MaxChannelLength: int
+            MaxTargets: int
+            MaxAwayLength: int
+            MaxKickLength: int
+            MaxTopicLength: int
+            MaxUserLength: int
+            MaxNickLength: int
+            MaxModes: int
+            MaxKeyLength: int
+            MaxHostLength: int
         }
 
     type IRCChannelInfo =

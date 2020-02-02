@@ -1,10 +1,12 @@
 #load "IRCClientData.fsx"
 #load "IRCInformation.fsx"
+#load "../Utils/GeneralHelpers.fsx"
 
 namespace FuncIRC
 
 open IRCClientData
 open IRCInformation
+open GeneralHelpers
 
 #if !DEBUG
 module internal ServerFeaturesHandler =
@@ -12,9 +14,11 @@ module internal ServerFeaturesHandler =
 module ServerFeaturesHandler =
 #endif
 
+    /// NETWORK
     let networkFeatureHandler (networkFeature, clientData: IRCClientData) =
         clientData.ServerInfo <- {clientData.ServerInfo with Name = networkFeature}
 
+    /// CASEMAPPING
     let casemappingFeatureHandler (casemappingFeature, clientData: IRCClientData) =
         let casemapping =        
             match casemappingFeature with
@@ -26,38 +30,86 @@ module ServerFeaturesHandler =
 
         clientData.ServerInfo <- {clientData.ServerInfo with Casemapping = casemapping}
 
-    let linelengthFeatureHandler (linelenFeature, clientData: IRCClientData) =
-        try
-            let parsed = int linelenFeature
-            clientData.ServerInfo <- {clientData.ServerInfo with LineLength = parsed}
-        with
-        | _ -> () // Using default LINELEN value of 512
-
+    /// MAXTARGETS
     let maxTargetsFeatureHandler (maxTargetsFeature, clientData: IRCClientData) =
         ()
 
+    /// CHANTYPES    
     let chanTypesFeatureHandler (chanTypesFeature: string, clientData: IRCClientData) =
         let supportedChanTypes =
             [|
-                for c in chanTypesFeature ->
-                    c
+                for c in chanTypesFeature -> c
             |]
 
         clientData.ServerInfo <- {clientData.ServerInfo with ChannelPrefixes = supportedChanTypes}
 
-    let chanLimitFeatureHandler (chanLimitFeature, clientData: IRCClientData) =
-        ()
+    /// CHANLIMIT    
+    let chanLimitFeatureHandler (chanLimitFeature, clientData: IRCClientData) = ()
 
-    let chanModesFeatureHandler (chanModesFeature, clientData: IRCClientData) =
-        ()
+    /// CHANMODES
+    let chanModesFeatureHandler (chanModesFeature, clientData: IRCClientData) = ()
 
+    /// LINELEN
+    let linelengthFeatureHandler (linelenFeature, clientData: IRCClientData) =
+        match linelenFeature with
+        | IntParsed value -> clientData.ServerInfo <- {clientData.ServerInfo with LineLength = value}
+        | InvalidParse -> ()
+
+    /// CHANNELLEN
     let chanLengthFeatureHandler (chanLenFeature, clientData: IRCClientData) =
-        try
-            let parsed = int chanLenFeature
-            clientData.ServerInfo <- {clientData.ServerInfo with MaxChannelLength = parsed}
-        with
-        | _ -> () // Using default channel length
+        match chanLenFeature with
+        | IntParsed value -> clientData.ServerInfo <- {clientData.ServerInfo with MaxChannelLength = value}
+        | InvalidParse -> ()
 
+    /// AWAYLEN
+    let awayLengthHandler (feature, clientData: IRCClientData) =
+        match feature with
+        | IntParsed value -> clientData.ServerInfo <- {clientData.ServerInfo with MaxAwayLength = value}
+        | InvalidParse -> ()
+
+    /// KICKLEN    
+    let kickLengthHandler (feature, clientData: IRCClientData) =
+        match feature with
+        | IntParsed value -> clientData.ServerInfo <- {clientData.ServerInfo with MaxKickLength = value}
+        | InvalidParse -> ()
+
+    /// TOPICLEN
+    let topicLengthHandler (feature, clientData: IRCClientData) =
+        match feature with
+        | IntParsed value -> clientData.ServerInfo <- {clientData.ServerInfo with MaxTopicLength = value}
+        | InvalidParse -> ()
+
+    /// USERLEN
+    let userLengthHandler (feature, clientData: IRCClientData) =
+        match feature with
+        | IntParsed value -> clientData.ServerInfo <- {clientData.ServerInfo with MaxUserLength = value}
+        | InvalidParse -> ()
+
+    /// NICKLEN
+    let nickLengthHandler (feature, clientData: IRCClientData) =
+        match feature with
+        | IntParsed value -> clientData.ServerInfo <- {clientData.ServerInfo with MaxNickLength = value}
+        | InvalidParse -> ()
+
+    /// MODES
+    let modesHandler (feature, clientData: IRCClientData) =
+        match feature with
+        | IntParsed value -> clientData.ServerInfo <- {clientData.ServerInfo with MaxModes = value}
+        | InvalidParse -> ()
+
+    /// KEYLEN
+    let keyLengthHandler (feature, clientData: IRCClientData) =
+        match feature with
+        | IntParsed value -> clientData.ServerInfo <- {clientData.ServerInfo with MaxKeyLength = value}
+        | InvalidParse -> ()
+
+    /// HOSTLEN
+    let hostLengthHandler (feature, clientData: IRCClientData) =
+        match feature with
+        | IntParsed value -> clientData.ServerInfo <- {clientData.ServerInfo with MaxHostLength = value}
+        | InvalidParse -> ()
+
+    /// Empty handler
     let noFeatureHandler (noFeature, clientData: IRCClientData) =
         ()
 
@@ -77,6 +129,14 @@ module ServerFeaturesHandler =
                     | "CHANLIMIT"   -> chanLimitFeatureHandler
                     | "CHANMODES"   -> chanModesFeatureHandler
                     | "CHANNELLEN"  -> chanLengthFeatureHandler
+                    | "AWAYLEN"     -> awayLengthHandler
+                    | "KICKLEN"     -> kickLengthHandler
+                    | "TOPICLEN"    -> topicLengthHandler
+                    | "USERLEN"     -> userLengthHandler
+                    | "NICKLEN"     -> nickLengthHandler
+                    | "MODES"       -> modesHandler
+                    | "KEYLEN"      -> keyLengthHandler
+                    | "HOSTLEN"     -> hostLengthHandler
                     | _             -> noFeatureHandler
                 )
             )

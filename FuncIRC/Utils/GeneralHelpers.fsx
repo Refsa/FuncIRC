@@ -22,4 +22,18 @@ module GeneralHelpers =
         |> Array.where 
             (fun x ->
                 x <> ""
-            )
+            )        
+
+    let tryParseInt (target: string) =
+        try
+            let parsed = int target
+            Some parsed
+        with
+        | _ -> None
+
+    let (|IntParsed|InvalidParse|) (target: string) =
+        let parsed = tryParseInt target
+
+        match parsed with
+        | Some parsed -> IntParsed int
+        | None -> InvalidParse
