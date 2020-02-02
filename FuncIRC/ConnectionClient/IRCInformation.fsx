@@ -77,6 +77,16 @@ module IRCInformation =
             Casemapping = Casemapping.Unknown;
             LineLength = 512;
             ChannelPrefixes = Array.empty;
+
             MaxChannelLength = 32;
+            MaxTargets = 20;
+            MaxAwayLength = 200;
+            MaxKickLength = 255;
+            MaxTopicLength = 307;
+            MaxUserLength = 10;
+            MaxNickLength = 30;
+            MaxModes = 20;
+            MaxKeyLength = 32;
+            MaxHostLength = 64;
         }
 //#endregion

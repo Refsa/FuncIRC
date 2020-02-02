@@ -35,5 +35,5 @@ module GeneralHelpers =
         let parsed = tryParseInt target
 
         match parsed with
-        | Some parsed -> IntParsed int
+        | Some parsed -> IntParsed parsed
         | None -> InvalidParse

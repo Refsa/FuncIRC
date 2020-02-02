@@ -32,7 +32,9 @@ module ServerFeaturesHandler =
 
     /// MAXTARGETS
     let maxTargetsFeatureHandler (maxTargetsFeature, clientData: IRCClientData) =
-        ()
+        match maxTargetsFeature with
+        | IntParsed value -> clientData.ServerInfo <- {clientData.ServerInfo with MaxTargets = value}
+        | InvalidParse -> ()
 
     /// CHANTYPES    
     let chanTypesFeatureHandler (chanTypesFeature: string, clientData: IRCClientData) =
