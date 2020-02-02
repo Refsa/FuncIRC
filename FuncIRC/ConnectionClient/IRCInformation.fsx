@@ -26,8 +26,12 @@ module IRCInformation =
             Created: DateTime;
             GlobalUserInfo: int * int;
             LocalUserInfo: int * int;
+
             Casemapping: Casemapping
             LineLength: int
+
+            ChannelPrefixes: char array
+            MaxChannelLength: int
         }
 
     type IRCChannelInfo =
@@ -62,5 +66,7 @@ module IRCInformation =
             LocalUserInfo = (-1, -1); 
             Casemapping = Casemapping.Unknown;
             LineLength = 512;
+            ChannelPrefixes = Array.empty;
+            MaxChannelLength = 32;
         }
 //#endregion

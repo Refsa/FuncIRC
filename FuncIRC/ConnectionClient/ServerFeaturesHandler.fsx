@@ -31,13 +31,19 @@ module ServerFeaturesHandler =
             let parsed = int linelenFeature
             clientData.ServerInfo <- {clientData.ServerInfo with LineLength = parsed}
         with
-        | _ -> ()
+        | _ -> () // Using default LINELEN value of 512
 
     let maxTargetsFeatureHandler (maxTargetsFeature, clientData: IRCClientData) =
         ()
 
-    let chanTypesFeatureHandler (chanTypesFeature, clientData: IRCClientData) =
-        ()
+    let chanTypesFeatureHandler (chanTypesFeature: string, clientData: IRCClientData) =
+        let supportedChanTypes =
+            [|
+                for c in chanTypesFeature ->
+                    c
+            |]
+
+        clientData.ServerInfo <- {clientData.ServerInfo with ChannelPrefixes = supportedChanTypes}
 
     let chanLimitFeatureHandler (chanLimitFeature, clientData: IRCClientData) =
         ()
