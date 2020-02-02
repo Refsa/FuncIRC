@@ -44,3 +44,17 @@ module ServerFeaturesHandlerTests =
         let feature = [| ("CASEMAPPING", "rfc1459") |]
         serverFeaturesHandler (feature, clientData)
         Assert.True (checkCasemappingInClientData Casemapping.RFC1459 clientData, "Casemapping was not set correctly for rfc1459")
+
+    [<Test>]
+    let ``LINELEN feature should only accept values that can be parsed to int if not default to 512``() =
+        let clientData = IRCClientData()
+        let feature = [| ("LINELEN", "abcd") |]
+        serverFeaturesHandler (feature, clientData)
+        Assert.AreEqual (512, clientData.GetServerInfo.LineLength)
+
+    [<Test>]
+    let ``LINELEN feature should parse strings to int if the value is an int``() =
+        let clientData = IRCClientData()
+        let feature = [| ("LINELEN", "1024") |]
+        serverFeaturesHandler (feature, clientData)
+        Assert.AreEqual (1024, clientData.GetServerInfo.LineLength)
