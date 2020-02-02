@@ -35,7 +35,7 @@ module internal IRCClient =
     /// Starts the TcpClient and connects the NetworkStream to the corresponding reader/writer handlers
     /// Raises <typeref="ClientConnectionException"> if the connection was unsuccessful
     let ircClient (server: string, port: int) = 
-        let client = startClient server port
+        let client = new TCPClient (server, port, true)
 
         match client.Connect with
         | true -> 

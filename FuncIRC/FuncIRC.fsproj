@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Library</OutputType>
-    <TargetFrameworks>netstandard2.0;netcoreapp2.0</TargetFrameworks>
+    <TargetFrameworks>netcoreapp2.0;netstandard2.0</TargetFrameworks>
     <DebugType>portable</DebugType>
   </PropertyGroup>
   <ItemGroup>
@@ -18,6 +18,7 @@
     <Compile Include="IRC/IrcUtils.fsx" />
     <Compile Include="IRC/MessageParser.fsx" />
 
+    <Compile Include="ConnectionClient/TLSCert.fsx" />
     <Compile Include="ConnectionClient/ConnectionClient.fsx" />
     <Compile Include="ConnectionClient/MessageQueue.fsx" />
     <Compile Include="ConnectionClient/IRCClientData.fsx" />
