@@ -130,8 +130,11 @@ module CLI =
         //testAsyncTask()
         //(app.Run())
 
-        let serverAddress = ("127.0.0.1", 6697)
-        let clientData    = startIrcClient serverAddress
+        let remoteServerAddress = ("testnet.inspircd.org", 6697, true)
+        let localServerAddress = ("127.0.0.1", 6697, true)
+
+        let clientData    = startIrcClient localServerAddress
+        clientData.ErrorNumericReceivedEvent.Add (fun em -> printfn "Error: %s" em)
 
         clientData.MessageSubscriptionEvent
         |> Event.add (

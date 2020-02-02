@@ -13,7 +13,12 @@ module internal ConnectionClient =
     exception ClientConnectionException
 
     let inline validateCertCallback cb = new RemoteCertificateValidationCallback(cb)
-    let noSslErrors = validateCertCallback (fun _ _ _ errors -> true)
+#if DEBUG
+    // IMPORTANT: This is not a safe way to handle self-signed/unnamed certs but should not be a problem against production servers
+    let noSslErrors = validateCertCallback (fun _ _ _ errors -> printfn "SSL Certificate Errors: %s" (errors.ToString()); true)
+#else
+    let noSslErrors = validateCertCallback (fun _ _ _ errors -> errors = SslPolicyErrors.None)
+#endif
 
     /// Wrapper for TcpClient
     [<Sealed>]
@@ -46,16 +51,17 @@ module internal ConnectionClient =
 
             try
                 client := new TcpClient (server, port)
-                networkStream := client.Value.GetStream()
 
                 if useSsl then
                     sslStream := new SslStream (client.Value.GetStream(), false, noSslErrors)
                     sslStream.Value.AuthenticateAsClient(server, X509CertificateCollection(), SslProtocols.None, true)
+                else
+                    networkStream := client.Value.GetStream()
 
                 true
             with
-            | :? ArgumentNullException as ane -> (*printfn "ArgumentNullException %s" ane.Message;*) false
-            | :? SocketException as se -> (*printfn "SocketException %s" se.Message;*) false
+            | :? ArgumentNullException as ane -> printfn "ArgumentNullException %s" ane.Message; false
+            | :? SocketException as se -> printfn "SocketException %s" se.Message; false
             | :? System.IO.IOException as ioe -> printfn "IOException: %s" ioe.Message; false
 
         member this.Close =
@@ -64,17 +70,20 @@ module internal ConnectionClient =
         interface IDisposable with
             member this.Dispose() =
                 printfn "Disposing TCP Client"
-                networkStream.Value.Close()
-                sslStream.Value.Close()
-                client.Value.Close()
+                if not (isNull networkStream.Value) then
+                    networkStream.Value.Close()
+                    networkStream.Value.Dispose()
+                    networkStream := null
 
-                networkStream.Value.Dispose()
-                sslStream.Value.Dispose()
-                client.Value.Dispose()
+                if not (isNull sslStream.Value) then
+                    sslStream.Value.Close()
+                    sslStream.Value.Dispose()
+                    sslStream := null
 
-                networkStream := null
-                sslStream := null
-                client := null
+                if not (isNull client.Value) then
+                    client.Value.Close()
+                    client.Value.Dispose()
+                    client := null
 
     /// Attempts to connect with the given server on the given port through TCP
     /// Returns None if .NET TcpClient threw an exception
