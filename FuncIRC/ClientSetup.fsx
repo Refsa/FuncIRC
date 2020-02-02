@@ -13,7 +13,7 @@ open MessageTypes
 open MessageHandlers
 
 module ClientSetup =
-    /// Creates the server connection and adds required message subscriptions
+    /// Creates the server connection and adds required internal message subscriptions
     let startIrcClient (server: string, port: int, useSsl: bool) =
         let clientData = ircClient (server, port, useSsl)
 
