@@ -131,7 +131,7 @@ module CLI =
         //(app.Run())
 
         let remoteServerAddress = ("testnet.inspircd.org", 6697, true)
-        let localServerAddress = ("127.0.0.1", 6697, true)
+        let localServerAddress = ("127.0.0.1", 6697, false)
 
         let clientData    = startIrcClient localServerAddress
         clientData.ErrorNumericReceivedEvent.Add (fun em -> printfn "Error: %s" em)
