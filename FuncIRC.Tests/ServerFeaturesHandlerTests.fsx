@@ -7,6 +7,7 @@ open NUnit
 open NUnit.Framework
 open FuncIRC.ServerFeaturesHandler
 open FuncIRC.IRCClientData
+open FuncIRC.IRCInformation
 
 module ServerFeaturesHandlerTests =
     let serverFeatures =
@@ -25,8 +26,21 @@ module ServerFeaturesHandlerTests =
         let feature = [| ("NETWORK", "SomeNetwork") |]
 
         serverFeaturesHandler (feature, clientData)
-
         let networkName = clientData.GetServerInfo.Name
 
         Assert.AreNotEqual ("DEFAULT", networkName)
         Assert.AreEqual ("SomeNetwork", networkName)
+
+    let checkCasemappingInClientData casemapping (clientData: IRCClientData) =
+        clientData.GetServerInfo.Casemapping = casemapping
+
+    [<Test>]
+    let ``CASEMAPPING feature should set casemapping in IRCClientData``() =
+        let clientData = IRCClientData()
+        let feature = [| ("CASEMAPPING", "ascii") |]
+        serverFeaturesHandler (feature, clientData)
+        Assert.True (checkCasemappingInClientData Casemapping.ASCII clientData, "Casemapping was not set correctly for ascii")
+
+        let feature = [| ("CASEMAPPING", "rfc1459") |]
+        serverFeaturesHandler (feature, clientData)
+        Assert.True (checkCasemappingInClientData Casemapping.RFC1459 clientData, "Casemapping was not set correctly for rfc1459")
