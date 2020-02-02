@@ -34,8 +34,8 @@ module internal IRCClient =
 
     /// Starts the TcpClient and connects the NetworkStream to the corresponding reader/writer handlers
     /// Raises <typeref="ClientConnectionException"> if the connection was unsuccessful
-    let ircClient (server: string, port: int) = 
-        let client = startClient server port
+    let ircClient (server: string, port: int, useSsl: bool) = 
+        let client = new TCPClient (server, port, useSsl)
 
         match client.Connect with
         | true -> 
@@ -44,9 +44,9 @@ module internal IRCClient =
             // TcpClient
             let tcpClient = (ircClientHandler clientData client)
             // Read Stream
-            let readStream = (readStream clientData client.Stream)
+            let readStream = (readStream clientData client)
             // Write Stream
-            let writeStream = (writeStream clientData client.Stream)
+            let writeStream = (writeStream clientData client)
 
             let asParallel = Async.Parallel([tcpClient; readStream; writeStream], 3)
             Async.StartAsTask(asParallel, TaskCreationOptions(), clientData.Token) |> ignore

@@ -9,6 +9,7 @@
 
 namespace FuncIRC
 
+open ConnectionClient
 open System.Diagnostics
 open MessageParser
 open MessageParserInternals
@@ -41,13 +42,13 @@ module internal IRCStreamReader =
     /// Responsible for reading the incoming byte stream
     /// Reads on byte at a time, dispatches the callback delegate when \r\n EOM marker is found
     /// TODO: Make it dependant on the CancellationToken of the client
-    let readStream (clientData: IRCClientData) (stream: NetworkStream) =
+    let readStream (clientData: IRCClientData) (client: TCPClient) =
         let data = [| byte 0 |]
 
         let rec readLoop(received: string) =
             async {
                 try
-                    stream.Read(data, 0, data.Length) |> ignore
+                    client.ReadFromStream data 0 data.Length |> ignore
 
                     let receivedData = parseByteString data
                     let receivedNext = received + receivedData

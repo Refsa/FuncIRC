@@ -13,9 +13,15 @@ open MessageTypes
 open MessageHandlers
 
 module ClientSetup =
-    /// Creates the server connection and adds required message subscriptions
-    let startIrcClient (server: string, port: int) =
-        let clientData = ircClient (server, port)
+    /// Creates the server connection and adds required internal message subscriptions
+    let startIrcClient (server: string, port: int, useSsl: bool) =
+        let clientData = 
+            match useSsl with
+            | true -> ircClient (server, 6697, useSsl)
+            | false -> 
+                match port with
+                | 6697 -> printfn "SSL port was used on a non-SSL connection"; ircClient (server, 6667, useSsl)
+                | _ -> ircClient (server, port, useSsl)
 
         clientData.MessageSubscriptionEvent 
         |> Event.add (

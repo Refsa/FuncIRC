@@ -1,3 +1,4 @@
+#load "ConnectionClient.fsx"
 #load "MessageQueue.fsx"
 #load "IRCClientData.fsx"
 #load "../IRC/NumericReplies.fsx"
@@ -6,6 +7,7 @@
 
 namespace FuncIRC
 
+open ConnectionClient
 open IRCClientData
 open MessageHandlers
 open MessageTypes
@@ -18,7 +20,7 @@ open System.Net.Sockets
 module internal IRCStreamWriter =
     /// Verifies and sends the message string to the client stream
     /// Preferred syntax for sending messages is client |> sendIrcMessage <| message
-    let sendIrcMessage (stream: NetworkStream) (message: string) =
+    let sendIrcMessage (client: TCPClient) (message: string) =
         let messageData =
             match message with
             | message when message.EndsWith("\r\n") -> Encoding.UTF8.GetBytes (message)
@@ -26,14 +28,14 @@ module internal IRCStreamWriter =
 
         try
             printfn "Sending Message(s):\n\t%s" (message.Replace("\r\n", "\n\t"))
-            stream.Write (messageData, 0, messageData.Length) 
+            client.WriteToStream messageData
         with
             | e -> printfn "Exception when writing message(s) to stream: %s" e.Message
 
     /// Contains an internal async loop that looks at clientData.OutQueue and sends the messages
     /// Has a 10ms sleep duration between each message sent 
     /// will send multiple messages at the same time
-    let writeStream (clientData: IRCClientData) (stream: NetworkStream) =
+    let writeStream (clientData: IRCClientData) (client: TCPClient) =
         let rec writeLoop() =
             async {
                 do! Async.AwaitEvent (clientData.SendMessageEvent)
@@ -41,7 +43,7 @@ module internal IRCStreamWriter =
                 clientData.GetOutboundMessages
                 |> function
                 | m when m = "" -> ()
-                | m -> stream |> sendIrcMessage <| m
+                | m -> client |> sendIrcMessage <| m
 
                 match clientData.TokenSource.IsCancellationRequested with
                 | false -> return! writeLoop()
