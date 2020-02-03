@@ -48,13 +48,27 @@ module ServerFeaturesHandler =
     /// CHANLIMIT    
     let chanLimitFeatureHandler (chanLimitFeature: string, clientData: IRCClientData) = 
         let channels = chanLimitFeature.Split(';')
+        let current = clientData.ServerInfo.ChannelPrefixes |> Map.toList
 
         let chanLimits =
             [|
                 for chan in channels ->
                     let kvp = chan.Split(':')
                     (char kvp.[0], int kvp.[1])
-            |] |> Map.ofArray
+            |]
+            |> Map.ofArray
+
+        let rec buildChannelPrefixes (leftover: (char * int) list) (acc: Map<char, int>) =
+            match leftover with
+            | [] -> acc
+            | head :: tail ->
+                let k, v = head
+                if not (acc.ContainsKey k) then
+                    buildChannelPrefixes tail (acc |> Map.add k v)
+                else
+                    buildChannelPrefixes tail acc
+
+        let chanLimits = buildChannelPrefixes current chanLimits
 
         clientData.ServerInfo <- {clientData.ServerInfo with ChannelPrefixes = chanLimits}
 

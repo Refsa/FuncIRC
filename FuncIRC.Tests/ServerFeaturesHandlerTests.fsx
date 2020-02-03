@@ -79,6 +79,13 @@ module ServerFeaturesHandlerTests =
         serverFeaturesHandler (typesFeature, clientData)
         serverFeaturesHandler (limitsFeature, clientData)
 
+        clientData.GetServerInfo.ChannelPrefixes
+        |> Map.toList
+        |> List.iter (
+            fun x ->
+                printfn "k: %c - v: %d" (fst x) (snd x)
+        )
+
         [| '#'; '%'; '@' |]
         |> Array.iter
             (fun x -> clientData.GetServerInfo.ChannelPrefixes.ContainsKey x |> Assert.True)
