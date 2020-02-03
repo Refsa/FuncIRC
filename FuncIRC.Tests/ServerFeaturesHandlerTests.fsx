@@ -71,6 +71,25 @@ module ServerFeaturesHandlerTests =
                 clientData.GetServerInfo.ChannelPrefixes.[k] = v |> Assert.True)
 
     [<Test>]
+    let ``CHANLIMIT should not override channel types received from CHANTYPES``() =
+        let clientData = IRCClientData()
+        let typesFeature = [| ("CHANTYPES", "#%@") |]
+        let limitsFeature = [| ("CHANLIMIT", "#:20;%:10") |]
+
+        serverFeaturesHandler (typesFeature, clientData)
+        serverFeaturesHandler (limitsFeature, clientData)
+
+        [| '#'; '%'; '@' |]
+        |> Array.iter
+            (fun x -> clientData.GetServerInfo.ChannelPrefixes.ContainsKey x |> Assert.True)
+
+        [| ('#', 20); ('%', 10); ('@', 10) |]
+        |> Array.iter
+            (fun x ->
+                let k, v = x
+                clientData.GetServerInfo.ChannelPrefixes.[k] = v |> Assert.True)
+
+    [<Test>]
     let ``CHANLEN should set max channel length in IRCClientData if given a valid int as string``() =
         let clientData = IRCClientData()
         let validFeature = [| ("CHANNELLEN", "64") |]
