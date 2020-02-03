@@ -18,19 +18,22 @@ module IRCMessages =
 
 //#region Internal Message Constructs
     let internal capMessage = 
-        { Tags = None; Source = None; Verb = Some (Verb "CAP"); Params  = Some (toParameters [|"LS"; "302"|]) }
+        { Tags = None; Source = None; Verb = Some (Verb "CAP"); Params  = Some (toParameters [| "LS"; "302" |]) }
 
     let internal passMessage pass = 
-        { Tags = None; Source = None; Verb = Some (Verb "PASS"); Params = Some (toParameters [|pass|]) }
+        { Tags = None; Source = None; Verb = Some (Verb "PASS"); Params = Some (toParameters [| pass |]) }
 
     let internal nickMessage nick = 
-        { Tags = None; Source = None; Verb = Some (Verb "NICK"); Params = Some (toParameters [|nick|]) }
+        { Tags = None; Source = None; Verb = Some (Verb "NICK"); Params = Some (toParameters [| nick |]) }
 
     let internal userMessage user realName =
-        { Tags = None; Source = None; Verb = Some (Verb "USER"); Params = Some (toParameters [|user; "0"; "*"; realName|]) }
+        { Tags = None; Source = None; Verb = Some (Verb "USER"); Params = Some (toParameters [| user; "0"; "*"; realName |]) }
 
     let internal createAwayMessage awayMessage =
-        { Tags = None; Source = None; Verb = Some (Verb "AWAY"); Params = Some (toParameters [|awayMessage|]) }
+        { Tags = None; Source = None; Verb = Some (Verb "AWAY"); Params = Some (toParameters [| awayMessage |]) }
+
+    let internal createQuitMessage quitMessage =
+        { Tags = None; Source = None; Verb = Some (Verb "QUIT"); Params = Some (toParameters [| quitMessage |]) }
 //#endregion
 
 //#region External message constructs
@@ -85,16 +88,16 @@ module IRCMessages =
         |> Event.add (
             fun (m, c) -> 
                 match m.Verb.Value.Value with
-                | verb when verb = (NumericsReplies.RPL_WELCOME.ToString()) -> rplWelcomeHandler (m, c) |> ignore
-                | verb when verb = (NumericsReplies.RPL_YOURHOST.ToString()) -> rplYourHostHandler (m, c) |> ignore
-                | verb when verb = (NumericsReplies.RPL_CREATED.ToString()) -> rplCreatedHandler (m, c) |> ignore
-                | verb when verb = (NumericsReplies.RPL_MYINFO.ToString()) -> rplMyInfoHandler (m, c) |> ignore
-                | verb when verb = (NumericsReplies.RPL_LUSERCLIENT.ToString()) -> rplLUserClientHandler (m, c) |> ignore
-                | verb when verb = (NumericsReplies.RPL_LUSERUNKNOWN.ToString()) -> rplLUserUnknownHandler (m, c) |> ignore
-                | verb when verb = (NumericsReplies.RPL_LUSERCHANNELS.ToString()) -> rplLUserChannelsHandler (m, c) |> ignore
-                | verb when verb = (NumericsReplies.RPL_LUSERME.ToString()) -> rplLUserMeHandler (m, c) |> ignore
-                | verb when verb = (NumericsReplies.RPL_LOCALUSERS.ToString()) -> rplLocalUsersHandler (m, c) |> ignore
-                | verb when verb = (NumericsReplies.RPL_GLOBALUSERS.ToString()) -> rplGlobalUsersHandler (m, c) |> ignore
+                | verb when verb = (NumericsReplies.RPL_WELCOME.ToString())       -> rplWelcomeHandler (m, c)
+                | verb when verb = (NumericsReplies.RPL_YOURHOST.ToString())      -> rplYourHostHandler (m, c)
+                | verb when verb = (NumericsReplies.RPL_CREATED.ToString())       -> rplCreatedHandler (m, c)
+                | verb when verb = (NumericsReplies.RPL_MYINFO.ToString())        -> rplMyInfoHandler (m, c)
+                | verb when verb = (NumericsReplies.RPL_LUSERCLIENT.ToString())   -> rplLUserClientHandler (m, c)
+                | verb when verb = (NumericsReplies.RPL_LUSERUNKNOWN.ToString())  -> rplLUserUnknownHandler (m, c)
+                | verb when verb = (NumericsReplies.RPL_LUSERCHANNELS.ToString()) -> rplLUserChannelsHandler (m, c)
+                | verb when verb = (NumericsReplies.RPL_LUSERME.ToString())       -> rplLUserMeHandler (m, c)
+                | verb when verb = (NumericsReplies.RPL_LOCALUSERS.ToString())    -> rplLocalUsersHandler (m, c)
+                | verb when verb = (NumericsReplies.RPL_GLOBALUSERS.ToString())   -> rplGlobalUsersHandler (m, c)
                 | _ -> ()
         )
 
@@ -102,8 +105,13 @@ module IRCMessages =
 
     /// Creates a QUIT messages and adds it to the outbound message queue
     let sendQuitMessage (clientData: IRCClientData) (message: string) =
-        { Tags = None; Source = None; Verb = Some (Verb "QUIT"); Params = Some (toParameters [|message|]) }
-        |> clientData.AddOutMessage
+        let messageTooLong = message.Length > 200
+
+        match messageTooLong with
+        | true -> false
+        | false ->
+            createQuitMessage message |> clientData.AddOutMessage
+            true
 
     /// Creates an AWAY messages and adds it to the outboid message queue if the length of the message was within bounds
     /// <returns> True if the message was added to outqueue, false if not </returns>

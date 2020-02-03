@@ -33,3 +33,27 @@ module IRCMessagesTests =
         let outboundMessage = clientData.GetOutboundMessages
 
         Assert.AreEqual ("", outboundMessage)
+
+
+    [<Test>]
+    let ``sendQuitMessage should add an out message if length is within bounds``() =
+        let clientData = IRCClientData()
+
+        let validMessage = "Quit message that is not too long"
+        let invalidMessage = 
+            let maxLength = clientData.GetServerInfo.MaxAwayLength + 1
+            let rec buildLongMessage (currentMessage: string) =
+                if currentMessage.Length = maxLength then currentMessage
+                else buildLongMessage (currentMessage + "_")
+            buildLongMessage "Quit message that is too long "
+
+        sendQuitMessage clientData validMessage |> Assert.True
+
+        let outboundMessage = clientData.GetOutboundMessages
+        Assert.AreEqual ("QUIT " + validMessage, outboundMessage.Replace("\r\n", ""))
+
+        sendQuitMessage clientData invalidMessage |> not |> Assert.True
+
+        let outboundMessage = clientData.GetOutboundMessages
+
+        Assert.AreEqual ("", outboundMessage)
