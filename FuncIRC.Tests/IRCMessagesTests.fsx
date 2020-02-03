@@ -11,17 +11,18 @@ open FuncIRC.IRCClientData
 
 module IRCMessagesTests =
     
+    let createInvalidMessage message maxLength =
+        let rec buildLongMessage (currentMessage: string) =
+            if currentMessage.Length = maxLength then currentMessage
+            else buildLongMessage (currentMessage + "_")
+        buildLongMessage message
+
     [<Test>]
     let ``sendAwayMessage should add an out message if length is within bounds``() =
         let clientData = IRCClientData()
 
         let validMessage = "Away message that is not too long"
-        let invalidMessage = 
-            let maxLength = clientData.GetServerInfo.MaxAwayLength + 1
-            let rec buildLongMessage (currentMessage: string) =
-                if currentMessage.Length = maxLength then currentMessage
-                else buildLongMessage (currentMessage + "_")
-            buildLongMessage "Away message that is too long "
+        let invalidMessage = createInvalidMessage "Away message that is too long " (clientData.GetServerInfo.MaxAwayLength + 1)
 
         sendAwayMessage clientData validMessage |> Assert.True
 
@@ -40,12 +41,7 @@ module IRCMessagesTests =
         let clientData = IRCClientData()
 
         let validMessage = "Quit message that is not too long"
-        let invalidMessage = 
-            let maxLength = clientData.GetServerInfo.MaxAwayLength + 1
-            let rec buildLongMessage (currentMessage: string) =
-                if currentMessage.Length = maxLength then currentMessage
-                else buildLongMessage (currentMessage + "_")
-            buildLongMessage "Quit message that is too long "
+        let invalidMessage = createInvalidMessage "Quit message that is too long " 201
 
         sendQuitMessage clientData validMessage |> Assert.True
 
