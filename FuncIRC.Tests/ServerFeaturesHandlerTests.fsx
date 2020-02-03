@@ -60,12 +60,10 @@ module ServerFeaturesHandlerTests =
     [<Test>]
     let ``CHANLIMIT should set the limit to each channel type in IRCClientData info``() =
         let clientData = IRCClientData()
-        let typesFeature = [| ("CHANTYPES", "#%@") |]
         let limitsFeature = [| ("CHANLIMIT", "#:20;%:10;@:5") |]
 
-        serverFeaturesHandler (typesFeature, clientData)
         serverFeaturesHandler (limitsFeature, clientData)
-        
+
         [| ('#', 20); ('%', 10); ('@', 5) |]
         |> Array.iter
             (fun x ->

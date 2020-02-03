@@ -46,8 +46,17 @@ module ServerFeaturesHandler =
         clientData.ServerInfo <- {clientData.ServerInfo with ChannelPrefixes = supportedChanTypes}
 
     /// CHANLIMIT    
-    let chanLimitFeatureHandler (chanLimitFeature, clientData: IRCClientData) = 
-        ()
+    let chanLimitFeatureHandler (chanLimitFeature: string, clientData: IRCClientData) = 
+        let channels = chanLimitFeature.Split(';')
+
+        let chanLimits =
+            [|
+                for chan in channels ->
+                    let kvp = chan.Split(':')
+                    (char kvp.[0], int kvp.[1])
+            |] |> Map.ofArray
+
+        clientData.ServerInfo <- {clientData.ServerInfo with ChannelPrefixes = chanLimits}
 
     /// CHANMODES
     let chanModesFeatureHandler (chanModesFeature, clientData: IRCClientData) = ()
