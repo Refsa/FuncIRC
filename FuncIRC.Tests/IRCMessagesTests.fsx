@@ -53,3 +53,63 @@ module IRCMessagesTests =
         let outboundMessage = clientData.GetOutboundMessages
 
         Assert.AreEqual ("", outboundMessage)
+
+    let testRegistrationDataActivePattern loginData wantedOutput =
+        match loginData with
+        | InvalidLoginData -> ("", "", "", "")
+        | UserRealNamePass (nick, user, realName, pass) -> (nick, user, realName, pass)
+        | UserPass (nick, user, pass)                   -> (nick, user, user, pass)     
+        | UserRealName (nick, user, realName)           -> (nick, user, realName, "")
+        | User (nick, user)                             -> (nick, user, user, "")
+        | Nick (nick)                                   -> (nick, "", "", "")
+        |> function
+           | output when output = wantedOutput -> true
+           | _ -> false
+
+    [<Test>]
+    let ``Active pattern to verify registration message parameters``() =
+        let invalidRegistrationData = ("", "", "", "")
+        let userRealNamePassRegistrationData = ("nick", "user", "realName", "pass")
+        let userPassData = ("nick", "user", "", "pass")
+        let userRealNameData = ("nick", "user", "realName", "")
+        let userData = ("nick", "user", "", "")
+        let nickData = ("nick", "", "", "")
+
+        testRegistrationDataActivePattern invalidRegistrationData invalidRegistrationData 
+        |> Assert.True
+
+        testRegistrationDataActivePattern userRealNamePassRegistrationData userRealNamePassRegistrationData 
+        |> Assert.True
+
+        testRegistrationDataActivePattern userPassData ("nick", "user", "user", "pass") 
+        |> Assert.True
+
+        testRegistrationDataActivePattern userRealNameData userRealNameData
+        |> Assert.True
+
+        testRegistrationDataActivePattern userData ("nick", "user", "user", "")
+        |> Assert.True
+
+        testRegistrationDataActivePattern nickData nickData
+        |> Assert.True
+
+    [<Test>]
+    let ``sendRegistrationMessage should send and out message if parameters were correct or raise an exception``() =
+        let clientData = IRCClientData()
+
+        let invalidRegistrationData = ("", "", "", "")
+        let userRealNamePassRegistrationData = ("nick", "user", "realName", "pass")
+
+        try
+            sendRegistrationMessage clientData invalidRegistrationData
+            false
+        with
+        | :? RegistrationContentException -> true
+        |> Assert.True
+        
+        try
+            sendRegistrationMessage clientData userRealNamePassRegistrationData
+            true
+        with
+        | :? RegistrationContentException -> false
+        |> Assert.True
