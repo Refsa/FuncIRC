@@ -28,6 +28,9 @@ module IRCMessages =
 
     let internal userMessage user realName =
         { Tags = None; Source = None; Verb = Some (Verb "USER"); Params = Some (toParameters [|user; "0"; "*"; realName|]) }
+
+    let internal createAwayMessage awayMessage =
+        { Tags = None; Source = None; Verb = Some (Verb "AWAY"); Params = Some (toParameters [|awayMessage|]) }
 //#endregion
 
 //#region External message constructs
@@ -101,3 +104,14 @@ module IRCMessages =
     let sendQuitMessage (clientData: IRCClientData) (message: string) =
         { Tags = None; Source = None; Verb = Some (Verb "QUIT"); Params = Some (toParameters [|message|]) }
         |> clientData.AddOutMessage
+
+    /// Creates an AWAY messages and adds it to the outboid message queue if the length of the message was within bounds
+    /// <returns> True if the message was added to outqueue, false if not </returns>
+    let sendAwayMessage (clientData: IRCClientData) (message: string) =
+        let messageTooLong = message.Length > clientData.GetServerInfo.MaxAwayLength
+
+        match messageTooLong with
+        | true  -> false
+        | false -> 
+            createAwayMessage message |> clientData.AddOutMessage
+            true
