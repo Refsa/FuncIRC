@@ -30,7 +30,7 @@ module IRCInformation =
             Casemapping: Casemapping
             LineLength: int
 
-            ChannelPrefixes: char array
+            ChannelPrefixes: Map<char, int>
 
             MaxChannelLength: int
             MaxTargets: int
@@ -76,7 +76,7 @@ module IRCInformation =
             LocalUserInfo = (-1, -1); 
             Casemapping = Casemapping.Unknown;
             LineLength = 512;
-            ChannelPrefixes = Array.empty;
+            ChannelPrefixes = Map.empty;
 
             MaxChannelLength = 32;
             MaxTargets = 20;

@@ -40,13 +40,14 @@ module ServerFeaturesHandler =
     let chanTypesFeatureHandler (chanTypesFeature: string, clientData: IRCClientData) =
         let supportedChanTypes =
             [|
-                for c in chanTypesFeature -> c
-            |]
+                for c in chanTypesFeature -> (c, 10)
+            |] |> Map.ofArray
 
         clientData.ServerInfo <- {clientData.ServerInfo with ChannelPrefixes = supportedChanTypes}
 
     /// CHANLIMIT    
-    let chanLimitFeatureHandler (chanLimitFeature, clientData: IRCClientData) = ()
+    let chanLimitFeatureHandler (chanLimitFeature, clientData: IRCClientData) = 
+        ()
 
     /// CHANMODES
     let chanModesFeatureHandler (chanModesFeature, clientData: IRCClientData) = ()

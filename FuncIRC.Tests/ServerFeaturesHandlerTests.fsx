@@ -51,7 +51,21 @@ module ServerFeaturesHandlerTests =
         let feature = [| ("CHANTYPES", "#%@") |]
 
         serverFeaturesHandler (feature, clientData)
-        Assert.AreEqual ( [| '#'; '%'; '@' |], clientData.GetServerInfo.ChannelPrefixes, "Channel Types was not parsed correctly" )
+        [| '#'; '%'; '@' |]
+        |> Array.iter
+            (fun x -> clientData.GetServerInfo.ChannelPrefixes.ContainsKey x |> Assert.True)
+
+        //Assert.AreEqual ( [| '#'; '%'; '@' |], clientData.GetServerInfo.ChannelPrefixes, "Channel Types was not parsed correctly" )
+
+    [<Test>]
+    let ``CHANLIMIT should set the limit to each channel type in IRCClientData info``() =
+        let clientData = IRCClientData()
+        let typesFeature = [| ("CHANTYPES", "#%@") |]
+        let limitsFeature = [| ("CHANLIMIT", "#:20;%:10;@:5") |]
+
+        serverFeaturesHandler (typesFeature, clientData)
+        //Assert.AreEqual ( [| '#'; '%'; '@' |], clientData.GetServerInfo.ChannelPrefixes, "Channel Types was not parsed correctly" )
+        
 
     [<Test>]
     let ``CHANLEN should set max channel length in IRCClientData if given a valid int as string``() =
