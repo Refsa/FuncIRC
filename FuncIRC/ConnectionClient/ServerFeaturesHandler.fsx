@@ -30,12 +30,6 @@ module ServerFeaturesHandler =
 
         clientData.ServerInfo <- {clientData.ServerInfo with Casemapping = casemapping}
 
-    /// MAXTARGETS
-    let maxTargetsFeatureHandler (maxTargetsFeature, clientData: IRCClientData) =
-        match maxTargetsFeature with
-        | IntParsed value -> clientData.ServerInfo <- {clientData.ServerInfo with MaxTargets = value}
-        | InvalidParse -> ()
-
     /// CHANTYPES    
     let chanTypesFeatureHandler (chanTypesFeature: string, clientData: IRCClientData) =
         let supportedChanTypes =
@@ -58,7 +52,7 @@ module ServerFeaturesHandler =
             |]
             |> Map.ofArray
 
-        /// TODO: There should be a more clean way to check and add items that already existed but werent present here
+        /// TODO: There should be a more clean way to check and add items that already existed but werent present in input data
         let rec buildChannelPrefixes (leftover: (char * int) list) (acc: Map<char, int>) =
             match leftover with
             | [] -> acc
@@ -86,6 +80,7 @@ module ServerFeaturesHandler =
 
         clientData.ServerInfo <- {clientData.ServerInfo with ChannelModes = chanModes}
 
+    /// PREFIX
     let findUserModeInMap (userModes: Map<char, char>) (targetMode: char) =
         if userModes.ContainsKey targetMode then
             string userModes.[targetMode] 
@@ -160,6 +155,13 @@ module ServerFeaturesHandler =
 
         clientData.ServerInfo <- { clientData.ServerInfo with SearchExtensions = searchExtensions }
 
+//#region int parsing handlers
+    /// MAXTARGETS
+    let maxTargetsFeatureHandler (maxTargetsFeature, clientData: IRCClientData) =
+        match maxTargetsFeature with
+        | IntParsed value -> clientData.ServerInfo <- {clientData.ServerInfo with MaxTargets = value}
+        | InvalidParse -> ()
+
     /// LINELEN
     let linelengthFeatureHandler (linelenFeature, clientData: IRCClientData) =
         match linelenFeature with
@@ -219,6 +221,7 @@ module ServerFeaturesHandler =
         match feature with
         | IntParsed value -> clientData.ServerInfo <- {clientData.ServerInfo with MaxHostLength = value}
         | InvalidParse -> ()
+//#endregion int parsing handlers
 
     /// Empty handler
     let noFeatureHandler (noFeature, clientData: IRCClientData) =
@@ -253,6 +256,6 @@ module ServerFeaturesHandler =
                     | "MAXLIST"     -> maxListHandler
                     | "SAFELIST"    -> safelistHandler
                     | "ELIST"       -> elistHandler
-                    | _             -> noFeatureHandler
+                    | _             -> printfn "No handler for feature %s with parameter %s" k v ; noFeatureHandler
                 )
             )

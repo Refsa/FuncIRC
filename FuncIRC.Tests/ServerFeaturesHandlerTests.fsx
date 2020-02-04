@@ -10,16 +10,7 @@ open FuncIRC.IRCClientData
 open FuncIRC.IRCInformation
 
 module ServerFeaturesHandlerTests =
-    let serverFeatures =
-        [| 
-            ("AWAYLEN", "200"); ("CASEMAPPING", "ascii"); ("CHANLIMIT", "#:20"); 
-            ("CHANMODES", "b,k,l,imnpst"); ("CHANNELLEN", "64"); ("CHANTYPES", "#"); 
-            ("ELIST", "CMNTU"); ("HOSTLEN", "64"); ("KEYLEN", "32"); ("KICKLEN", "255"); 
-            ("LINELEN", "512"); ("MAXLIST", "b:100"); ("MAXTARGETS", "20"); ("MODES", "20"); 
-            ("NETWORK", "Refsa"); ("NICKLEN", "30"); ("PREFIX", "(ov)@+"); ("SAFELIST", ""); 
-            ("STATUSMSG", "@+"); ("TOPICLEN", "307"); ("USERLEN", "10"); ("WHOX", "") 
-        |]
-
+    // NETWORK tests
     [<Test>]
     let ``NETWORK feature should set the name of the network in IRCClientData``() =
         let clientData = IRCClientData()
@@ -34,6 +25,7 @@ module ServerFeaturesHandlerTests =
     let checkCasemappingInClientData casemapping (clientData: IRCClientData) =
         clientData.GetServerInfo.Casemapping = casemapping
 
+    // CASEMAPPING tests
     [<Test>]
     let ``CASEMAPPING feature should set casemapping in IRCClientData``() =
         let clientData = IRCClientData()
@@ -55,8 +47,7 @@ module ServerFeaturesHandlerTests =
         |> Array.iter
             (fun x -> clientData.GetServerInfo.ChannelPrefixes.ContainsKey x |> Assert.True)
 
-        //Assert.AreEqual ( [| '#'; '%'; '@' |], clientData.GetServerInfo.ChannelPrefixes, "Channel Types was not parsed correctly" )
-
+    // # CHANLIMIT tests
     [<Test>]
     let ``CHANLIMIT should set the limit to each channel type in IRCClientData info``() =
         let clientData = IRCClientData()
@@ -70,6 +61,7 @@ module ServerFeaturesHandlerTests =
                 let k, v = x
                 clientData.GetServerInfo.ChannelPrefixes.[k] = v |> Assert.True)
 
+    // CHANLIMIT tests
     [<Test>]
     let ``CHANLIMIT should not override channel types received from CHANTYPES``() =
         let clientData = IRCClientData()
@@ -95,7 +87,9 @@ module ServerFeaturesHandlerTests =
             (fun x ->
                 let k, v = x
                 clientData.GetServerInfo.ChannelPrefixes.[k] = v |> Assert.True)
+    // / CHANLIMIT tests
 
+    // CHANMODES tests
     [<Test>]
     let ``CHANMODES should set the letters that correspond to each channel mode for Type A B C D``() =
         let clientData = IRCClientData()
@@ -110,18 +104,7 @@ module ServerFeaturesHandlerTests =
         Assert.AreEqual ("l", chanModes.TypeC)
         Assert.AreEqual ("imnpst", chanModes.TypeD)
 
-    [<Test>]
-    let ``CHANLEN should set max channel length in IRCClientData if given a valid int as string``() =
-        let clientData = IRCClientData()
-        let validFeature = [| ("CHANNELLEN", "64") |]
-        let invalidFeature = [| ("CHANNELLEN", "abcd") |]
-
-        serverFeaturesHandler (validFeature, clientData)
-        Assert.AreEqual (64, clientData.GetServerInfo.MaxChannelLength)
-
-        serverFeaturesHandler (invalidFeature, clientData)
-        Assert.AreEqual (64, clientData.GetServerInfo.MaxChannelLength)
-
+    // # PREFIX tests
     [<Test>]
     let ``PREFIX should store all the prefixes given in UserPrefix of IRCClientData``() =
         // MOCK data
@@ -160,7 +143,9 @@ module ServerFeaturesHandlerTests =
         let userModes = clientData.GetServerInfo.UserModes
 
         (default_IRCUserModes, userModes) |> Assert.AreEqual
+    // / PREFIX tests
 
+    // # STATUSMSG tests
     [<Test>]
     let ``STATUSMSG should parse and put prefix symbols in StatusMessageModes in the IRCServerInfo record``() =
         let validFeature1 = [| ("STATUSMSG", "@+") |]
@@ -188,7 +173,9 @@ module ServerFeaturesHandlerTests =
         serverFeaturesHandler (invalidFeature, clientData)
         let statusMessageModes = clientData.GetServerInfo.StatusMessageModes
         Assert.AreEqual (wantedFeature, statusMessageModes)
+    // / STATUSMSG tests
 
+    // # MAXLIST tests
     [<Test>]
     let ``MAXLIST should set max number of type A channel modes on MaxTypeAModes in IRCServerInfo``() =
         let validFeature1 = [| ("MAXLIST", "b:") |]
@@ -214,15 +201,18 @@ module ServerFeaturesHandlerTests =
         serverFeaturesHandler (validFeature1, clientData)
 
         (Map.empty, clientData.GetServerInfo.MaxTypeAModes) |> Assert.AreEqual
+    // / MAXLIST tests
 
+    // SAFELIST tests
     [<Test>]
     let ``SAFELIST should set the safelist flag in IRCServerInfo``() =
         let validFeature = [| ("SAFELIST", "") |]
         let clientData = IRCClientData()
         serverFeaturesHandler (validFeature, clientData)
 
-        clientData.GetServerInfo.Safelist |> Assert.True
+        clientData.GetServerInfo.Safelist |> Assert.True 
 
+    // ELIST tests
     [<Test>]
     let ``ELIST should set the supported search extensions in IRCServerInfo``() =
         let validFeature = [| ("ELIST", "MNUCT") |]
@@ -233,6 +223,9 @@ module ServerFeaturesHandlerTests =
         serverFeaturesHandler (validFeature, clientData)
         (wantedResult, clientData.GetServerInfo.SearchExtensions) |> Assert.AreEqual
 
+//#region int parsing tests
+module IntParsingTests =
+    // # LINELEN tests
     [<Test>]
     let ``LINELEN feature should only accept values that can be parsed to int if not default to 512``() =
         let clientData = IRCClientData()
@@ -246,7 +239,9 @@ module ServerFeaturesHandlerTests =
         let feature = [| ("LINELEN", "1024") |]
         serverFeaturesHandler (feature, clientData)
         Assert.AreEqual (1024, clientData.GetServerInfo.LineLength, "LineLength was not set correctly")
+    // / LINELEN tests
 
+    // # CHANNELLEN tests
     [<Test>]
     let ``CHANNELLEN feature should parse strings to int if the value is an int``() =
         let clientData = IRCClientData()
@@ -255,12 +250,27 @@ module ServerFeaturesHandlerTests =
         Assert.AreEqual (1000, clientData.GetServerInfo.MaxChannelLength, "CHANNELLEN was not set correctly")
 
     [<Test>]
+    let ``CHANNELLEN should set max channel length in IRCClientData if given a valid int as string``() =
+        let clientData = IRCClientData()
+        let validFeature = [| ("CHANNELLEN", "64") |]
+        let invalidFeature = [| ("CHANNELLEN", "abcd") |]
+
+        serverFeaturesHandler (validFeature, clientData)
+        Assert.AreEqual (64, clientData.GetServerInfo.MaxChannelLength)
+
+        serverFeaturesHandler (invalidFeature, clientData)
+        Assert.AreEqual (64, clientData.GetServerInfo.MaxChannelLength)
+    // / CHANNELLEN tests
+
+    // AWAYLEN tests
+    [<Test>]
     let ``AWAYLEN feature should parse strings to int if the value is an int``() =
         let clientData = IRCClientData()
         let feature = [| ("AWAYLEN", "1000") |]
         serverFeaturesHandler (feature, clientData)
         Assert.AreEqual (1000, clientData.GetServerInfo.MaxAwayLength, "AWAYLEN was not set correctly")
 
+    // KICKLEN tests
     [<Test>]
     let ``KICKLEN feature should parse strings to int if the value is an int``() =
         let clientData = IRCClientData()
@@ -268,6 +278,7 @@ module ServerFeaturesHandlerTests =
         serverFeaturesHandler (feature, clientData)
         Assert.AreEqual (1000, clientData.GetServerInfo.MaxKickLength, "KICKLEN was not set correctly")
 
+    // TOPICLEN tests
     [<Test>]
     let ``TOPICLEN feature should parse strings to int if the value is an int``() =
         let clientData = IRCClientData()
@@ -275,6 +286,7 @@ module ServerFeaturesHandlerTests =
         serverFeaturesHandler (feature, clientData)
         Assert.AreEqual (1000, clientData.GetServerInfo.MaxTopicLength, "TOPICLEN was not set correctly")
 
+    // USERLEN tests
     [<Test>]
     let ``USERLEN feature should parse strings to int if the value is an int``() =
         let clientData = IRCClientData()
@@ -282,6 +294,7 @@ module ServerFeaturesHandlerTests =
         serverFeaturesHandler (feature, clientData)
         Assert.AreEqual (1000, clientData.GetServerInfo.MaxUserLength, "USERLEN was not set correctly")
 
+    // NICKLEN tests
     [<Test>]
     let ``NICKLEN feature should parse strings to int if the value is an int``() =
         let clientData = IRCClientData()
@@ -289,6 +302,7 @@ module ServerFeaturesHandlerTests =
         serverFeaturesHandler (feature, clientData)
         Assert.AreEqual (1000, clientData.GetServerInfo.MaxNickLength, "NICKLEN was not set correctly")
 
+    // MODES tests
     [<Test>]
     let ``MODES feature should parse strings to int if the value is an int``() =
         let clientData = IRCClientData()
@@ -296,6 +310,7 @@ module ServerFeaturesHandlerTests =
         serverFeaturesHandler (feature, clientData)
         Assert.AreEqual (1000, clientData.GetServerInfo.MaxModes, "MODES was not set correctly")
 
+    // KEYLEN tests
     [<Test>]
     let ``KEYLEN feature should parse strings to int if the value is an int``() =
         let clientData = IRCClientData()
@@ -303,6 +318,7 @@ module ServerFeaturesHandlerTests =
         serverFeaturesHandler (feature, clientData)
         Assert.AreEqual (1000, clientData.GetServerInfo.MaxKeyLength, "KEYLEN was not set correctly")
 
+    // HOSTLEN tests
     [<Test>]
     let ``HOSTLEN feature should parse strings to int if the value is an int``() =
         let clientData = IRCClientData()
@@ -310,9 +326,11 @@ module ServerFeaturesHandlerTests =
         serverFeaturesHandler (feature, clientData)
         Assert.AreEqual (1000, clientData.GetServerInfo.MaxHostLength, "HOSTLEN was not set correctly")
 
+    // MAXTARGETS tests
     [<Test>]
     let ``MAXTARGETS feature should parse strings to int if the value is an int``() =
         let clientData = IRCClientData()
         let feature = [| ("MAXTARGETS", "1000") |]
         serverFeaturesHandler (feature, clientData)
         Assert.AreEqual (1000, clientData.GetServerInfo.MaxTargets, "MAXTARGETS was not set correctly")
+//#endregion int parsing tests
