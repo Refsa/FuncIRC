@@ -101,7 +101,7 @@ module ServerFeaturesHandlerTests =
         let clientData = IRCClientData()
         let chanmodesFeature = [| ("CHANMODES", "b,k,l,imnpst") |]
 
-        chanModesFeatureHandler (chanmodesFeature, clientData)
+        serverFeaturesHandler (chanmodesFeature, clientData)
 
         let chanModes = clientData.GetServerInfo.ChannelModes
 

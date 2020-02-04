@@ -74,8 +74,17 @@ module ServerFeaturesHandler =
         clientData.ServerInfo <- {clientData.ServerInfo with ChannelPrefixes = chanLimits}
 
     /// CHANMODES
-    let chanModesFeatureHandler (chanModesFeature, clientData: IRCClientData) = 
-        ()
+    let chanModesFeatureHandler (chanModesFeature: string, clientData: IRCClientData) = 
+        let chanModesSplit = chanModesFeature.Split (',')
+        let chanModes = 
+            match chanModesSplit.Length with
+            | 1 -> {default_IRCChannelModes with TypeA = chanModesSplit.[0]}
+            | 2 -> {default_IRCChannelModes with TypeA = chanModesSplit.[0]; TypeB = chanModesSplit.[1]}
+            | 3 -> {default_IRCChannelModes with TypeA = chanModesSplit.[0]; TypeB = chanModesSplit.[1]; TypeC = chanModesSplit.[2]}
+            | 4 -> {default_IRCChannelModes with TypeA = chanModesSplit.[0]; TypeB = chanModesSplit.[1]; TypeC = chanModesSplit.[2]; TypeD = chanModesSplit.[3]}
+            | _ -> default_IRCChannelModes
+
+        clientData.ServerInfo <- {clientData.ServerInfo with ChannelModes = chanModes}
 
     /// LINELEN
     let linelengthFeatureHandler (linelenFeature, clientData: IRCClientData) =
