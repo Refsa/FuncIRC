@@ -121,3 +121,10 @@ module IRCMessagesTests =
         sendKickMessage clientData "someuser" "somereason" |> Assert.True
         sendKickMessage clientData "" "somereason" |> Assert.False
         sendKickMessage clientData "someuser" "" |> Assert.False
+
+    [<Test>]
+    let ``sendTopicMessage should add an outbound message if the topic param is not empty``() =
+        let clientData = IRCClientData()
+
+        sendTopicMessage clientData "sometopic" |> Assert.True
+        sendTopicMessage clientData "" |> Assert.False
