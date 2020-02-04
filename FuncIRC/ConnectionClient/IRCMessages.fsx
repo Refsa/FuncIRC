@@ -70,14 +70,15 @@ module IRCMessages =
 
     /// Validates the nick string
     let validateNick (clientData: IRCClientData) (nick: string) =
-        if nick = "" then false
+        if      nick = "" then false
         else if nick.IndexOf (' ') <> -1 then false
         else if nick.Length > clientData.GetServerInfo.MaxNickLength then false
         else true
 
     /// Validates the user string
     let validateUser (clientData: IRCClientData) (user: string) =
-        if user = "" then false
+        if      user = "" then false
+        else if user.IndexOf (' ') <> -1 then false
         else if user.Length > clientData.GetServerInfo.MaxUserLength then false
         else true
 
