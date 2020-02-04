@@ -97,6 +97,20 @@ module ServerFeaturesHandlerTests =
                 clientData.GetServerInfo.ChannelPrefixes.[k] = v |> Assert.True)
 
     [<Test>]
+    let ``CHANMODES should set the letters that correspond to each channel mode for Type (A B C D)``() =
+        let clientData = IRCClientData()
+        let chanmodesFeature = [| ("CHANMODES", "b,k,l,imnpst") |]
+
+        chanModesFeatureHandler (chanmodesFeature, clientData)
+
+        let chanModes = clientData.GetServerInfo.ChannelModes
+
+        Assert.AreEqual ("b", chanModes.TypeA)
+        Assert.AreEqual ("k", chanModes.TypeB)
+        Assert.AreEqual ("l", chanModes.TypeC)
+        Assert.AreEqual ("imnpst", chanModes.TypeD)
+
+    [<Test>]
     let ``CHANLEN should set max channel length in IRCClientData if given a valid int as string``() =
         let clientData = IRCClientData()
         let validFeature = [| ("CHANNELLEN", "64") |]

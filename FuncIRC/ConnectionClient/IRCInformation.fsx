@@ -20,6 +20,14 @@ module IRCInformation =
             Source: Source
         }
 
+    type IRCChannelModes =
+        {
+            TypeA: string
+            TypeB: string
+            TypeC: string
+            TypeD: string
+        }
+
     type IRCServerInfo =
         {
             Name: string;
@@ -31,6 +39,7 @@ module IRCInformation =
             LineLength: int
 
             ChannelPrefixes: Map<char, int>
+            ChannelModes: IRCChannelModes
 
             MaxChannelLength: int
             MaxTargets: int
@@ -68,6 +77,14 @@ module IRCInformation =
         member x.Value = let (Features features) = x in features
 
 //#region Defaults
+    let default_IRCChannelModes =
+        {
+            TypeA = "A";
+            TypeB = "B";
+            TypeC = "C";
+            TypeD = "D";
+        }
+
     let default_IRCServerInfo = 
         {
             Name = "DEFAULT"; 
@@ -76,7 +93,9 @@ module IRCInformation =
             LocalUserInfo = (-1, -1); 
             Casemapping = Casemapping.Unknown;
             LineLength = 512;
+            
             ChannelPrefixes = Map.empty;
+            ChannelModes = default_IRCChannelModes
 
             MaxChannelLength = 32;
             MaxTargets = 20;

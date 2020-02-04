@@ -45,7 +45,7 @@ module ServerFeaturesHandler =
 
         clientData.ServerInfo <- {clientData.ServerInfo with ChannelPrefixes = supportedChanTypes}
 
-    /// CHANLIMIT    
+    /// CHANLIMIT
     let chanLimitFeatureHandler (chanLimitFeature: string, clientData: IRCClientData) = 
         let channels = chanLimitFeature.Split(';')
         let current = clientData.ServerInfo.ChannelPrefixes |> Map.toList
@@ -58,6 +58,7 @@ module ServerFeaturesHandler =
             |]
             |> Map.ofArray
 
+        /// TODO: There should be a more clean way to check and add items that already existed but werent present here
         let rec buildChannelPrefixes (leftover: (char * int) list) (acc: Map<char, int>) =
             match leftover with
             | [] -> acc
@@ -73,7 +74,8 @@ module ServerFeaturesHandler =
         clientData.ServerInfo <- {clientData.ServerInfo with ChannelPrefixes = chanLimits}
 
     /// CHANMODES
-    let chanModesFeatureHandler (chanModesFeature, clientData: IRCClientData) = ()
+    let chanModesFeatureHandler (chanModesFeature, clientData: IRCClientData) = 
+        ()
 
     /// LINELEN
     let linelengthFeatureHandler (linelenFeature, clientData: IRCClientData) =
