@@ -216,6 +216,14 @@ module ServerFeaturesHandlerTests =
         (Map.empty, clientData.GetServerInfo.MaxTypeAModes) |> Assert.AreEqual
 
     [<Test>]
+    let ``SAFELIST should set the safelist flag in IRCServerInfo``() =
+        let validFeature = [| ("SAFELIST", "") |]
+        let clientData = IRCClientData()
+        serverFeaturesHandler (validFeature, clientData)
+
+        clientData.GetServerInfo.Safelist |> Assert.True
+
+    [<Test>]
     let ``LINELEN feature should only accept values that can be parsed to int if not default to 512``() =
         let clientData = IRCClientData()
         let feature = [| ("LINELEN", "abcd") |]

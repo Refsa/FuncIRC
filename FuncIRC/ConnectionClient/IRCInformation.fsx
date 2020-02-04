@@ -53,6 +53,8 @@ module IRCInformation =
             UserModes: IRCUserModes
             StatusMessageModes: char array
 
+            Safelist: bool
+
             MaxTypeAModes: Map<char, int>
             MaxChannelLength: int
             MaxTargets: int
@@ -120,6 +122,8 @@ module IRCInformation =
 
             UserModes = default_IRCUserModes
             StatusMessageModes = Array.empty
+
+            Safelist = false
 
             MaxTypeAModes = Map.empty
             MaxChannelLength = 32;
