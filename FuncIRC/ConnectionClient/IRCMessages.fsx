@@ -56,6 +56,36 @@ module IRCMessages =
     let internal createChannelPrivMessage message channel = { Tags = None; Source = None; Verb = Some (Verb "PRIVMSG"); Params = Some (toParameters [|channel; ":" + message|]) }
 //#endregion
 
+//#region Validators
+    /// Validates the channel string
+    let validateChannel (clientData: IRCClientData) (channel: string) =
+        if      channel = "" then false
+        else if channel.Length > clientData.GetServerInfo.MaxChannelLength then false
+        else
+
+        let channelPrefix = channel.[0]
+
+        if Map.containsKey channelPrefix clientData.GetServerInfo.ChannelPrefixes |> not then false
+        else true
+
+    /// Validates the nick string
+    let validateNick (clientData: IRCClientData) (nick: string) =
+        if nick = "" then false
+        else if nick.Length > clientData.GetServerInfo.MaxNickLength then false
+        else true
+
+    /// Validates the user string
+    let validateUser (clientData: IRCClientData) (user: string) =
+        if user = "" then false
+        else if user.Length > clientData.GetServerInfo.MaxUserLength then false
+        else true
+
+    let validateTopic (clientData: IRCClientData) (topic: string) =
+        if      topic = "" then false
+        else if topic.Length > clientData.GetServerInfo.MaxTopicLength then false
+        else true
+//#endregion Validators
+
     /// Active Pattern to validate and check which part of the login details that were given
     /// <returns>
     /// <param name="UserRealNamePass">tuple (nick, user, realName, pass)</param>
@@ -117,17 +147,6 @@ module IRCMessages =
 
         clientData.AddOutMessages messages
 
-    /// Validates the channel string
-    let validateChannel (clientData: IRCClientData) (channel: string) =
-        if      channel = "" then false
-        else if channel.Length > clientData.GetServerInfo.MaxChannelLength then false
-        else
-
-        let channelPrefix = channel.[0]
-
-        if Map.containsKey channelPrefix clientData.GetServerInfo.ChannelPrefixes |> not then false
-        else true
-
     /// Creates a JOIN message to join a channel
     let sendJoinMessage (clientData: IRCClientData) (channel: string) =
         match validateChannel clientData channel with
@@ -151,9 +170,8 @@ module IRCMessages =
     /// Creates a kick message and adds it to the outbound messages
     /// TODO: Remove if branches
     let sendKickMessage (clientData: IRCClientData) (kickUser: string) (message: string) =
-        if      kickUser = "" then false
+        if validateUser clientData kickUser |> not then false
         else if message = "" then false
-        else if kickUser.Length > clientData.GetServerInfo.MaxNickLength then false
         else if message.Length > clientData.GetServerInfo.MaxKickLength then false
         else
 
@@ -161,14 +179,12 @@ module IRCMessages =
         true
 
     /// Creates a topic message and adds it to the outbound messages
-    /// TODO: remove if branches
     let sendTopicMessage (clientData: IRCClientData) (topic: string) =
-        if      topic = "" then false
-        else if topic.Length > clientData.GetServerInfo.MaxTopicLength then false
-        else
-
-        createTopicMessage topic |> clientData.AddOutMessage
-        true
+        match validateTopic clientData topic with
+        | false -> false
+        | true ->
+            createTopicMessage topic |> clientData.AddOutMessage
+            true
 
     /// Creates a QUIT messages and adds it to the outbound message queue
     let sendQuitMessage (clientData: IRCClientData) (message: string) =
