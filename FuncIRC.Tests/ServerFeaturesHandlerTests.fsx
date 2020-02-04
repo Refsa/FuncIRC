@@ -180,6 +180,16 @@ module ServerFeaturesHandlerTests =
         (wantedFeature2, statusMessageModes) |> Assert.AreEqual
 
     [<Test>]
+    let ``STATUSMSG handler should not parse empty arguments``() =
+        let invalidFeature = [| ("STATUSMSG", "") |]
+        let wantedFeature = Array.empty
+
+        let clientData = IRCClientData()
+        serverFeaturesHandler (invalidFeature, clientData)
+        let statusMessageModes = clientData.GetServerInfo.StatusMessageModes
+        Assert.AreEqual (wantedFeature, statusMessageModes)
+
+    [<Test>]
     let ``LINELEN feature should only accept values that can be parsed to int if not default to 512``() =
         let clientData = IRCClientData()
         let feature = [| ("LINELEN", "abcd") |]
