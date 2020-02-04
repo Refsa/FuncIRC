@@ -124,11 +124,11 @@ module ServerFeaturesHandlerTests =
 
     [<Test>]
     let ``PREFIX should store all the prefixes given in UserPrefix of IRCClientData``() =
-        let clientData = IRCClientData()
         let validFeature1 = [| ("PREFIX", "(ov)@+") |]
         let validFeature2 = [| ("PREFIX", "(qaohv)~&@%+") |]
         let validFeature3 = [| ("PREFIX", "") |]
         
+
         let wantedFeature1 = 
             {
                 default_IRCUserModes with
@@ -148,17 +148,26 @@ module ServerFeaturesHandlerTests =
 
         let wantedFeature3 = default_IRCUserModes
 
+        let clientData = IRCClientData()
         serverFeaturesHandler (validFeature1, clientData)
         let userModes = clientData.GetServerInfo.UserModes
         (wantedFeature1, userModes) |> Assert.AreEqual
         
+        let clientData = IRCClientData()
         serverFeaturesHandler (validFeature2, clientData)
         let userModes = clientData.GetServerInfo.UserModes
         (wantedFeature2, userModes) |> Assert.AreEqual
 
+        let clientData = IRCClientData()
         serverFeaturesHandler (validFeature3, clientData)
         let userModes = clientData.GetServerInfo.UserModes
         (wantedFeature3, userModes) |> Assert.AreEqual
+
+        //let invalidFeature1 = [| ("PREFIX", "(ov)@") |]
+        //let clientData = IRCClientData()
+        //serverFeaturesHandler (invalidFeature1, clientData)
+        //let userModes = clientData.GetServerInfo.UserModes
+        //(default_IRCUserModes, userModes) |> Assert.AreEqual
 
     [<Test>]
     let ``LINELEN feature should only accept values that can be parsed to int if not default to 512``() =

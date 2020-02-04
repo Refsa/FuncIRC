@@ -86,9 +86,34 @@ module ServerFeaturesHandler =
 
         clientData.ServerInfo <- {clientData.ServerInfo with ChannelModes = chanModes}
 
+    let findUserModeInMap (userModes: Map<char, char>) (targetMode: char) =
+        if userModes.ContainsKey targetMode then
+            string userModes.[targetMode] 
+        else ""
+
     /// PREFIX
     let prefixHandler (prefixFeature: string, clientData: IRCClientData) = 
-        ()
+        if prefixFeature = "" then ()
+        else
+
+        let prefixSplit = prefixFeature.Split(')')
+        let modeNames = prefixSplit.[0].[1..] |> Seq.toList
+        let modeSymbols = prefixSplit.[1] |> Seq.toList
+
+        if modeNames.Length <> modeSymbols.Length then ()
+
+        let modeMap = List.zip modeNames modeSymbols |> Map.ofList
+
+        let userModes =
+            {
+                Founder = findUserModeInMap modeMap 'q';
+                Protected = findUserModeInMap modeMap 'a';
+                Operator = findUserModeInMap modeMap 'o';
+                Halfop = findUserModeInMap modeMap 'h';
+                Voice = findUserModeInMap modeMap 'v';
+            }
+
+        clientData.ServerInfo <- {clientData.ServerInfo with UserModes = userModes}
 
     /// LINELEN
     let linelengthFeatureHandler (linelenFeature, clientData: IRCClientData) =
