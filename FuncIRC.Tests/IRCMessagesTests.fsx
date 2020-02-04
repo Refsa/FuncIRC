@@ -113,3 +113,11 @@ module IRCMessagesTests =
         with
         | :? RegistrationContentException -> false
         |> Assert.True
+
+    [<Test>]
+    let ``sendKickMessage should add an outbound message if neither of kickUser or message is empty``() =
+        let clientData = IRCClientData()
+
+        sendKickMessage clientData "someuser" "somereason" |> Assert.True
+        sendKickMessage clientData "" "somereason" |> Assert.False
+        sendKickMessage clientData "someuser" "" |> Assert.False

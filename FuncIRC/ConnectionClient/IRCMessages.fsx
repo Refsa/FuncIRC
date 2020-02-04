@@ -34,6 +34,10 @@ module IRCMessages =
 
     let internal createQuitMessage quitMessage =
         { Tags = None; Source = None; Verb = Some (Verb "QUIT"); Params = Some (toParameters [| quitMessage |]) }
+
+    let internal createKickMessage kickTarget kickMessage =
+        { Tags = None; Source = None; Verb = Some (Verb "KICK"); Params = Some (toParameters [| kickTarget; ":" + kickMessage |]) }
+
 //#endregion
 
 //#region External message constructs
@@ -102,6 +106,16 @@ module IRCMessages =
         )
 
         clientData.AddOutMessages messages
+
+    /// Creates a kick message and adds it to the outbound messages
+    let sendKickMessage (clientData: IRCClientData) (kickUser: string) (message: string) =
+        if      kickUser = "" then false
+        else if message = "" then false
+        else if message.Length > clientData.GetServerInfo.MaxKickLength then false
+        else
+
+        createKickMessage kickUser message |> clientData.AddOutMessage
+        true
 
     /// Creates a QUIT messages and adds it to the outbound message queue
     let sendQuitMessage (clientData: IRCClientData) (message: string) =
