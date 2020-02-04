@@ -86,6 +86,10 @@ module ServerFeaturesHandler =
 
         clientData.ServerInfo <- {clientData.ServerInfo with ChannelModes = chanModes}
 
+    /// PREFIX
+    let prefixHandler (prefixFeature: string, clientData: IRCClientData) = 
+        ()
+
     /// LINELEN
     let linelengthFeatureHandler (linelenFeature, clientData: IRCClientData) =
         match linelenFeature with
@@ -174,6 +178,7 @@ module ServerFeaturesHandler =
                     | "MODES"       -> modesHandler
                     | "KEYLEN"      -> keyLengthHandler
                     | "HOSTLEN"     -> hostLengthHandler
+                    | "PREFIX"      -> prefixHandler
                     | _             -> noFeatureHandler
                 )
             )

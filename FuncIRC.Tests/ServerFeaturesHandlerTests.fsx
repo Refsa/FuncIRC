@@ -97,7 +97,7 @@ module ServerFeaturesHandlerTests =
                 clientData.GetServerInfo.ChannelPrefixes.[k] = v |> Assert.True)
 
     [<Test>]
-    let ``CHANMODES should set the letters that correspond to each channel mode for Type (A B C D)``() =
+    let ``CHANMODES should set the letters that correspond to each channel mode for Type A B C D``() =
         let clientData = IRCClientData()
         let chanmodesFeature = [| ("CHANMODES", "b,k,l,imnpst") |]
 
@@ -121,6 +121,44 @@ module ServerFeaturesHandlerTests =
 
         serverFeaturesHandler (invalidFeature, clientData)
         Assert.AreEqual (64, clientData.GetServerInfo.MaxChannelLength)
+
+    [<Test>]
+    let ``PREFIX should store all the prefixes given in UserPrefix of IRCClientData``() =
+        let clientData = IRCClientData()
+        let validFeature1 = [| ("PREFIX", "(ov)@+") |]
+        let validFeature2 = [| ("PREFIX", "(qaohv)~&@%+") |]
+        let validFeature3 = [| ("PREFIX", "") |]
+        
+        let wantedFeature1 = 
+            {
+                default_IRCUserModes with
+                    Operator = "@"
+                    Voice = "+"
+            }
+
+        let wantedFeature2 =
+            {
+                default_IRCUserModes with
+                    Founder = "~"
+                    Protected = "&"
+                    Operator = "@"
+                    Halfop = "%"
+                    Voice = "+"
+            }
+
+        let wantedFeature3 = default_IRCUserModes
+
+        serverFeaturesHandler (validFeature1, clientData)
+        let userModes = clientData.GetServerInfo.UserModes
+        (wantedFeature1, userModes) |> Assert.AreEqual
+        
+        serverFeaturesHandler (validFeature2, clientData)
+        let userModes = clientData.GetServerInfo.UserModes
+        (wantedFeature2, userModes) |> Assert.AreEqual
+
+        serverFeaturesHandler (validFeature3, clientData)
+        let userModes = clientData.GetServerInfo.UserModes
+        (wantedFeature3, userModes) |> Assert.AreEqual
 
     [<Test>]
     let ``LINELEN feature should only accept values that can be parsed to int if not default to 512``() =

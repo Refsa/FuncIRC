@@ -28,6 +28,15 @@ module IRCInformation =
             TypeD: string
         }
 
+    type IRCUserModes =
+        {
+            Founder: string
+            Protected: string
+            Operator: string
+            Halfop: string
+            Voice: string
+        }
+
     type IRCServerInfo =
         {
             Name: string;
@@ -40,6 +49,8 @@ module IRCInformation =
 
             ChannelPrefixes: Map<char, int>
             ChannelModes: IRCChannelModes
+
+            UserModes: IRCUserModes
 
             MaxChannelLength: int
             MaxTargets: int
@@ -84,6 +95,14 @@ module IRCInformation =
             TypeC = "C";
             TypeD = "D";
         }
+    let default_IRCUserModes =
+        {
+            Founder = "";
+            Protected = "";
+            Operator = "";
+            Halfop = "";
+            Voice = "";
+        }
 
     let default_IRCServerInfo = 
         {
@@ -96,6 +115,8 @@ module IRCInformation =
             
             ChannelPrefixes = Map.empty;
             ChannelModes = default_IRCChannelModes
+
+            UserModes = default_IRCUserModes
 
             MaxChannelLength = 32;
             MaxTargets = 20;
