@@ -47,6 +47,7 @@ module IRCInformation =
             Casemapping: Casemapping
             LineLength: int
 
+            /// Channel prefix as key and limit as value
             ChannelPrefixes: Map<char, int>
             ChannelModes: IRCChannelModes
 

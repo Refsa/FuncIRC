@@ -17,36 +17,43 @@ module IRCMessages =
     exception RegistrationContentException
 
 //#region Internal Message Constructs
+    /// Creates the intial CAP message sent on registration
     let internal capMessage = 
         { Tags = None; Source = None; Verb = Some (Verb "CAP"); Params  = Some (toParameters [| "LS"; "302" |]) }
 
+    /// Creates a PASS message with the given pass string
     let internal passMessage pass = 
         { Tags = None; Source = None; Verb = Some (Verb "PASS"); Params = Some (toParameters [| pass |]) }
 
+    /// Creates a NICK message with the given nick string
     let internal nickMessage nick = 
         { Tags = None; Source = None; Verb = Some (Verb "NICK"); Params = Some (toParameters [| nick |]) }
 
+    /// Creates a USER message with the given user and realName strings
     let internal userMessage user realName =
         { Tags = None; Source = None; Verb = Some (Verb "USER"); Params = Some (toParameters [| user; "0"; "*"; realName |]) }
 
+    /// Creates an AWAY message with the given awayMessage string
     let internal createAwayMessage awayMessage =
         { Tags = None; Source = None; Verb = Some (Verb "AWAY"); Params = Some (toParameters [| awayMessage |]) }
 
+    /// Creates a QUIT message with the given quitMessage string
     let internal createQuitMessage quitMessage =
         { Tags = None; Source = None; Verb = Some (Verb "QUIT"); Params = Some (toParameters [| quitMessage |]) }
 
+    /// Creates a KICK message with the given kickTarget and kickMessage strings
     let internal createKickMessage kickTarget kickMessage =
         { Tags = None; Source = None; Verb = Some (Verb "KICK"); Params = Some (toParameters [| kickTarget; ":" + kickMessage |]) }
 
+    /// Creates a TOPIC message with the given topic string
     let internal createTopicMessage topic =
         { Tags = None; Source = None; Verb = Some (Verb "TOPIC"); Params = Some (toParameters [| topic |]) }
 
-//#endregion
+    /// Creates a JOIN message on the given channel
+    let internal createJoinChannelMessage channel = { Tags = None; Source = None; Verb = Some (Verb "JOIN"); Params = Some (toParameters [|channel|]) }
 
-//#region External message constructs
-    let joinChannelMessage channel = { Tags = None; Source = None; Verb = Some (Verb "JOIN"); Params = Some (toParameters [|channel|]) }
-
-    let channelMessage message channel = { Tags = None; Source = None; Verb = Some (Verb "PRIVMSG"); Params = Some (toParameters [|channel; message|]) }
+    /// Creates a PRIVMSG message with the given message string on the given channel
+    let internal createPrivMessage message channel = { Tags = None; Source = None; Verb = Some (Verb "PRIVMSG"); Params = Some (toParameters [|channel; message|]) }
 //#endregion
 
     /// Active Pattern to validate and check which part of the login details that were given
@@ -110,11 +117,27 @@ module IRCMessages =
 
         clientData.AddOutMessages messages
 
+    /// Creates a JOIN message to join a channel
+    let sendJoinMessage (clientData: IRCClientData) (channel: string) =
+        if      channel = "" then false
+        else if channel.Length > clientData.GetServerInfo.MaxChannelLength then false
+        else
+
+        let channelPrefix = channel.[0]
+
+        if Map.containsKey channelPrefix clientData.GetServerInfo.ChannelPrefixes |> not then false
+        else
+
+        createJoinChannelMessage channel |> clientData.AddOutMessage
+
+        true
+
     /// Creates a kick message and adds it to the outbound messages
+    /// TODO: Remove if branches
     let sendKickMessage (clientData: IRCClientData) (kickUser: string) (message: string) =
         if      kickUser = "" then false
-        else if kickUser.Length > clientData.GetServerInfo.MaxNickLength then false
         else if message = "" then false
+        else if kickUser.Length > clientData.GetServerInfo.MaxNickLength then false
         else if message.Length > clientData.GetServerInfo.MaxKickLength then false
         else
 
@@ -122,6 +145,7 @@ module IRCMessages =
         true
 
     /// Creates a topic message and adds it to the outbound messages
+    /// TODO: remove if branches
     let sendTopicMessage (clientData: IRCClientData) (topic: string) =
         if      topic = "" then false
         else if topic.Length > clientData.GetServerInfo.MaxTopicLength then false

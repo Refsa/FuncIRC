@@ -8,15 +8,18 @@ open NUnit.Framework
 
 open FuncIRC.IRCMessages
 open FuncIRC.IRCClientData
+open FuncIRC.ServerFeaturesHandler
 
 module IRCMessagesTests =
     
+    // Constructs a string of given length
     let createInvalidMessage message maxLength =
         let rec buildLongMessage (currentMessage: string) =
             if currentMessage.Length = maxLength then currentMessage
             else buildLongMessage (currentMessage + "_")
         buildLongMessage message
 
+    // sendAwayMessage tests
     [<Test>]
     let ``sendAwayMessage should add an out message if length is within bounds``() =
         let clientData = IRCClientData()
@@ -35,7 +38,7 @@ module IRCMessagesTests =
 
         Assert.AreEqual ("", outboundMessage)
 
-
+    // sendQuitMessage tests
     [<Test>]
     let ``sendQuitMessage should add an out message if length is within bounds``() =
         let clientData = IRCClientData()
@@ -54,6 +57,7 @@ module IRCMessagesTests =
 
         Assert.AreEqual ("", outboundMessage)
 
+    // # sendRegistrationMessage tests
     let testRegistrationDataActivePattern loginData wantedOutput =
         match loginData with
         | InvalidLoginData -> ("", "", "", "")
@@ -113,7 +117,9 @@ module IRCMessagesTests =
         with
         | :? RegistrationContentException -> false
         |> Assert.True
+    // / sendRegistrationMessage tests
 
+    // sendKickMessage tests
     [<Test>]
     let ``sendKickMessage should add an outbound message if neither of kickUser or message is empty``() =
         let clientData = IRCClientData()
@@ -124,6 +130,7 @@ module IRCMessagesTests =
         sendKickMessage clientData "" "somereason" |> Assert.False
         sendKickMessage clientData "someuser" "" |> Assert.False
 
+    // sendTopicMessage tests
     [<Test>]
     let ``sendTopicMessage should add an outbound message if the topic param is not empty``() =
         let clientData = IRCClientData()
@@ -131,3 +138,15 @@ module IRCMessagesTests =
         sendTopicMessage clientData "sometopic" |> Assert.True
         sendTopicMessage clientData "" |> Assert.False
         sendTopicMessage clientData (createInvalidMessage "" (clientData.GetServerInfo.MaxTopicLength + 1)) |> Assert.False
+
+    // sendJoinMessage tests
+    [<Test>]
+    let ``sendJoinMessage should send a join message if it has a valid channel prefix``() =
+        let clientData = IRCClientData()
+        let feature = [| ("CHANTYPES", "#") |]
+        serverFeaturesHandler (feature, clientData)
+
+        sendJoinMessage clientData "#channel" |> Assert.True
+        sendJoinMessage clientData "@channel" |> Assert.False
+        sendJoinMessage clientData "channel" |> Assert.False
+        sendJoinMessage clientData (createInvalidMessage "" (clientData.GetServerInfo.MaxChannelLength + 1)) |> Assert.False
