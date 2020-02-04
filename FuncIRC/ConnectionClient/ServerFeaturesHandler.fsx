@@ -147,6 +147,10 @@ module ServerFeaturesHandler =
 
         clientData.ServerInfo <- { clientData.ServerInfo with MaxTypeAModes = maxList }
 
+    /// SAFELIST
+    let safelistHandler (safelistFeature: string, clientData: IRCClientData) =
+        clientData.ServerInfo <- { clientData.ServerInfo with Safelist = true }
+
     /// LINELEN
     let linelengthFeatureHandler (linelenFeature, clientData: IRCClientData) =
         match linelenFeature with
@@ -238,6 +242,7 @@ module ServerFeaturesHandler =
                     | "PREFIX"      -> prefixHandler
                     | "STATUSMSG"   -> statusMsgHandler
                     | "MAXLIST"     -> maxListHandler
+                    | "SAFELIST"    -> safelistHandler
                     | _             -> noFeatureHandler
                 )
             )
