@@ -194,8 +194,8 @@ module ServerFeaturesHandlerTests =
         let validFeature1 = [| ("MAXLIST", "b:") |]
         let validFeature2 = [| ("MAXLIST", "b:20,a:50") |]
 
-        let wantedResult1 = [ ("b", 100) ] |> Map.ofList
-        let wantedResult2 = [ ("b", 20); ("a", 50) ] |> Map.ofList
+        let wantedResult1 = [ ('b', 100) ] |> Map.ofList
+        let wantedResult2 = [ ('b', 20); ('a', 50) ] |> Map.ofList
 
         let clientData = IRCClientData()
         serverFeaturesHandler (validFeature1, clientData)

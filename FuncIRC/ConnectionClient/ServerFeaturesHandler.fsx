@@ -117,6 +117,7 @@ module ServerFeaturesHandler =
 
         clientData.ServerInfo <- {clientData.ServerInfo with UserModes = userModes}
 
+    /// STATUSMSG
     let statusMsgHandler (statusMsgFeature, clientData: IRCClientData) =
         if statusMsgFeature = "" then ()
         else
@@ -128,8 +129,23 @@ module ServerFeaturesHandler =
 
         clientData.ServerInfo <- {clientData.ServerInfo with StatusMessageModes = statusMessageModes}
 
+    /// MAXLIST
     let maxListHandler (maxListFeature: string, clientData: IRCClientData) =
-        ()
+        if maxListFeature = "" then ()
+        else
+
+        let maxListFeatureSplit = maxListFeature.Split(',')
+
+        let maxList = 
+            [
+                for feature in maxListFeatureSplit ->
+                    let featureSplit = feature.Split(':')
+                    match featureSplit.Length with
+                    | 1 | 2 when featureSplit.[1] = "" -> (char featureSplit.[0], 100)
+                    | _ -> (char featureSplit.[0], int featureSplit.[1])
+            ] |> Map.ofList
+
+        clientData.ServerInfo <- { clientData.ServerInfo with MaxTypeAModes = maxList }
 
     /// LINELEN
     let linelengthFeatureHandler (linelenFeature, clientData: IRCClientData) =
@@ -221,6 +237,7 @@ module ServerFeaturesHandler =
                     | "HOSTLEN"     -> hostLengthHandler
                     | "PREFIX"      -> prefixHandler
                     | "STATUSMSG"   -> statusMsgHandler
+                    | "MAXLIST"     -> maxListHandler
                     | _             -> noFeatureHandler
                 )
             )
