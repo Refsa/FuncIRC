@@ -151,6 +151,15 @@ module ServerFeaturesHandler =
     let safelistHandler (safelistFeature: string, clientData: IRCClientData) =
         clientData.ServerInfo <- { clientData.ServerInfo with Safelist = true }
 
+    /// ELIST
+    let elistHandler (elistFeature: string, clientData: IRCClientData) =
+        if elistFeature = "" then ()
+        else
+
+        let searchExtensions = [| for c in elistFeature -> c |]
+
+        clientData.ServerInfo <- { clientData.ServerInfo with SearchExtensions = searchExtensions }
+
     /// LINELEN
     let linelengthFeatureHandler (linelenFeature, clientData: IRCClientData) =
         match linelenFeature with
@@ -243,6 +252,7 @@ module ServerFeaturesHandler =
                     | "STATUSMSG"   -> statusMsgHandler
                     | "MAXLIST"     -> maxListHandler
                     | "SAFELIST"    -> safelistHandler
+                    | "ELIST"       -> elistHandler
                     | _             -> noFeatureHandler
                 )
             )
