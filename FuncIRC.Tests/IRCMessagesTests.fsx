@@ -119,6 +119,8 @@ module IRCMessagesTests =
         let clientData = IRCClientData()
 
         sendKickMessage clientData "someuser" "somereason" |> Assert.True
+        sendKickMessage clientData "someuser" (createInvalidMessage "" (clientData.GetServerInfo.MaxTopicLength + 1)) |> Assert.False
+        sendKickMessage clientData (createInvalidMessage "" (clientData.GetServerInfo.MaxNickLength + 1)) "somereason" |> Assert.False
         sendKickMessage clientData "" "somereason" |> Assert.False
         sendKickMessage clientData "someuser" "" |> Assert.False
 

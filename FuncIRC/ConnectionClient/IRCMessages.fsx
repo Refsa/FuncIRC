@@ -113,6 +113,7 @@ module IRCMessages =
     /// Creates a kick message and adds it to the outbound messages
     let sendKickMessage (clientData: IRCClientData) (kickUser: string) (message: string) =
         if      kickUser = "" then false
+        else if kickUser.Length > clientData.GetServerInfo.MaxNickLength then false
         else if message = "" then false
         else if message.Length > clientData.GetServerInfo.MaxKickLength then false
         else
@@ -120,8 +121,10 @@ module IRCMessages =
         createKickMessage kickUser message |> clientData.AddOutMessage
         true
 
+    /// Creates a topic message and adds it to the outbound messages
     let sendTopicMessage (clientData: IRCClientData) (topic: string) =
-        if topic = "" then false
+        if      topic = "" then false
+        else if topic.Length > clientData.GetServerInfo.MaxTopicLength then false
         else
 
         createTopicMessage topic |> clientData.AddOutMessage
