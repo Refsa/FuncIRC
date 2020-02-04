@@ -167,7 +167,7 @@ module ServerFeaturesHandlerTests =
         let validFeature2 = [| ("STATUSMSG", "&@+") |]
 
         let wantedFeature1 = [| '@'; '+' |]
-        let wantedFeature2 = [| '%'; '@'; '+' |]
+        let wantedFeature2 = [| '&'; '@'; '+' |]
 
         let clientData = IRCClientData()
         serverFeaturesHandler (validFeature1, clientData)

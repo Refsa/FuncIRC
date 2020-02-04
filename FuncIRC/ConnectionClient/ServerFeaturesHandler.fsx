@@ -118,7 +118,15 @@ module ServerFeaturesHandler =
         clientData.ServerInfo <- {clientData.ServerInfo with UserModes = userModes}
 
     let statusMsgHandler (statusMsgFeature, clientData: IRCClientData) =
-        ()
+        if statusMsgFeature = "" then ()
+        else
+
+        let statusMessageModes =
+            [|
+                for c in statusMsgFeature -> c
+            |]
+
+        clientData.ServerInfo <- {clientData.ServerInfo with StatusMessageModes = statusMessageModes}
 
     /// LINELEN
     let linelengthFeatureHandler (linelenFeature, clientData: IRCClientData) =
