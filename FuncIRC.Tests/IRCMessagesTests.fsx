@@ -130,3 +130,4 @@ module IRCMessagesTests =
 
         sendTopicMessage clientData "sometopic" |> Assert.True
         sendTopicMessage clientData "" |> Assert.False
+        sendTopicMessage clientData (createInvalidMessage "" (clientData.GetServerInfo.MaxTopicLength + 1)) |> Assert.False
