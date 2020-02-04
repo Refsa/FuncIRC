@@ -163,11 +163,15 @@ module ServerFeaturesHandlerTests =
         let userModes = clientData.GetServerInfo.UserModes
         (wantedFeature3, userModes) |> Assert.AreEqual
 
-        //let invalidFeature1 = [| ("PREFIX", "(ov)@") |]
-        //let clientData = IRCClientData()
-        //serverFeaturesHandler (invalidFeature1, clientData)
-        //let userModes = clientData.GetServerInfo.UserModes
-        //(default_IRCUserModes, userModes) |> Assert.AreEqual
+    [<Test>]
+    let ``PREFIX handler should discard invalid arguments``() =
+        let invalidFeature1 = [| ("PREFIX", "(ov)@") |]
+        let clientData = IRCClientData()
+
+        serverFeaturesHandler (invalidFeature1, clientData)
+        let userModes = clientData.GetServerInfo.UserModes
+        
+        (default_IRCUserModes, userModes) |> Assert.AreEqual
 
     [<Test>]
     let ``LINELEN feature should only accept values that can be parsed to int if not default to 512``() =
