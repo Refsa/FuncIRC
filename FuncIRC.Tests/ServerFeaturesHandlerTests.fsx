@@ -224,6 +224,16 @@ module ServerFeaturesHandlerTests =
         clientData.GetServerInfo.Safelist |> Assert.True
 
     [<Test>]
+    let ``ELIST should set the supported search extensions in IRCServerInfo``() =
+        let validFeature = [| ("ELIST", "MNUCT") |]
+        let wantedResult = [ 'M'; 'N'; 'U'; 'C'; 'T' ]
+
+        let clientData = IRCClientData()
+
+        serverFeaturesHandler (validFeature, clientData)
+        (wantedResult, clientData.GetServerInfo.SearchExtensions) |> Assert.AreEqual
+
+    [<Test>]
     let ``LINELEN feature should only accept values that can be parsed to int if not default to 512``() =
         let clientData = IRCClientData()
         let feature = [| ("LINELEN", "abcd") |]

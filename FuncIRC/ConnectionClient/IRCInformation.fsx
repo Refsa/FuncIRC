@@ -54,6 +54,7 @@ module IRCInformation =
             StatusMessageModes: char array
 
             Safelist: bool
+            SearchExtensions: char array
 
             MaxTypeAModes: Map<char, int>
             MaxChannelLength: int
@@ -124,6 +125,7 @@ module IRCInformation =
             StatusMessageModes = Array.empty
 
             Safelist = false
+            SearchExtensions = Array.empty
 
             MaxTypeAModes = Map.empty
             MaxChannelLength = 32;
