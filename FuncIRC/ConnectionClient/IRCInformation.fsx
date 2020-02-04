@@ -51,6 +51,7 @@ module IRCInformation =
             ChannelModes: IRCChannelModes
 
             UserModes: IRCUserModes
+            StatusMessageModes: char array
 
             MaxChannelLength: int
             MaxTargets: int
@@ -117,6 +118,7 @@ module IRCInformation =
             ChannelModes = default_IRCChannelModes
 
             UserModes = default_IRCUserModes
+            StatusMessageModes = Array.empty
 
             MaxChannelLength = 32;
             MaxTargets = 20;

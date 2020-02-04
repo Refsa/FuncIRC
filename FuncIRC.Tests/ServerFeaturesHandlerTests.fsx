@@ -124,29 +124,18 @@ module ServerFeaturesHandlerTests =
 
     [<Test>]
     let ``PREFIX should store all the prefixes given in UserPrefix of IRCClientData``() =
+        // MOCK data
         let validFeature1 = [| ("PREFIX", "(ov)@+") |]
         let validFeature2 = [| ("PREFIX", "(qaohv)~&@%+") |]
         let validFeature3 = [| ("PREFIX", "") |]
         
-
         let wantedFeature1 = 
-            {
-                default_IRCUserModes with
-                    Operator = "@"
-                    Voice = "+"
-            }
-
-        let wantedFeature2 =
-            {
-                Founder = "~"
-                Protected = "&"
-                Operator = "@"
-                Halfop = "%"
-                Voice = "+"
-            }
-
+            { default_IRCUserModes with Operator = "@"; Voice = "+" }
+        let wantedFeature2 = 
+            { Founder = "~"; Protected = "&"; Operator = "@"; Halfop = "%"; Voice = "+" }
         let wantedFeature3 = default_IRCUserModes
 
+        // Run tests
         let clientData = IRCClientData()
         serverFeaturesHandler (validFeature1, clientData)
         let userModes = clientData.GetServerInfo.UserModes
@@ -171,6 +160,24 @@ module ServerFeaturesHandlerTests =
         let userModes = clientData.GetServerInfo.UserModes
 
         (default_IRCUserModes, userModes) |> Assert.AreEqual
+
+    [<Test>]
+    let ``STATUSMSG should parse and put prefix symbols in StatusMessageModes in the IRCServerInfo record``() =
+        let validFeature1 = [| ("STATUSMSG", "@+") |]
+        let validFeature2 = [| ("STATUSMSG", "&@+") |]
+
+        let wantedFeature1 = [| '@'; '+' |]
+        let wantedFeature2 = [| '%'; '@'; '+' |]
+
+        let clientData = IRCClientData()
+        serverFeaturesHandler (validFeature1, clientData)
+        let statusMessageModes = clientData.GetServerInfo.StatusMessageModes
+        (wantedFeature1, statusMessageModes) |> Assert.AreEqual
+
+        let clientData = IRCClientData()
+        serverFeaturesHandler (validFeature2, clientData)
+        let statusMessageModes = clientData.GetServerInfo.StatusMessageModes
+        (wantedFeature2, statusMessageModes) |> Assert.AreEqual
 
     [<Test>]
     let ``LINELEN feature should only accept values that can be parsed to int if not default to 512``() =

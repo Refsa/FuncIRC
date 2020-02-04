@@ -92,6 +92,7 @@ module ServerFeaturesHandler =
         else ""
 
     /// PREFIX
+    /// TODO: Remove if branches?
     let prefixHandler (prefixFeature: string, clientData: IRCClientData) = 
         if prefixFeature = "" then ()
         else
@@ -107,14 +108,17 @@ module ServerFeaturesHandler =
 
         let userModes =
             {
-                Founder = findUserModeInMap modeMap 'q';
+                Founder   = findUserModeInMap modeMap 'q';
                 Protected = findUserModeInMap modeMap 'a';
-                Operator = findUserModeInMap modeMap 'o';
-                Halfop = findUserModeInMap modeMap 'h';
-                Voice = findUserModeInMap modeMap 'v';
+                Operator  = findUserModeInMap modeMap 'o';
+                Halfop    = findUserModeInMap modeMap 'h';
+                Voice     = findUserModeInMap modeMap 'v';
             }
 
         clientData.ServerInfo <- {clientData.ServerInfo with UserModes = userModes}
+
+    let statusMsgHandler (statusMsgFeature, clientData: IRCClientData) =
+        ()
 
     /// LINELEN
     let linelengthFeatureHandler (linelenFeature, clientData: IRCClientData) =
@@ -205,6 +209,7 @@ module ServerFeaturesHandler =
                     | "KEYLEN"      -> keyLengthHandler
                     | "HOSTLEN"     -> hostLengthHandler
                     | "PREFIX"      -> prefixHandler
+                    | "STATUSMSG"   -> statusMsgHandler
                     | _             -> noFeatureHandler
                 )
             )
