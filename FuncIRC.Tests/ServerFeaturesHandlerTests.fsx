@@ -190,6 +190,24 @@ module ServerFeaturesHandlerTests =
         Assert.AreEqual (wantedFeature, statusMessageModes)
 
     [<Test>]
+    let ``MAXLIST should set max number of type A channel modes on MaxTypeAModes in IRCServerInfo``() =
+        let validFeature1 = [| ("MAXLIST", "b:") |]
+        let validFeature2 = [| ("MAXLIST", "b:20,a:50") |]
+
+        let wantedResult1 = [ ("b", 100) ] |> Map.ofList
+        let wantedResult2 = [ ("b", 20); ("a", 50) ] |> Map.ofList
+
+        let clientData = IRCClientData()
+        serverFeaturesHandler (validFeature1, clientData)
+        let maxTypeAModes = clientData.GetServerInfo.MaxTypeAModes
+        (wantedResult1, maxTypeAModes) |> Assert.AreEqual
+
+        let clientData = IRCClientData()
+        serverFeaturesHandler (validFeature2, clientData)
+        let maxTypeAModes = clientData.GetServerInfo.MaxTypeAModes
+        (wantedResult2, maxTypeAModes) |> Assert.AreEqual
+
+    [<Test>]
     let ``LINELEN feature should only accept values that can be parsed to int if not default to 512``() =
         let clientData = IRCClientData()
         let feature = [| ("LINELEN", "abcd") |]

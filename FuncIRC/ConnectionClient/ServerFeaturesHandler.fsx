@@ -128,6 +128,9 @@ module ServerFeaturesHandler =
 
         clientData.ServerInfo <- {clientData.ServerInfo with StatusMessageModes = statusMessageModes}
 
+    let maxListHandler (maxListFeature: string, clientData: IRCClientData) =
+        ()
+
     /// LINELEN
     let linelengthFeatureHandler (linelenFeature, clientData: IRCClientData) =
         match linelenFeature with
