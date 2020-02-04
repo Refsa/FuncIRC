@@ -208,6 +208,14 @@ module ServerFeaturesHandlerTests =
         (wantedResult2, maxTypeAModes) |> Assert.AreEqual
 
     [<Test>]
+    let ``MAXLIST should do nothing with empty parameters``() =
+        let validFeature1 = [| ("MAXLIST", "") |]
+        let clientData = IRCClientData()
+        serverFeaturesHandler (validFeature1, clientData)
+
+        (Map.empty, clientData.GetServerInfo.MaxTypeAModes) |> Assert.AreEqual
+
+    [<Test>]
     let ``LINELEN feature should only accept values that can be parsed to int if not default to 512``() =
         let clientData = IRCClientData()
         let feature = [| ("LINELEN", "abcd") |]
