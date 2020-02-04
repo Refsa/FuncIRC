@@ -71,6 +71,7 @@ module IRCMessages =
     /// Validates the nick string
     let validateNick (clientData: IRCClientData) (nick: string) =
         if nick = "" then false
+        else if nick.IndexOf (' ') <> -1 then false
         else if nick.Length > clientData.GetServerInfo.MaxNickLength then false
         else true
 
