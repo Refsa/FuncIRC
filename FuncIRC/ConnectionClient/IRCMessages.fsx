@@ -80,6 +80,7 @@ module IRCMessages =
         else if user.Length > clientData.GetServerInfo.MaxUserLength then false
         else true
 
+    /// Validates the topic string
     let validateTopic (clientData: IRCClientData) (topic: string) =
         if      topic = "" then false
         else if topic.Length > clientData.GetServerInfo.MaxTopicLength then false
@@ -105,15 +106,15 @@ module IRCMessages =
         let userRealName     = hasUser && hasRealName
         let userPass         = hasUser && hasPass
 
-        match () with
-        | _ when hasNick ->
+        match hasNick with
+        | true ->
             match () with
             | _ when userRealNamePass -> UserRealNamePass (nick, user, realName, pass)
             | _ when userRealName     -> UserRealName (nick, user, realName)
             | _ when userPass         -> UserPass (nick, user, pass)
             | _ when hasUser          -> User (nick, user)
             | _                       -> Nick (nick) // Not sure if this should be valid login data
-        | _ -> InvalidLoginData
+        | false -> InvalidLoginData
 
     /// Creates a registration message and sends it to the outbound message queue
     /// Subscribes to incoming VERBs related to the registration message
@@ -148,6 +149,7 @@ module IRCMessages =
         clientData.AddOutMessages messages
 
     /// Creates a JOIN message to join a channel
+    /// <returns> True if the message was added to the outbound message, false if not </returns>
     let sendJoinMessage (clientData: IRCClientData) (channel: string) =
         match validateChannel clientData channel with
         | false -> false
@@ -156,6 +158,8 @@ module IRCMessages =
             true
 
     /// Creates a PRIVMSG with channel as target using the given message
+    /// TODO: Remove if branches
+    /// <returns> True if the message was added to the outbound message, false if not </returns>
     let sendChannelPrivMsg (clientData: IRCClientData) (channel: string) (message: string) =
         if      message = "" then false
         else if message.Length > (clientData.GetServerInfo.LineLength - clientData.GetServerInfo.MaxHostLength) then false
@@ -169,16 +173,17 @@ module IRCMessages =
 
     /// Creates a kick message and adds it to the outbound messages
     /// TODO: Remove if branches
+    /// <returns> True if the message was added to the outbound message, false if not </returns>
     let sendKickMessage (clientData: IRCClientData) (kickUser: string) (message: string) =
         if validateUser clientData kickUser |> not then false
-        else if message = "" then false
-        else if message.Length > clientData.GetServerInfo.MaxKickLength then false
+        else if message = "" || message.Length > clientData.GetServerInfo.MaxKickLength then false
         else
 
         createKickMessage kickUser message |> clientData.AddOutMessage
         true
 
     /// Creates a topic message and adds it to the outbound messages
+    /// <returns> True if the message was added to the outbound message, false if not </returns>
     let sendTopicMessage (clientData: IRCClientData) (topic: string) =
         match validateTopic clientData topic with
         | false -> false
@@ -187,10 +192,9 @@ module IRCMessages =
             true
 
     /// Creates a QUIT messages and adds it to the outbound message queue
+    /// <returns> True if the message was added to outqueue, false if not </returns>
     let sendQuitMessage (clientData: IRCClientData) (message: string) =
-        let messageTooLong = message.Length > 200
-
-        match messageTooLong with
+        match message.Length > 200 with
         | true -> false
         | false ->
             createQuitMessage message |> clientData.AddOutMessage
@@ -199,9 +203,7 @@ module IRCMessages =
     /// Creates an AWAY messages and adds it to the outboid message queue if the length of the message was within bounds
     /// <returns> True if the message was added to outqueue, false if not </returns>
     let sendAwayMessage (clientData: IRCClientData) (message: string) =
-        let messageTooLong = message.Length > clientData.GetServerInfo.MaxAwayLength
-
-        match messageTooLong with
+        match message.Length > clientData.GetServerInfo.MaxAwayLength with
         | true  -> false
         | false -> 
             createAwayMessage message |> clientData.AddOutMessage
