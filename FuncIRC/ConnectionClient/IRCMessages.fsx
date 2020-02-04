@@ -53,7 +53,7 @@ module IRCMessages =
     let internal createJoinChannelMessage channel = { Tags = None; Source = None; Verb = Some (Verb "JOIN"); Params = Some (toParameters [|channel|]) }
 
     /// Creates a PRIVMSG message with the given message string on the given channel
-    let internal createPrivMessage message channel = { Tags = None; Source = None; Verb = Some (Verb "PRIVMSG"); Params = Some (toParameters [|channel; message|]) }
+    let internal createChannelPrivMessage message channel = { Tags = None; Source = None; Verb = Some (Verb "PRIVMSG"); Params = Some (toParameters [|channel; ":" + message|]) }
 //#endregion
 
     /// Active Pattern to validate and check which part of the login details that were given
@@ -117,8 +117,8 @@ module IRCMessages =
 
         clientData.AddOutMessages messages
 
-    /// Creates a JOIN message to join a channel
-    let sendJoinMessage (clientData: IRCClientData) (channel: string) =
+    /// Validates the channel string
+    let validateChannel (clientData: IRCClientData) (channel: string) =
         if      channel = "" then false
         else if channel.Length > clientData.GetServerInfo.MaxChannelLength then false
         else
@@ -126,11 +126,27 @@ module IRCMessages =
         let channelPrefix = channel.[0]
 
         if Map.containsKey channelPrefix clientData.GetServerInfo.ChannelPrefixes |> not then false
+        else true
+
+    /// Creates a JOIN message to join a channel
+    let sendJoinMessage (clientData: IRCClientData) (channel: string) =
+        match validateChannel clientData channel with
+        | false -> false
+        | true -> 
+            createJoinChannelMessage channel |> clientData.AddOutMessage
+            true
+
+    /// Creates a PRIVMSG with channel as target using the given message
+    let sendChannelPrivMsg (clientData: IRCClientData) (channel: string) (message: string) =
+        if      message = "" then false
+        else if message.Length > (clientData.GetServerInfo.LineLength - clientData.GetServerInfo.MaxHostLength) then false
         else
 
-        createJoinChannelMessage channel |> clientData.AddOutMessage
-
-        true
+        match validateChannel clientData channel with
+        | false -> false
+        | true ->
+            createChannelPrivMessage channel message |> clientData.AddOutMessage
+            true
 
     /// Creates a kick message and adds it to the outbound messages
     /// TODO: Remove if branches

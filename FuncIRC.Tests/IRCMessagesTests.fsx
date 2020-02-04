@@ -150,3 +150,17 @@ module IRCMessagesTests =
         sendJoinMessage clientData "@channel" |> Assert.False
         sendJoinMessage clientData "channel" |> Assert.False
         sendJoinMessage clientData (createInvalidMessage "" (clientData.GetServerInfo.MaxChannelLength + 1)) |> Assert.False
+
+    // sendChannelPrivMsg tests
+    [<Test>]
+    let ``sendChannelPrivMsg should send a PRIVMSG to channel if the channel and message is valid``() =
+        let clientData = IRCClientData()
+        let feature = [| ("CHANTYPES", "#") |]
+        serverFeaturesHandler (feature, clientData)
+
+        sendChannelPrivMsg clientData "#channel" "some message" |> Assert.True
+        sendChannelPrivMsg clientData "channel" "some message" |> Assert.False
+        sendChannelPrivMsg clientData "#channel" "" |> Assert.False
+        sendChannelPrivMsg clientData (createInvalidMessage "" (clientData.GetServerInfo.MaxChannelLength + 1)) "some message" |> Assert.False
+        sendChannelPrivMsg clientData "#channel" (createInvalidMessage "" (clientData.GetServerInfo.LineLength - clientData.GetServerInfo.MaxHostLength + 1)) |> Assert.False
+
