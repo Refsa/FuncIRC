@@ -138,12 +138,11 @@ module ServerFeaturesHandlerTests =
 
         let wantedFeature2 =
             {
-                default_IRCUserModes with
-                    Founder = "~"
-                    Protected = "&"
-                    Operator = "@"
-                    Halfop = "%"
-                    Voice = "+"
+                Founder = "~"
+                Protected = "&"
+                Operator = "@"
+                Halfop = "%"
+                Voice = "+"
             }
 
         let wantedFeature3 = default_IRCUserModes
@@ -170,7 +169,7 @@ module ServerFeaturesHandlerTests =
 
         serverFeaturesHandler (invalidFeature1, clientData)
         let userModes = clientData.GetServerInfo.UserModes
-        
+
         (default_IRCUserModes, userModes) |> Assert.AreEqual
 
     [<Test>]

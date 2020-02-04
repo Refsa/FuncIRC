@@ -101,6 +101,7 @@ module ServerFeaturesHandler =
         let modeSymbols = prefixSplit.[1] |> Seq.toList
 
         if modeNames.Length <> modeSymbols.Length then ()
+        else
 
         let modeMap = List.zip modeNames modeSymbols |> Map.ofList
 
