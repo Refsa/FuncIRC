@@ -53,6 +53,7 @@ module ServerFeaturesHandler =
             |> Map.ofArray
 
         /// TODO: There should be a more clean way to check and add items that already existed but werent present in input data
+        /// Adds in the channel prefixes that were present before
         let rec buildChannelPrefixes (leftover: (char * int) list) (acc: Map<char, int>) =
             match leftover with
             | [] -> acc

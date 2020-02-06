@@ -26,13 +26,15 @@ module ValidatorsTests =
         let invalidChannel1 = "invalidChannel"
         let invalidChannel2 = "@invalidChannel"
         let invalidChannel3 = ""
+        let invalidChannel4 = createString (clientData.GetServerInfo.MaxChannelLength + 1)
 
-        validateChannel clientData validChannel1 |> Assert.True
-        validateChannel clientData validChannel2 |> Assert.True
+        (validateChannel clientData validChannel1) |> AssertTrue <| "validChannel1 didnt validate channel"
+        (validateChannel clientData validChannel2) |> AssertTrue <| "validChannel2 didnt validate channel"
 
-        validateChannel clientData invalidChannel1 |> Assert.False
-        validateChannel clientData invalidChannel2 |> Assert.False
-        validateChannel clientData invalidChannel3 |> Assert.False
+        (validateChannel clientData invalidChannel1) |> AssertFalse <| "invalidChannel1 didnt catch without prefix"
+        (validateChannel clientData invalidChannel2) |> AssertFalse <| "invalidChannel2 didnt catch invalid prefix"
+        (validateChannel clientData invalidChannel3) |> AssertFalse <| "invalidChannel3 didnt catch empty channeø"
+        (validateChannel clientData invalidChannel4) |> AssertFalse <| "invalidChannel4 didnt check length"
 
     // validateNick tests
     [<Test>]
@@ -47,13 +49,13 @@ module ValidatorsTests =
         let invalidNick2 = createString (clientData.GetServerInfo.MaxNickLength + 1)
         let invalidNick3 = ""
 
-        (validateNick clientData validNick1) |> AssertTrue <| "validNick1 was wrong"
-        (validateNick clientData validNick2) |> AssertTrue <| "validNick2 was wrong"
-        (validateNick clientData validNick3) |> AssertTrue <| "validNick3 was wrong"
+        (validateNick clientData validNick1) |> AssertTrue <| "validNick1 didnt validate nick"
+        (validateNick clientData validNick2) |> AssertTrue <| "validNick2 didnt validate nick"
+        (validateNick clientData validNick3) |> AssertTrue <| "validNick3 didnt validate nick"
 
-        (validateNick clientData invalidNick1) |> AssertFalse <| "invalidNick1 was wrong"
-        (validateNick clientData invalidNick2) |> AssertFalse <| "invalidNick2 was wrong"
-        (validateNick clientData invalidNick3) |> AssertFalse <| "invalidNick3 was wrong"
+        (validateNick clientData invalidNick1) |> AssertFalse <| "invalidNick1 didnt catch nick with space"
+        (validateNick clientData invalidNick2) |> AssertFalse <| "invalidNick2 didnt catch too long nick"
+        (validateNick clientData invalidNick3) |> AssertFalse <| "invalidNick3 didnt catch empty nick"
 
     // validateUser tests
     [<Test>]
@@ -68,13 +70,13 @@ module ValidatorsTests =
         let invalidUser2 = createString (clientData.GetServerInfo.MaxUserLength + 1)
         let invalidUser3 = ""
 
-        (validateUser clientData validUser1) |> AssertTrue <| "validUser1 was wrong"
-        (validateUser clientData validUser2) |> AssertTrue <| "validUser2 was wrong"
-        (validateUser clientData validUser3) |> AssertTrue <| "validUser3 was wrong"
+        (validateUser clientData validUser1) |> AssertTrue <| "validUser1 didnt validate user"
+        (validateUser clientData validUser2) |> AssertTrue <| "validUser2 didnt validate user"
+        (validateUser clientData validUser3) |> AssertTrue <| "validUser3 didnt validate user"
 
-        (validateUser clientData invalidUser1) |> AssertFalse <| "invalidUser1 was wrong"
-        (validateUser clientData invalidUser2) |> AssertFalse <| "invalidUser2 was wrong"
-        (validateUser clientData invalidUser3) |> AssertFalse <| "invalidUser3 was wrong"
+        (validateUser clientData invalidUser1) |> AssertFalse <| "invalidUser1 didnt catch user with space"
+        (validateUser clientData invalidUser2) |> AssertFalse <| "invalidUser2 didnt catch too long user length"
+        (validateUser clientData invalidUser3) |> AssertFalse <| "invalidUser3 didnt catch empty user"
 
     // validateTopic tests
     [<Test>]
@@ -88,9 +90,9 @@ module ValidatorsTests =
         let invalidTopic1 = ""
         let invalidTopic2 = createString (clientData.GetServerInfo.MaxTopicLength + 1)
 
-        (validateTopic clientData validTopic1) |> AssertTrue <| "validTopic1 was wrong"
-        (validateTopic clientData validTopic2) |> AssertTrue <| "validTopic2 was wrong"
-        (validateTopic clientData validTopic3) |> AssertTrue <| "validTopic3 was wrong"
+        (validateTopic clientData validTopic1) |> AssertTrue <| "validTopic1 wasn't validated"
+        (validateTopic clientData validTopic2) |> AssertTrue <| "validTopic2 wasn't validated"
+        (validateTopic clientData validTopic3) |> AssertTrue <| "validTopic3 wasn't validated"
 
-        (validateTopic clientData invalidTopic1) |> AssertFalse <| "invalidTopic1 was wrong"
-        (validateTopic clientData invalidTopic2) |> AssertFalse <| "invalidTopic2 was wrong"
+        (validateTopic clientData invalidTopic1) |> AssertFalse <| "invalidTopic1 didnt catch empty topic"
+        (validateTopic clientData invalidTopic2) |> AssertFalse <| "invalidTopic2 didnt catch too long topic length"

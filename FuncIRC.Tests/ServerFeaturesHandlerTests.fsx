@@ -37,6 +37,7 @@ module ServerFeaturesHandlerTests =
         serverFeaturesHandler (feature, clientData)
         Assert.True (checkCasemappingInClientData Casemapping.RFC1459 clientData, "Casemapping was not set correctly for rfc1459")
 
+    // CHANTYPES tests
     [<Test>]
     let ``CHANTYPES feature should destruct incoming string into a char array and set ChannelPrefixes in IRCClientData``() =
         let clientData = IRCClientData()
@@ -61,7 +62,6 @@ module ServerFeaturesHandlerTests =
                 let k, v = x
                 clientData.GetServerInfo.ChannelPrefixes.[k] = v |> Assert.True)
 
-    // CHANLIMIT tests
     [<Test>]
     let ``CHANLIMIT should not override channel types received from CHANTYPES``() =
         let clientData = IRCClientData()
