@@ -120,4 +120,15 @@ module ValidatorsTests =
     /// validateSource tests
     [<Test>]
     let ``validateSource should validate Source record based on information in IRCClientData``()=
-        Assert.Pass()
+        let clientData = IRCClientData()
+
+        sourceTests
+        |> List.iter
+            (fun st ->
+                let result = (validateSource clientData st.Source) = st.Valid
+
+                if not result then
+                    printfn "Source %s was supposed to be %b" (st.Source.ToString) st.Valid
+
+                Assert.True(result)
+            )

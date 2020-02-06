@@ -39,7 +39,7 @@ module Validators =
 
     /// Validates a Source
     let validateSource (clientData: IRCClientData) (source: Source) =
-        ()
+        false
 //#endregion Source related
 
     /// Validates the topic string

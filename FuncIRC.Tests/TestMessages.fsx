@@ -240,3 +240,22 @@ module TestMessages =
             {Hostname = "com";                   Valid = false}
             {Hostname = "";                      Valid = false}
         ]
+
+
+
+    type SourceTest = {Source: Source; Valid: bool}
+
+    let sourceTests =
+        [
+            {Source = {Host = Some "irc.example.com"; User = Some "user";  Nick = Some "nick"};  Valid = true}
+            {Source = {Host = Some "irc.example.com"; User = Some "user1"; Nick = Some "nick1"}; Valid = true}
+            {Source = {Host = Some "irc.example.com"; User = Some "user2"; Nick = Some "nick2"}; Valid = true}
+            {Source = {Host = Some "irc.example.com"; User = Some "user3"; Nick = Some "nick3"}; Valid = true}
+
+            {Source = {Host = Some "-lol-.net.uk"; User = Some "user";  Nick = Some "nick"};  Valid = false}
+            {Source = {Host = Some "-lol-.net.uk"; User = Some "user1"; Nick = Some "nick1"}; Valid = false}
+            {Source = {Host = Some "-lol-.net.uk"; User = Some "user2"; Nick = Some "nick2"}; Valid = false}
+            {Source = {Host = Some "-lol-.net.uk"; User = Some "user3"; Nick = Some "nick3"}; Valid = false}
+            {Source = {Host = Some "-lol-.net.uk"; User = Some "user3"; Nick = Some ""};      Valid = false}
+            {Source = {Host = Some "-lol-.net.uk"; User = Some "";      Nick = Some "nick3"}; Valid = false}
+        ]
