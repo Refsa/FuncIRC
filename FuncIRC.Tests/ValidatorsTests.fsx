@@ -158,3 +158,9 @@ module ValidatorsTests =
             (fun tag ->
                 (validateTagKey clientData tag.Key) |> AssertFalse <| ("Tag key " + tag.Key + " should be invalid")
             )
+
+        let validLongKey = createString (clientData.GetServerInfo.MaxKeyLength)
+        let invalidLongKey = createString (clientData.GetServerInfo.MaxKeyLength + 1)
+
+        (validateTagKey clientData validLongKey) |> AssertTrue <| "Long key within ServerInfo.MaxKeyLength of Tag should be valid"
+        (validateTagKey clientData invalidLongKey) |> AssertFalse <| "Key longer than ServerInfo.MaxKeyLength of Tag should be invalid"

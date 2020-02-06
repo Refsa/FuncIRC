@@ -54,8 +54,13 @@ module Validators =
     let validateTagKey (clientData: IRCClientData) (key: string) =
         match key with
         | "" -> false
+        | _ when key.Length > clientData.GetServerInfo.MaxKeyLength -> false
         | _ when not (stringIsOnlyAlphaNumericExcept key [| '/'; '-'; '.' |]) -> false
         | _ -> true
+
+    /// Validates the value of a tag
+    let validateTagValue (clientData: IRCClientData) (value: string) =
+        false
 
     /// Validates the topic string
     let validateTopic (clientData: IRCClientData) (topic: string) =

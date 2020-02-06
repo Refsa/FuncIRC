@@ -1,9 +1,11 @@
 #r "../FuncIRC/bin/Debug/netstandard2.0/FuncIRC.dll"
+#load "NUnitTestHelpers.fsx"
 
 namespace FuncIRC.Tests
 
 module TestMessages = 
     open FuncIRC.MessageTypes
+    open NUnitTestHelpers
 
     type TestMessage =
         { Input: string

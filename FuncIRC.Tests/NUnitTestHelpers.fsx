@@ -22,5 +22,5 @@ module NUnitTestHelpers =
     let createString maxLength =
         let rec buildLongMessage (currentMessage: string) =
             if currentMessage.Length = maxLength then currentMessage
-            else buildLongMessage (currentMessage + "_")
+            else buildLongMessage (currentMessage + "A")
         buildLongMessage ""
