@@ -132,3 +132,29 @@ module ValidatorsTests =
 
                 Assert.True(result)
             )
+
+    /// validateTagKey tests
+    [<Test>]
+    let ``validateTagKey should validate keys of tags in a message``() =
+        let clientData = IRCClientData()
+
+        // Valid tests
+        testMessages
+        |> List.iter
+            (fun tm ->
+                match tm.Output.Tags with
+                | Some tags -> 
+                    tags
+                    |> List.iter
+                        (fun tag ->
+                            (validateTagKey clientData tag.Key) |> AssertTrue <| ("Tag key " + tag.Key + " should be valid")
+                        )
+                | None -> ()
+            )
+
+        // Invalid tests
+        invalidTags
+        |> List.iter
+            (fun tag ->
+                (validateTagKey clientData tag.Key) |> AssertTrue <| ("Tag key " + tag.Key + " should be invalid")
+            )

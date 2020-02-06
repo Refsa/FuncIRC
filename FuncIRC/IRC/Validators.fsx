@@ -48,8 +48,11 @@ module Validators =
         validateHostname clientData hostname &&
         validateNick clientData nick &&
         validateUser clientData user 
-
 //#endregion Source related
+
+    /// Validates a key of a tag
+    let validateTagKey (clientData: IRCClientData) (key: string) =
+        false
 
     /// Validates the topic string
     let validateTopic (clientData: IRCClientData) (topic: string) =

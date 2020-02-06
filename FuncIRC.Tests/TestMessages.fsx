@@ -259,3 +259,12 @@ module TestMessages =
             {Source = {Host = Some "-lol-.net.uk"; User = Some "user3"; Nick = Some ""};      Valid = false}
             {Source = {Host = Some "-lol-.net.uk"; User = Some "";      Nick = Some "nick3"}; Valid = false}
         ]
+
+
+    let invalidTags =
+        [   
+            {Key = "some key"; Value = Some "some value"}
+            {Key = "some.key"; Value = Some "some\rvalue"}
+            {Key = "some@key"; Value = Some "some\nvalue"}
+            {Key = "some;key"; Value = Some "some;value"}
+        ]   
