@@ -104,4 +104,7 @@ module Validators =
             channelsSplit
             |> Array.forall
                 ( fun ch -> validateChannel clientData ch )
+
+    let validateNicksString (clientData: IRCClientData) (nicksString: string) =
+        ()
         

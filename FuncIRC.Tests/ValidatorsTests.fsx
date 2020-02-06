@@ -246,3 +246,15 @@ module ValidatorsTests =
 
         (validateChannelsString clientData invalidListMessage1) |> AssertFalse <| "invalidListMessage1 should not be validated"
         (validateChannelsString clientData invalidListMessage2) |> AssertFalse <| "invalidListMessage2 should not be validated"
+
+    [<Test>]
+    let ``validateNicksString should check the amount of targets``() =
+        let clientData = IRCClientData()
+
+        let validNicks1 = "target1,target2"
+        
+        let invalidNicks1 = "target,target,target,target,target,target,target,target,target,target,target,target,target,target,target,target,target,target,target,target,target"
+
+        (validateNicksString clientData validNicks1) |> AssertTrue <| "validNicks1 should be validated"
+
+        (validateNicksString clientData invalidNicks1) |> AssertFalse <| "invalidNicks1 should be invalidated since it has too many targets"

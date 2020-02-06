@@ -181,4 +181,4 @@ module IRCMessages =
             true
 
     let sendListMessage (clientData: IRCClientData) (message: string) =
-        ()
+        raise (System.NotImplementedException("sendListMessage is not implemented"))
