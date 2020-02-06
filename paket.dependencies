@@ -6,6 +6,8 @@ framework: net48
 framework: auto-detect
 
 nuget FSharp.Core
+nuget FSharp.Compiler.Service
+
 nuget FParsec
 nuget NUnit
 nuget NBench

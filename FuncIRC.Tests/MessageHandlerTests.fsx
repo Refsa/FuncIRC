@@ -17,6 +17,7 @@ module MessageHandlerTests =
 
     let newVerbNameMessage verbName = Message.NewSimpleMessage (Some (Verb verbName)) None
 
+    /// pongMessageHandler tests
     [<Test>]
     let ``PING verb handler should add an outbound message with the verb PONG``() =
         let clientData = ircClientData()
@@ -29,6 +30,7 @@ module MessageHandlerTests =
         Assert.AreEqual (outboundMessages.[0], "PONG")
 
 //#region Connection numerics
+    /// RPL_WELCOME tests
     [<Test>]
     let ``RPL_WELCOME handler should do nothing``() =
         let clientData = ircClientData()
@@ -41,6 +43,7 @@ module MessageHandlerTests =
         Assert.AreEqual (clientData.GetOutboundMessages, "")
         Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
+    /// RPL_YOURHOST tests
     [<Test>]
     let ``RPL_YOURHOST handler should do nothing``() =
         let clientData = ircClientData()
@@ -53,6 +56,7 @@ module MessageHandlerTests =
         Assert.AreEqual (clientData.GetOutboundMessages, "")
         Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
+    /// RPL_CREATED tests
     [<Test>]
     let ``RPL_CREATED handler should update server info in IRCClientData with creation date``() =
         let clientData = ircClientData()
@@ -67,6 +71,7 @@ module MessageHandlerTests =
         Assert.AreNotEqual (serverInfo, default_IRCServerInfo)
         Assert.AreEqual (serverInfo, {default_IRCServerInfo with Created = DateTime.Parse("23:25:21 Jan 24 2020");})
 
+    /// RPL_MYINFO tests
     [<Test>]
     let ``RPL_MYINFO handler should do nothing``() =
         let clientData = ircClientData()
@@ -79,32 +84,58 @@ module MessageHandlerTests =
         Assert.AreEqual (clientData.GetOutboundMessages, "")
         Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
-    [<Test>]
-    let ``RPL_ISUPPORT handler should respond with everything except trailing params``() =
-        let clientData = ircClientData()
-        let parameters = Some (toParameters [|"Nick"; "AWAYLEN=200"; "CASEMAPPING=ascii"; "CHANLIMIT=#:20"; "CHANMODES=b,k,l,imnpst"; "CHANNELLEN=64"; "CHANTYPES=#"; "ELIST=CMNTU"; "HOSTLEN=64"; "KEYLEN=32"; "KICKLEN=255"; "LINELEN=512"; "MAXLIST=b:100"; "are supported by this server"|])
-        let verb = Some (Verb "RPL_ISUPPORT")
-        let message = Message.NewSimpleMessage verb parameters
-
-        let wantedFeatures = 
-            Features [| 
-                        ("AWAYLEN", "200"); ("CASEMAPPING", "ascii"); ("CHANLIMIT", "#:20"); 
-                        ("CHANMODES", "b,k,l,imnpst"); ("CHANNELLEN", "64"); ("CHANTYPES", "#"); 
-                        ("ELIST", "CMNTU"); ("HOSTLEN", "64"); ("KEYLEN", "32"); ("KICKLEN", "255"); 
-                        ("LINELEN", "512"); ("MAXLIST", "b:100") 
-                    |]
-
+//#region RPL_ISUPPORT
+    let addISupportFeaturesAndVerify (wantedFeatures: IRCServerFeatures, message, clientData) =
         rplISupportHandler (message, clientData)
 
-        Assert.AreEqual (wantedFeatures.Value.Length, clientData.GetServerFeatures.Length)
-        let serverFeatureContentEquals = Array.forall2 (fun a b -> a=b) wantedFeatures.Value clientData.GetServerFeatures
+        Assert.AreEqual (wantedFeatures.Value.Count, clientData.GetServerFeatures.Count)
+        let serverFeatureContentEquals = Array.forall2 (fun a b -> a=b) (wantedFeatures.Value |> Map.toArray) (clientData.GetServerFeatures |> Map.toArray)
 
-        if not serverFeatureContentEquals then
-            clientData.GetServerFeatures
-            |> Array.iter (fun (k, v) -> printfn "%s=%s" k v)
+        //if not serverFeatureContentEquals then
+        //    clientData.GetServerFeatures
+        //    |> Map.iter (fun k -> printfn "%s=%s" k k)
 
-        Assert.True (serverFeatureContentEquals)
+        serverFeatureContentEquals
 
+    [<Test>]
+    let ``RPL_ISUPPORT handler should append the incoming parameters to IRCServerFeatures on IRCClientData``() =
+        // wanted outcome of RPL_ISUPPORT handler
+        let wantedFeatures1 = 
+            [| 
+                ("AWAYLEN", "200"); ("CASEMAPPING", "ascii"); ("CHANLIMIT", "#:20"); 
+                ("CHANMODES", "b,k,l,imnpst"); ("CHANNELLEN", "64"); ("CHANTYPES", "#"); 
+                ("ELIST", "CMNTU"); ("HOSTLEN", "64"); ("KEYLEN", "32"); ("KICKLEN", "255"); 
+                ("LINELEN", "512"); ("MAXLIST", "b:100") 
+            |]
+        let wantedFeatures2 = 
+            wantedFeatures1 
+            |> Array.append 
+                [| 
+                    ("MAXTARGETS", "20"); ("MODES", "20"); ("NETWORK", "Refsa"); 
+                    ("NICKLEN", "30"); ("PREFIX", "(ov)@+"); ("SAFELIST", ""); 
+                    ("STATUSMSG", "@+"); ("TOPICLEN", "307"); ("USERLEN", "10"); ("WHOX", "") 
+                |]
+
+        // Setup data required to run test        
+        let isupportParams1 = [|"AWAYLEN=200"; "CASEMAPPING=ascii"; "CHANLIMIT=#:20"; "CHANMODES=b,k,l,imnpst"; "CHANNELLEN=64"; "CHANTYPES=#"; "ELIST=CMNTU"; "HOSTLEN=64"; "KEYLEN=32"; "KICKLEN=255"; "LINELEN=512"; "MAXLIST=b:100"; "are supported by this server"|]
+        let isupportParams2 = [|"MAXTARGETS=20"; "MODES=20"; "NETWORK=Refsa"; "NICKLEN=30"; "PREFIX=(ov)@+"; "SAFELIST"; "STATUSMSG=@+"; "TOPICLEN=307"; "USERLEN=10"; "WHOX"; "are supported by this server"|]
+
+        let clientData = ircClientData()
+        let parameters1 = Some (toParameters (isupportParams1 |> Array.append [|"Nick";|]) )
+        let parameters2 = Some (toParameters (isupportParams2 |> Array.append [|"Nick";|]) )
+        let verb = Some (Verb "RPL_ISUPPORT")
+        let message1 = Message.NewSimpleMessage verb parameters1
+        let message2 = Message.NewSimpleMessage verb parameters2
+
+        // Verify that first RPL_ISUPPORT message is handled correctly
+        let message1valid = addISupportFeaturesAndVerify (Features (wantedFeatures1 |> Map.ofArray), message1, clientData)
+        Assert.True (message1valid, "First pass of ISupport params was not valid")
+        // Verify that the second RPL_ISUPPORT message is handled correctly
+        let message2valid = addISupportFeaturesAndVerify (Features (wantedFeatures2 |> Map.ofArray), message2, clientData)
+        Assert.True (message2valid, "Second pass of ISupport params was not valid")
+//#endregion RPL_ISUPPORT
+
+    /// RPL_LUSERCLIENT tests
     [<Test>]
     let ``RPL_LUSERCLIENT handler should do nothing for now``() =
         let clientData = ircClientData()
@@ -119,6 +150,7 @@ module MessageHandlerTests =
         Assert.AreEqual (clientData.GetOutboundMessages, "")
         Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
+    /// RPL_LUSERUNKNOWN tests
     [<Test>]
     let ``RPL_LUSERUNKNOWN handler should do nothing for now``() =
         let clientData = ircClientData()
@@ -132,6 +164,7 @@ module MessageHandlerTests =
         Assert.AreEqual (clientData.GetOutboundMessages, "")
         Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
+    /// RPL_LUSERCHANNELS tests
     [<Test>]
     let ``RPL_LUSERCHANNELS handler should do nothing for now``() =
         let clientData = ircClientData()
@@ -145,6 +178,7 @@ module MessageHandlerTests =
         Assert.AreEqual (clientData.GetOutboundMessages, "")
         Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
+    /// RPL_LUSERME tests
     [<Test>]
     let ``RPL_LUSERME handler should do nothing for now``() =
         let clientData = ircClientData()
@@ -158,6 +192,7 @@ module MessageHandlerTests =
         Assert.AreEqual (clientData.GetOutboundMessages, "")
         Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
+    /// RPL_LOCALUSERS tests
     [<Test>]
     let ``RPL_LOCALUSERS handler should update server info on IRCClientData with local users info``() =
         let clientData = ircClientData()
@@ -172,6 +207,7 @@ module MessageHandlerTests =
         Assert.AreNotEqual (clientData.GetServerInfo, default_IRCServerInfo)
         Assert.AreEqual (clientData.GetServerInfo, wantedServerInfo)
 
+    /// RPL_GLOBALUSERS tests
     [<Test>]
     let ``RPL_GLOBALUSERS handler should update server info on IRCClientData with global users info``() =
         let clientData = ircClientData()
@@ -286,6 +322,7 @@ module MessageHandlerTests =
 
         ``RPL_ENDOFNAMES`` (clientData, usersInChannel1 |> Array.append usersInChannel2)
 
+    /// RPL_TOPIC tests
     [<Test>]
     let ``RPL_TOPIC``() =
         let clientData = ircClientData()
@@ -298,6 +335,7 @@ module MessageHandlerTests =
         let channelInfo = channelInfo.Value
         Assert.AreEqual (channelInfo.Topic, "channel topic")
 
+    /// RPL_AWAY tests
     [<Test>]
     let ``RPL_AWAY internal handler should do nothing``() =
         let clientData = ircClientData()

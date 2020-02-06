@@ -25,6 +25,9 @@
         <Compile Include="MessageParserTests.fsx" />
         <Compile Include="MessageHandlerTests.fsx" />
         <Compile Include="ErrorNumericsHandlerTests.fsx" />
+        <Compile Include="ValidatorsTests.fsx" />
+        <Compile Include="ServerFeaturesHandlerTests.fsx" />
+        <Compile Include="IRCMessagesTests.fsx" />
         
         <Compile Include="PerformanceTests/MessageParser.performance.fsx" />
 
