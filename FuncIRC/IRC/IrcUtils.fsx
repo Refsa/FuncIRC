@@ -14,6 +14,12 @@ module internal IrcUtils =
            @"\r" // CR Message Separator
            @"\n" |]
 
+    let crCharacter = char "\u000D"
+    let lfCharacter = char "\u000A"
+    let spaceCharacter = char "\u0020"
+    let nulCharacter = char "\u0000"
+    let bellCharacter = char "\u0008"
+
     let regularChannelMarker = "#"
     let localChannelMarker = "&"
 

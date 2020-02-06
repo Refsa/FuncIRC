@@ -56,4 +56,14 @@ module StringHelpers =
                     Char.IsLetterOrDigit c
                 else
                     true
-            ) 
+            )
+
+    let stringDoesNotContain (target: string) (characters: char array) =
+        target
+        |> Seq.toList
+        |> List.forall
+            (fun c ->
+                match c with
+                | c when Array.contains c characters -> false
+                | _ -> true
+            )

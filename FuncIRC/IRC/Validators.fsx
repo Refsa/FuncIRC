@@ -2,6 +2,7 @@
 #load "../Utils/RegexHelpers.fsx"
 #load "../Utils/StringHelpers.fsx"
 #load "MessageTypes.fsx"
+#load "IrcUtils.fsx"
 
 namespace FuncIRC
 
@@ -11,7 +12,7 @@ module Validators =
     open StringHelpers
     open IRCClientData
     open MessageTypes
-
+    open IrcUtils
 
 //#region Source related
     /// Validates the hostname part of a Source
@@ -59,8 +60,13 @@ module Validators =
         | _ -> true
 
     /// Validates the value of a tag
+    let private invalidTagValueCharacters = [| crCharacter; lfCharacter; ';'; ' '; nulCharacter; bellCharacter; spaceCharacter |]
+
     let validateTagValue (clientData: IRCClientData) (value: string) =
-        false
+        match value with
+        | _ when value.Length > clientData.GetServerInfo.MaxKeyLength -> false
+        | _ when not (stringDoesNotContain value invalidTagValueCharacters) -> false
+        | _ -> true
 
     /// Validates the topic string
     let validateTopic (clientData: IRCClientData) (topic: string) =
