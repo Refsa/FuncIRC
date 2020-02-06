@@ -93,5 +93,15 @@ module Validators =
         if Map.containsKey channelPrefix clientData.GetServerInfo.ChannelPrefixes |> not then false
         else true
 
+    /// Validates a list of channels in a comma separated string
     let validateChannelsString (clientData: IRCClientData) (channelsString: string) =
-        ()
+        let channelsSplit = channelsString.Split(',')
+
+        match channelsSplit.Length with
+        | length when length > clientData.GetServerInfo.MaxTargets -> false
+        | 1 -> validateChannel clientData channelsString
+        | _ -> 
+            channelsSplit
+            |> Array.forall
+                ( fun ch -> validateChannel clientData ch )
+        

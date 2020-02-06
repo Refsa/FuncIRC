@@ -17,12 +17,17 @@ open FuncIRC.ServerFeaturesHandler
 open FuncIRC.Validators
 
 module ValidatorsTests =
+    /// Creates a IRCClientData object with the given comma separated channel prefixes added
+    let mockIRCClientDataWithChannelPrefix (channelPrefixes: string) =
+        let clientData = IRCClientData()
+        let feature = [| ("CHANTYPES", channelPrefixes) |]
+        serverFeaturesHandler (feature, clientData)
+        clientData
+
     // validateChannel tests
     [<Test>]
     let ``validateChannel should correctly validate a channel string based on information in IRCClientData``() =
-        let clientData = IRCClientData()
-        let feature = [| ("CHANTYPES", "#") |]
-        serverFeaturesHandler (feature, clientData)
+        let clientData = mockIRCClientDataWithChannelPrefix "#"
 
         let validChannel1 = "#channel"
         let validChannel2 = "#otherchannel"
@@ -220,12 +225,12 @@ module ValidatorsTests =
     /// validateListMessage tests
     [<Test>]
     let ``validateListMessage should check how many channels were requested information from``() =
-        let clientData = IRCClientData()
+        let clientData = mockIRCClientDataWithChannelPrefix "#"
 
         let validListMessage1 = "#channel1"
         let validListMessage2 = "#channel1,#channel2,#channel3"
 
-        let invalidListMessage1 = "#channel1,#channel2,#channel3,#channel4,#channel5,#channel1,#channel2,#channel3,#channel4,#channel5,#channel1,#channel2,#channel3,#channel4,#channel5,#channel1,#channel2,#channel3,#channel4,#channel5"
+        let invalidListMessage1 = "#channel0,#channel1,#channel2,#channel3,#channel4,#channel5,#channel1,#channel2,#channel3,#channel4,#channel5,#channel1,#channel2,#channel3,#channel4,#channel5,#channel1,#channel2,#channel3,#channel4,#channel5"
         
         (validateChannelsString clientData validListMessage1) |> AssertTrue <| "validListMessage1 should be validated successfully"
         (validateChannelsString clientData validListMessage2) |> AssertTrue <| "validListMessage2 should be validated successfully"
@@ -234,7 +239,7 @@ module ValidatorsTests =
 
     [<Test>]
     let ``validateListMessage should check the channel prefix of each channel given``() =
-        let clientData = IRCClientData()
+        let clientData = mockIRCClientDataWithChannelPrefix "#"
 
         let invalidListMessage1 = "@channel1,#channel2"
         let invalidListMessage2 = "#channel1,@channel2"
