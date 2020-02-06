@@ -17,6 +17,7 @@ module MessageHandlerTests =
 
     let newVerbNameMessage verbName = Message.NewSimpleMessage (Some (Verb verbName)) None
 
+    /// pongMessageHandler tests
     [<Test>]
     let ``PING verb handler should add an outbound message with the verb PONG``() =
         let clientData = ircClientData()
@@ -29,6 +30,7 @@ module MessageHandlerTests =
         Assert.AreEqual (outboundMessages.[0], "PONG")
 
 //#region Connection numerics
+    /// RPL_WELCOME tests
     [<Test>]
     let ``RPL_WELCOME handler should do nothing``() =
         let clientData = ircClientData()
@@ -41,6 +43,7 @@ module MessageHandlerTests =
         Assert.AreEqual (clientData.GetOutboundMessages, "")
         Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
+    /// RPL_YOURHOST tests
     [<Test>]
     let ``RPL_YOURHOST handler should do nothing``() =
         let clientData = ircClientData()
@@ -53,6 +56,7 @@ module MessageHandlerTests =
         Assert.AreEqual (clientData.GetOutboundMessages, "")
         Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
+    /// RPL_CREATED tests
     [<Test>]
     let ``RPL_CREATED handler should update server info in IRCClientData with creation date``() =
         let clientData = ircClientData()
@@ -67,6 +71,7 @@ module MessageHandlerTests =
         Assert.AreNotEqual (serverInfo, default_IRCServerInfo)
         Assert.AreEqual (serverInfo, {default_IRCServerInfo with Created = DateTime.Parse("23:25:21 Jan 24 2020");})
 
+    /// RPL_MYINFO tests
     [<Test>]
     let ``RPL_MYINFO handler should do nothing``() =
         let clientData = ircClientData()
@@ -130,6 +135,7 @@ module MessageHandlerTests =
         Assert.True (message2valid, "Second pass of ISupport params was not valid")
 //#endregion RPL_ISUPPORT
 
+    /// RPL_LUSERCLIENT tests
     [<Test>]
     let ``RPL_LUSERCLIENT handler should do nothing for now``() =
         let clientData = ircClientData()
@@ -144,6 +150,7 @@ module MessageHandlerTests =
         Assert.AreEqual (clientData.GetOutboundMessages, "")
         Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
+    /// RPL_LUSERUNKNOWN tests
     [<Test>]
     let ``RPL_LUSERUNKNOWN handler should do nothing for now``() =
         let clientData = ircClientData()
@@ -157,6 +164,7 @@ module MessageHandlerTests =
         Assert.AreEqual (clientData.GetOutboundMessages, "")
         Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
+    /// RPL_LUSERCHANNELS tests
     [<Test>]
     let ``RPL_LUSERCHANNELS handler should do nothing for now``() =
         let clientData = ircClientData()
@@ -170,6 +178,7 @@ module MessageHandlerTests =
         Assert.AreEqual (clientData.GetOutboundMessages, "")
         Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
+    /// RPL_LUSERME tests
     [<Test>]
     let ``RPL_LUSERME handler should do nothing for now``() =
         let clientData = ircClientData()
@@ -183,6 +192,7 @@ module MessageHandlerTests =
         Assert.AreEqual (clientData.GetOutboundMessages, "")
         Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
+    /// RPL_LOCALUSERS tests
     [<Test>]
     let ``RPL_LOCALUSERS handler should update server info on IRCClientData with local users info``() =
         let clientData = ircClientData()
@@ -197,6 +207,7 @@ module MessageHandlerTests =
         Assert.AreNotEqual (clientData.GetServerInfo, default_IRCServerInfo)
         Assert.AreEqual (clientData.GetServerInfo, wantedServerInfo)
 
+    /// RPL_GLOBALUSERS tests
     [<Test>]
     let ``RPL_GLOBALUSERS handler should update server info on IRCClientData with global users info``() =
         let clientData = ircClientData()
@@ -311,6 +322,7 @@ module MessageHandlerTests =
 
         ``RPL_ENDOFNAMES`` (clientData, usersInChannel1 |> Array.append usersInChannel2)
 
+    /// RPL_TOPIC tests
     [<Test>]
     let ``RPL_TOPIC``() =
         let clientData = ircClientData()
@@ -323,6 +335,7 @@ module MessageHandlerTests =
         let channelInfo = channelInfo.Value
         Assert.AreEqual (channelInfo.Topic, "channel topic")
 
+    /// RPL_AWAY tests
     [<Test>]
     let ``RPL_AWAY internal handler should do nothing``() =
         let clientData = ircClientData()

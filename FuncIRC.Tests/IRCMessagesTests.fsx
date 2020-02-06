@@ -70,6 +70,7 @@ module IRCMessagesTests =
            | output when output = wantedOutput -> true
            | _ -> false
 
+    /// verify registration parameters ActivePattern tests
     [<Test>]
     let ``Active pattern to verify registration message parameters``() =
         let invalidRegistrationData = ("", "", "", "")
@@ -97,6 +98,7 @@ module IRCMessagesTests =
         testRegistrationDataActivePattern nickData nickData
         |> Assert.True
 
+    /// sendRegistrationMessage tests
     [<Test>]
     let ``sendRegistrationMessage should send and out message if parameters were correct or raise an exception``() =
         let clientData = IRCClientData()

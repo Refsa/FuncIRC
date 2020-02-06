@@ -180,5 +180,6 @@ module IRCMessages =
             createAwayMessage message |> clientData.AddOutMessage
             true
 
+    /// NotImplemented
     let sendListMessage (clientData: IRCClientData) (message: string) =
         raise (System.NotImplementedException("sendListMessage is not implemented"))

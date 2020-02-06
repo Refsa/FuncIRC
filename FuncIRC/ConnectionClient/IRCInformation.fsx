@@ -8,6 +8,7 @@ open ConnectionClient
 open System
 
 module IRCInformation =
+    /// Casemapping enum
     type Casemapping =
         | ASCII
         | RFC1459
@@ -15,11 +16,13 @@ module IRCInformation =
         | RFC7613
         | Unknown
 
+    /// Stores the relevant information about a user
     type IRCUserInfo =
         {
             Source: Source
         }
 
+    /// Record to store the symbols related to channel modes of a server
     type IRCChannelModes =
         {
             TypeA: string
@@ -28,6 +31,7 @@ module IRCInformation =
             TypeD: string
         }
 
+    /// Record to store the symbols related to user modes of a server
     type IRCUserModes =
         {
             Founder: string
@@ -37,6 +41,8 @@ module IRCInformation =
             Voice: string
         }
 
+    /// TODO: Refactor and split up into more readable pieces
+    /// General information for a network/server
     type IRCServerInfo =
         {
             Name: string;
@@ -56,7 +62,7 @@ module IRCInformation =
 
             Safelist: bool
             SearchExtensions: char array
-
+            
             MaxTypeAModes: Map<char, int>
             MaxChannelLength: int
             MaxTargets: int
@@ -70,6 +76,7 @@ module IRCInformation =
             MaxHostLength: int
         }
 
+    /// General information about a channel
     type IRCChannelInfo =
         {
             Name: string
@@ -79,16 +86,18 @@ module IRCInformation =
             Users: string array
         }
 
+    /// Container for a Map of channel names to IRCChannelInfo records
     type IRCServerChannels =
         {
             mutable Channels: Map<string, IRCChannelInfo>
         }
 
+    /// Container of the MOTD for a server
     type IRCServerMOTD = 
         | MOTD of string list
         member x.Value = let (MOTD motd) = x in motd
 
-
+    /// Container of the raw server feature data reported by RPL_ISUPPORT
     type IRCServerFeatures =
         | Features of Map<string, string>
         member x.Value = let (Features features) = x in features
