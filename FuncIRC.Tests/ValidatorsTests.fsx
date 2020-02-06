@@ -222,7 +222,7 @@ module ValidatorsTests =
         (validateMessageString clientData invalidMessageString) |> AssertFalse <| "Message string should be invalid above the line length limit"
 
 
-    /// validateListMessage tests
+    // # validateListMessage tests
     [<Test>]
     let ``validateListMessage should check how many channels were requested information from``() =
         let clientData = mockIRCClientDataWithChannelPrefix "#"
@@ -246,7 +246,9 @@ module ValidatorsTests =
 
         (validateChannelsString clientData invalidListMessage1) |> AssertFalse <| "invalidListMessage1 should not be validated"
         (validateChannelsString clientData invalidListMessage2) |> AssertFalse <| "invalidListMessage2 should not be validated"
+    // / validateListMessage tests
 
+    // validateNicksString tests
     [<Test>]
     let ``validateNicksString should check the amount of targets``() =
         let clientData = IRCClientData()

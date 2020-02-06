@@ -105,6 +105,15 @@ module Validators =
             |> Array.forall
                 ( fun ch -> validateChannel clientData ch )
 
+    /// Validates a string of comma separated nicks
     let validateNicksString (clientData: IRCClientData) (nicksString: string) =
-        ()
+        let nicksSplit = nicksString.Split(',')
+
+        match nicksSplit.Length with
+        | length when length > clientData.GetServerInfo.MaxTargets -> false
+        | 1 -> validateNick clientData nicksString
+        | _ -> 
+            nicksSplit
+            |> Array.forall
+                ( fun nick -> validateNick clientData nick )
         
