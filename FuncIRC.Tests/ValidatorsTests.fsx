@@ -204,3 +204,13 @@ module ValidatorsTests =
 
         (validateTagValue clientData validLongValue) |> AssertTrue <| "Long Value of Tag within ServerInfo.MaxKeyLength should be valid"
         (validateTagValue clientData invalidLongValue) |> AssertFalse <| "Value of Tag longer than ServerInfo.MaxKeyLength should be invalid"
+
+    [<Test>]
+    let ``validateMessageString should check if length of string is within line length of IRCServerInfo``() =
+        let clientData = IRCClientData()
+
+        let validMessageString = createString clientData.GetServerInfo.LineLength
+        let invalidMessageString = createString (clientData.GetServerInfo.LineLength + 1)
+
+        (validateMessageString clientData validMessageString) |> AssertTrue <| "Message string should be valid under the line length limit"
+        (validateMessageString clientData invalidMessageString) |> AssertFalse <| "Message string should be invalid above the line length limit"

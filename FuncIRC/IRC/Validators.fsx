@@ -68,6 +68,12 @@ module Validators =
         | _ when not (stringDoesNotContain value invalidTagValueCharacters) -> false
         | _ -> true
 
+    /// Validate length of message string
+    let validateMessageString (clientData: IRCClientData) (message: string) =
+        match message with
+        | _ when message.Length > clientData.GetServerInfo.LineLength -> false
+        | _ -> true
+
     /// Validates the topic string
     let validateTopic (clientData: IRCClientData) (topic: string) =
         if      topic = "" then false
