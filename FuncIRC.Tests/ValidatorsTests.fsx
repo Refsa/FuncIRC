@@ -159,8 +159,48 @@ module ValidatorsTests =
                 (validateTagKey clientData tag.Key) |> AssertFalse <| ("Tag key " + tag.Key + " should be invalid")
             )
 
+        // Key length tests
         let validLongKey = createString (clientData.GetServerInfo.MaxKeyLength)
         let invalidLongKey = createString (clientData.GetServerInfo.MaxKeyLength + 1)
 
         (validateTagKey clientData validLongKey) |> AssertTrue <| "Long key within ServerInfo.MaxKeyLength of Tag should be valid"
         (validateTagKey clientData invalidLongKey) |> AssertFalse <| "Key longer than ServerInfo.MaxKeyLength of Tag should be invalid"
+
+    /// validateTagValue tests
+    [<Test>]
+    let ``validateTagValue should validate values of Tags in a message``() =
+        let clientData = IRCClientData()
+
+        // Valid tests
+        testMessages
+        |> List.iter
+            (fun tm ->
+                match tm.Output.Tags with
+                | Some tags -> 
+                    tags
+                    |> List.iter
+                        (fun tag ->
+                            match tag.Value with
+                            | Some value ->
+                                (validateTagValue clientData value) |> AssertTrue <| ("Tag Value " + value + " should be valid")
+                            | None -> ()
+                        )
+                | None -> ()
+            )
+
+        // Invalid tests
+        invalidTags
+        |> List.iter
+            (fun tag ->
+                match tag.Value with
+                | Some value ->
+                    (validateTagValue clientData value) |> AssertFalse <| ("Tag Value " + value + " should be invalid")
+                | None -> ()
+            )
+
+        // Value length tests
+        let validLongValue = createString (clientData.GetServerInfo.MaxKeyLength)
+        let invalidLongValue = createString (clientData.GetServerInfo.MaxKeyLength + 1)
+
+        (validateTagValue clientData validLongValue) |> AssertTrue <| "Long Value of Tag within ServerInfo.MaxKeyLength should be valid"
+        (validateTagValue clientData invalidLongValue) |> AssertFalse <| "Value of Tag longer than ServerInfo.MaxKeyLength should be invalid"
