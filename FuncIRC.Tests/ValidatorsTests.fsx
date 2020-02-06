@@ -11,6 +11,7 @@ open NUnitTestHelpers
 open FuncIRC.IRCMessages
 open FuncIRC.IRCClientData
 open FuncIRC.ServerFeaturesHandler
+open FuncIRC.Validators
 
 module ValidatorsTests =
     // validateChannel tests

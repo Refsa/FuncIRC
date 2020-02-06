@@ -1,6 +1,7 @@
 #load "IRCClientData.fsx"
 #load "MessageQueue.fsx"
 #load "../IRC/MessageTypes.fsx"
+#load "../IRC/Validators.fsx"
 #load "../IRC/NumericReplies.fsx"
 #load "../IRC/MessageHandlers.fsx"
 
@@ -11,6 +12,7 @@ open MessageTypes
 open MessageHandlers
 open MessageQueue
 open NumericReplies
+open Validators
 
 module IRCMessages =
     /// Exception thrown when parameters to a registration message was missing
@@ -55,39 +57,6 @@ module IRCMessages =
     /// Creates a PRIVMSG message with the given message string on the given channel
     let internal createChannelPrivMessage message channel = { Tags = None; Source = None; Verb = Some (Verb "PRIVMSG"); Params = Some (toParameters [|channel; ":" + message|]) }
 //#endregion
-
-//#region Validators
-    /// Validates the channel string
-    let validateChannel (clientData: IRCClientData) (channel: string) =
-        if      channel = "" then false
-        else if channel.Length > clientData.GetServerInfo.MaxChannelLength then false
-        else
-
-        let channelPrefix = channel.[0]
-
-        if Map.containsKey channelPrefix clientData.GetServerInfo.ChannelPrefixes |> not then false
-        else true
-
-    /// Validates the nick string
-    let validateNick (clientData: IRCClientData) (nick: string) =
-        if      nick = "" then false
-        else if nick.IndexOf (' ') <> -1 then false
-        else if nick.Length > clientData.GetServerInfo.MaxNickLength then false
-        else true
-
-    /// Validates the user string
-    let validateUser (clientData: IRCClientData) (user: string) =
-        if      user = "" then false
-        else if user.IndexOf (' ') <> -1 then false
-        else if user.Length > clientData.GetServerInfo.MaxUserLength then false
-        else true
-
-    /// Validates the topic string
-    let validateTopic (clientData: IRCClientData) (topic: string) =
-        if      topic = "" then false
-        else if topic.Length > clientData.GetServerInfo.MaxTopicLength then false
-        else true
-//#endregion Validators
 
     /// Active Pattern to validate and check which part of the login details that were given
     /// <returns>
