@@ -52,7 +52,10 @@ module Validators =
 
     /// Validates a key of a tag
     let validateTagKey (clientData: IRCClientData) (key: string) =
-        false
+        match key with
+        | "" -> false
+        | _ when not (stringIsOnlyAlphaNumericExcept key [| '/'; '-'; '.' |]) -> false
+        | _ -> true
 
     /// Validates the topic string
     let validateTopic (clientData: IRCClientData) (topic: string) =

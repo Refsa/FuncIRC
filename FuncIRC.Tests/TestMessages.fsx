@@ -264,7 +264,8 @@ module TestMessages =
     let invalidTags =
         [   
             {Key = "some key"; Value = Some "some value"}
-            {Key = "some.key"; Value = Some "some\rvalue"}
+            {Key = "some key"; Value = Some "some\rvalue"}
             {Key = "some@key"; Value = Some "some\nvalue"}
             {Key = "some;key"; Value = Some "some;value"}
+            {Key = ""; Value = Some "some@value"}
         ]   

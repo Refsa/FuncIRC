@@ -156,5 +156,5 @@ module ValidatorsTests =
         invalidTags
         |> List.iter
             (fun tag ->
-                (validateTagKey clientData tag.Key) |> AssertTrue <| ("Tag key " + tag.Key + " should be invalid")
+                (validateTagKey clientData tag.Key) |> AssertFalse <| ("Tag key " + tag.Key + " should be invalid")
             )
