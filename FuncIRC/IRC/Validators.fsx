@@ -1,5 +1,6 @@
 #load "../ConnectionClient/IRCClientData.fsx"
 #load "../Utils/RegexHelpers.fsx"
+#load "../Utils/StringHelpers.fsx"
 #load "MessageTypes.fsx"
 
 namespace FuncIRC
@@ -7,6 +8,7 @@ namespace FuncIRC
 module Validators =
     open System
     open RegexHelpers
+    open StringHelpers
     open IRCClientData
     open MessageTypes
 
@@ -39,7 +41,14 @@ module Validators =
 
     /// Validates a Source
     let validateSource (clientData: IRCClientData) (source: Source) =
-        false
+        let hostname = stringFromStringOption source.Host
+        let nick = stringFromStringOption source.Nick
+        let user = stringFromStringOption source.User
+
+        validateHostname clientData hostname &&
+        validateNick clientData nick &&
+        validateUser clientData user 
+
 //#endregion Source related
 
     /// Validates the topic string
