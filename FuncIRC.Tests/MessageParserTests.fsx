@@ -104,19 +104,6 @@ module MessageParserTests =
         System.Console.WriteLine ("parseMessageString used " + average.ToString() + " ticks per message")
 
     [<Test>]
-    let ``hostname validator should filter out invalid hostnames``() =
-        hostnameTests
-        |> List.iter
-            (fun hn ->
-                let result = (validateHostname hn.Hostname) = hn.Valid
-
-                if not result then
-                    printfn "Hostname %s was supposed to be %b" hn.Hostname hn.Valid
-
-                Assert.True(result)
-            )
-
-    [<Test>]
     let ``Check that parseByteString can parse both UTF8 and Latin1 byte streams``() =
         let testString = "this is a test string"
         let utf8Encoded = utf8Encoding.GetBytes (testString)

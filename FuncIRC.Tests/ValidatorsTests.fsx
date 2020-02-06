@@ -1,12 +1,15 @@
 #r "../FuncIRC/bin/Debug/netstandard2.0/FuncIRC.dll"
 #load "../.paket/load/netstandard2.0/NUnit.fsx"
 #load "NUnitTestHelpers.fsx"
+#load "TestMessages.fsx"
 
 namespace FuncIRC.Tests
 
 open NUnit
 open NUnit.Framework
 open NUnitTestHelpers
+
+open TestMessages
 
 open FuncIRC.IRCMessages
 open FuncIRC.IRCClientData
@@ -97,3 +100,24 @@ module ValidatorsTests =
 
         (validateTopic clientData invalidTopic1) |> AssertFalse <| "invalidTopic1 didnt catch empty topic"
         (validateTopic clientData invalidTopic2) |> AssertFalse <| "invalidTopic2 didnt catch too long topic length"
+
+    /// validateHostname tests
+    [<Test>]
+    let ``validateHostname should filter out invalid hostnames``() =
+        let clientData = IRCClientData()
+
+        hostnameTests
+        |> List.iter
+            (fun hn ->
+                let result = (validateHostname clientData hn.Hostname) = hn.Valid
+
+                if not result then
+                    printfn "Hostname %s was supposed to be %b" hn.Hostname hn.Valid
+
+                Assert.True(result)
+            )
+
+    /// validateSource tests
+    [<Test>]
+    let ``validateSource should validate Source record based on information in IRCClientData``()=
+        Assert.Pass()
