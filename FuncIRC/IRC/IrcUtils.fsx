@@ -19,6 +19,7 @@ module internal IrcUtils =
     let spaceCharacter = char "\u0020"
     let nulCharacter = char "\u0000"
     let bellCharacter = char "\u0008"
+    let commaCharacter = char "\u002C"
 
     let regularChannelMarker = "#"
     let localChannelMarker = "&"

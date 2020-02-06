@@ -179,3 +179,6 @@ module IRCMessages =
         | false -> 
             createAwayMessage message |> clientData.AddOutMessage
             true
+
+    let sendListMessage (clientData: IRCClientData) (message: string) =
+        ()

@@ -51,17 +51,19 @@ module Validators =
         validateUser clientData user 
 //#endregion Source related
 
+    let private invalidTagKeyCharacters = [| '/'; '-'; '.' |]
+
     /// Validates a key of a tag
     let validateTagKey (clientData: IRCClientData) (key: string) =
         match key with
         | "" -> false
         | _ when key.Length > clientData.GetServerInfo.MaxKeyLength -> false
-        | _ when not (stringIsOnlyAlphaNumericExcept key [| '/'; '-'; '.' |]) -> false
+        | _ when not (stringIsOnlyAlphaNumericExcept key invalidTagKeyCharacters) -> false
         | _ -> true
 
-    /// Validates the value of a tag
     let private invalidTagValueCharacters = [| crCharacter; lfCharacter; ';'; ' '; nulCharacter; bellCharacter; spaceCharacter |]
 
+    /// Validates the value of a tag
     let validateTagValue (clientData: IRCClientData) (value: string) =
         match value with
         | _ when value.Length > clientData.GetServerInfo.MaxKeyLength -> false
@@ -90,3 +92,6 @@ module Validators =
 
         if Map.containsKey channelPrefix clientData.GetServerInfo.ChannelPrefixes |> not then false
         else true
+
+    let validateChannelsString (clientData: IRCClientData) (channelsString: string) =
+        ()

@@ -205,6 +205,7 @@ module ValidatorsTests =
         (validateTagValue clientData validLongValue) |> AssertTrue <| "Long Value of Tag within ServerInfo.MaxKeyLength should be valid"
         (validateTagValue clientData invalidLongValue) |> AssertFalse <| "Value of Tag longer than ServerInfo.MaxKeyLength should be invalid"
 
+    /// validateMessageString tests
     [<Test>]
     let ``validateMessageString should check if length of string is within line length of IRCServerInfo``() =
         let clientData = IRCClientData()
@@ -214,3 +215,29 @@ module ValidatorsTests =
 
         (validateMessageString clientData validMessageString) |> AssertTrue <| "Message string should be valid under the line length limit"
         (validateMessageString clientData invalidMessageString) |> AssertFalse <| "Message string should be invalid above the line length limit"
+
+
+    /// validateListMessage tests
+    [<Test>]
+    let ``validateListMessage should check how many channels were requested information from``() =
+        let clientData = IRCClientData()
+
+        let validListMessage1 = "#channel1"
+        let validListMessage2 = "#channel1,#channel2,#channel3"
+
+        let invalidListMessage1 = "#channel1,#channel2,#channel3,#channel4,#channel5,#channel1,#channel2,#channel3,#channel4,#channel5,#channel1,#channel2,#channel3,#channel4,#channel5,#channel1,#channel2,#channel3,#channel4,#channel5"
+        
+        (validateChannelsString clientData validListMessage1) |> AssertTrue <| "validListMessage1 should be validated successfully"
+        (validateChannelsString clientData validListMessage2) |> AssertTrue <| "validListMessage2 should be validated successfully"
+
+        (validateChannelsString clientData invalidListMessage1) |> AssertFalse <| "invalidListMessage1 should not be validated"
+
+    [<Test>]
+    let ``validateListMessage should check the channel prefix of each channel given``() =
+        let clientData = IRCClientData()
+
+        let invalidListMessage1 = "@channel1,#channel2"
+        let invalidListMessage2 = "#channel1,@channel2"
+
+        (validateChannelsString clientData invalidListMessage1) |> AssertFalse <| "invalidListMessage1 should not be validated"
+        (validateChannelsString clientData invalidListMessage2) |> AssertFalse <| "invalidListMessage2 should not be validated"
