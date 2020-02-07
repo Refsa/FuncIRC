@@ -1,8 +1,5 @@
-#load "TLSCert.fsx"
-
 namespace FuncIRC
 
-open TLSCert
 open System
 open System.Net.Sockets
 open System.Net.Security

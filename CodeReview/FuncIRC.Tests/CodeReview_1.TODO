@@ -1,0 +1,22 @@
+# TestMessages:
+    - Serialize test messages to JSON to clean it up
+
+# ServerFeaturesHandlerTests:
+    - 
+
+# NUnitTestHelpers:
+    -
+
+# MessageParserTests:
+    - 
+
+# MessageHandlerTests:
+    - Add better function names for tests in Channel messages region
+
+# IRCMessagesTests:
+    - 
+
+# ErrorNumericsHandlerTests:
+    - Add better function names for test cases, not currently describing their functionality which makes it hard to follow failed test cases
+
+    

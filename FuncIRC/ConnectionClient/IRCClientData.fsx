@@ -41,7 +41,7 @@ module IRCClientData =
 
 //#region private members
         /// Messages from the outbound message queue
-        member private this.OutQueue    = outQueue
+        member private this.OutQueue = outQueue
 //#endregion
 
 //#region internal members
@@ -49,7 +49,7 @@ module IRCClientData =
         /// CancellationTokenSource for internal tasks
         member internal this.TokenSource = tokenSource
         /// CancellationToken from this.TokenSource
-        member internal this.Token       = tokenSource.Token
+        member internal this.Token = tokenSource.Token
         /// User info of the connected client
         member internal this.SetUserInfoSelf userInfo = userInfoSelf <- Some userInfo
         /// Server info
