@@ -19,11 +19,14 @@
     <Compile Include="IRC/Parsers/MessageParser.fsx" />
 
     <Compile Include="Networking/ConnectionClient.fsx" />
+
+    <Compile Include="IRC/Types/IRCInformation.fsx" />
     <Compile Include="Utils/MessageQueue.fsx" />
     <Compile Include="Client/IRCClientData.fsx" />
     
     <Compile Include="Networking/IRCClient.fsx" />
     <Compile Include="Client/IRCMessages.fsx" />
+
     <Compile Include="IRC/Handlers/ServerFeaturesHandler.fsx" />
     <Compile Include="IRC/Handlers/MessageHandlers.fsx" />
     <Compile Include="IRC/Handlers/ErrorNumericsHandlers.fsx" />

@@ -1,3 +1,6 @@
+#load "IRCStreamReader.fsx"
+#load "IRCStreamWriter.fsx"
+
 namespace FuncIRC
 
 open System.Threading

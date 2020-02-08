@@ -1,4 +1,4 @@
-#load "../Utils/StringHelpers.fsx"
+#load "../../Utils/StringHelpers.fsx"
 
 namespace FuncIRC
 

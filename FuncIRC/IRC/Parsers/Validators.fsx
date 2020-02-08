@@ -1,8 +1,8 @@
-#load "../ConnectionClient/IRCClientData.fsx"
-#load "../Utils/RegexHelpers.fsx"
-#load "../Utils/StringHelpers.fsx"
-#load "MessageTypes.fsx"
-#load "IrcUtils.fsx"
+#load "../../Client/IRCClientData.fsx"
+#load "../../Utils/RegexHelpers.fsx"
+#load "../../Utils/StringHelpers.fsx"
+#load "../../Utils/IrcUtils.fsx"
+#load "../Types/MessageTypes.fsx"
 
 namespace FuncIRC
 
