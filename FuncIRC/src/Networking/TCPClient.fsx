@@ -6,7 +6,7 @@ open System.Net.Security
 open System.Security.Authentication
 open System.Security.Cryptography.X509Certificates
 
-module internal ConnectionClient =
+module internal TCPClient =
     exception ClientConnectionException
 
     let inline validateCertCallback cb = new RemoteCertificateValidationCallback(cb)

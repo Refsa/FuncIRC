@@ -6,33 +6,35 @@
     <DebugType>portable</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="IRC/Modes.fsx" />
-    <Compile Include="IRC/NumericReplies.fsx" />
-    <Compile Include="IRC/MessageTypes.fsx" />
+    <Compile Include="src/IRC/Types/Modes.fsx" />
+    <Compile Include="src/IRC/Types/NumericReplies.fsx" />
+    <Compile Include="src/IRC/Types/MessageTypes.fsx" />
 
-    <Compile Include="Utils/StringHelpers.fsx" />
-    <Compile Include="Utils/RegexHelpers.fsx" />
-    <Compile Include="Utils/GeneralHelpers.fsx" />
+    <Compile Include="src/Utils/StringHelpers.fsx" />
+    <Compile Include="src/Utils/RegexHelpers.fsx" />
+    <Compile Include="src/Utils/GeneralHelpers.fsx" />
+    <Compile Include="src/Utils/IrcUtils.fsx" />
 
-    <Compile Include="IRC/Validators.fsx" />
-    <Compile Include="IRC/IrcUtils.fsx" />
-    <Compile Include="IRC/MessageParser.fsx" />
+    <Compile Include="src/IRC/Parsers/Validators.fsx" />
+    <Compile Include="src/IRC/Parsers/MessageParser.fsx" />
 
-    <Compile Include="ConnectionClient/TLSCert.fsx" />
-    <Compile Include="ConnectionClient/ConnectionClient.fsx" />
-    <Compile Include="ConnectionClient/MessageQueue.fsx" />
-    <Compile Include="ConnectionClient/IRCClientData.fsx" />
+    <Compile Include="src/Networking/TCPClient.fsx" />
+
+    <Compile Include="src/IRC/Types/IRCInformation.fsx" />
+    <Compile Include="src/Utils/MessageQueue.fsx" />
+    <Compile Include="src/Client/IRCClientData.fsx" />
     
-    <Compile Include="ConnectionClient/IRCClient.fsx" />
-    <Compile Include="ConnectionClient/IRCMessages.fsx" />
-    <Compile Include="ConnectionClient/ServerFeaturesHandler.fsx" />
-    <Compile Include="IRC/MessageHandlers.fsx" />
-    <Compile Include="IRC/ErrorNumericsHandlers.fsx" />
+    <Compile Include="src/Networking/IRCClient.fsx" />
+    <Compile Include="src/Client/IRCMessages.fsx" />
+
+    <Compile Include="src/IRC/Handlers/ServerFeaturesHandler.fsx" />
+    <Compile Include="src/IRC/Handlers/MessageHandlers.fsx" />
+    <Compile Include="src/IRC/Handlers/ErrorNumericsHandlers.fsx" />
     
-    <Compile Include="ConnectionClient/IRCStreamReader.fsx" />
-    <Compile Include="ConnectionClient/IRCStreamWriter.fsx" />
+    <Compile Include="src/Networking/IRCStreamReader.fsx" />
+    <Compile Include="src/Networking/IRCStreamWriter.fsx" />
     
-    <Compile Include="ClientSetup.fsx" />
+    <Compile Include="src/Client/ClientSetup.fsx" />
 
     <None Include="FuncIRC.fsx" />
 

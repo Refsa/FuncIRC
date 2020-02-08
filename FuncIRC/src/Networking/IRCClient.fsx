@@ -1,15 +1,11 @@
-#load "ConnectionClient.fsx"
-#load "Subscription.fsx"
-#load "../IRC/MessageTypes.fsx"
-#load "IRCClientData.fsx"
-#load "MessageQueue.fsx"
 #load "IRCStreamReader.fsx"
 #load "IRCStreamWriter.fsx"
 
 namespace FuncIRC
+
 open System.Threading
 open System.Threading.Tasks
-open ConnectionClient
+open TCPClient
 open IRCClientData
 open IRCStreamReader
 open IRCStreamWriter

@@ -9,7 +9,6 @@
     - Separate internal parts into own files and sub-folders
     - Put API specific files into their own folder
 
-
 # Validators.fsx
     - Wrap values passed to functions in a single case DUs
 

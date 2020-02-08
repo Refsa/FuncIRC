@@ -21,19 +21,19 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Include="TestMessages.fsx" />
-        <Compile Include="MessageParserTests.fsx" />
-        <Compile Include="MessageHandlerTests.fsx" />
-        <Compile Include="ErrorNumericsHandlerTests.fsx" />
-        <Compile Include="ValidatorsTests.fsx" />
-        <Compile Include="ServerFeaturesHandlerTests.fsx" />
-        <Compile Include="IRCMessagesTests.fsx" />
-        
-        <Compile Include="PerformanceTests/MessageParser.performance.fsx" />
+        <Compile Include="src/Utils/TestMessages.fsx" />
+        <Compile Include="src/Utils/NUnitTestHelpers.fsx" />
 
-        <Compile Include="ConnectionClientTests.fsx" />
+        <Compile Include="src/Parsers/MessageParserTests.fsx" />
+        <Compile Include="src/Parsers/ValidatorsTests.fsx" />
 
-        <Compile Include="FuncIRCTests.fsx" />
+        <Compile Include="src/Handlers/MessageHandlerTests.fsx" />
+        <Compile Include="src/Handlers/ErrorNumericsHandlerTests.fsx" />
+        <Compile Include="src/Handlers/ServerFeaturesHandlerTests.fsx" />
+
+        <Compile Include="src/Client/IRCMessagesTests.fsx" />
+        <Compile Include="src/Client/TCPClientTests.fsx" />
+
         <Compile Include="Program.fsx" />
     </ItemGroup>
 

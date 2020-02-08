@@ -1,6 +1,6 @@
-#load "MessageQueue.fsx"
-#load "IRCInformation.fsx"
-#load "../IRC/MessageTypes.fsx"
+#load "../Utils/MessageQueue.fsx"
+#load "../IRC/Types/IRCInformation.fsx"
+#load "../IRC/Types/MessageTypes.fsx"
 
 namespace FuncIRC
 

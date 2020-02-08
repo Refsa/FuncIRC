@@ -1,10 +1,8 @@
 #load "../IRC/MessageTypes.fsx"
-#load "ConnectionClient.fsx"
 
 namespace FuncIRC
 
 open MessageTypes
-open ConnectionClient
 open System
 
 module IRCInformation =

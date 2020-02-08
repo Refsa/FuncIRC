@@ -1,4 +1,4 @@
-#load "ConnectionClient.fsx"
+#load "TCPClient.fsx"
 #load "IRCClientData.fsx"
 #load "../IRC/MessageParser.fsx"
 #load "../IRC/MessageParserInternals.fsx"
@@ -9,7 +9,7 @@
 
 namespace FuncIRC
 
-open ConnectionClient
+open TCPClient
 open System.Diagnostics
 open MessageParser
 open MessageParserInternals

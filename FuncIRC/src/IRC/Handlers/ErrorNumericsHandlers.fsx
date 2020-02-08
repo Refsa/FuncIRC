@@ -1,4 +1,4 @@
-#load "../ConnectionClient/IRCClientData.fsx"
+#load "../TCPClient/IRCClientData.fsx"
 #load "../Utils/RegexHelpers.fsx"
 #load "MessageTypes.fsx"
 #load "MessageParserInternals.fsx"

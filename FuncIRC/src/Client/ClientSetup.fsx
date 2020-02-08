@@ -1,7 +1,7 @@
-#load "ConnectionClient/IRCClient.fsx"
-#load "ConnectionClient/IRCClientData.fsx"
-#load "ConnectionClient/IRCStreamReader.fsx"
-#load "ConnectionClient/IRCStreamWriter.fsx"
+#load "TCPClient/IRCClient.fsx"
+#load "TCPClient/IRCClientData.fsx"
+#load "TCPClient/IRCStreamReader.fsx"
+#load "TCPClient/IRCStreamWriter.fsx"
 #load "IRC/MessageTypes.fsx"
 #load "IRC/MessageHandlers.fsx"
 

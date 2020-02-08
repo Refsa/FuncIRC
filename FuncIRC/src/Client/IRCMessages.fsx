@@ -1,9 +1,10 @@
 #load "IRCClientData.fsx"
-#load "MessageQueue.fsx"
-#load "../IRC/MessageTypes.fsx"
-#load "../IRC/Validators.fsx"
-#load "../IRC/NumericReplies.fsx"
-#load "../IRC/MessageHandlers.fsx"
+#load "../Utils/MessageQueue.fsx"
+#load "../IRC/Types/MessageTypes.fsx"
+#load "../IRC/Types/NumericReplies.fsx"
+#load "../IRC/Types/IRCInformation.fsx"
+#load "../IRC/Parsers/Validators.fsx"
+#load "../IRC/Handlers/MessageHandlers.fsx"
 
 namespace FuncIRC
 
@@ -13,6 +14,7 @@ open MessageHandlers
 open MessageQueue
 open NumericReplies
 open Validators
+open IRCInformation
 
 module IRCMessages =
     /// Exception thrown when parameters to a registration message was missing
