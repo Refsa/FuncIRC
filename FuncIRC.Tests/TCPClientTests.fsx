@@ -4,13 +4,13 @@
 namespace FuncIRC.Tests
 open System.Text
 
-module ConnectionClientTests =
+module TCPClientTests =
     open NUnit.Framework
     open FuncIRC.StringHelpers
     open FuncIRC.MessageTypes
 
     [<Test>]
-    let ``Check that ConnectionClient can establish TCP connection``() =
+    let ``Check that TCPClient can establish TCP connection``() =
         //startClient()
         Assert.True (true)
 

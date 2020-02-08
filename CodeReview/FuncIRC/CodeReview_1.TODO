@@ -5,7 +5,7 @@
 
     ## Proposed Solutions:
     - Separate Types into their own files and sub-folders
-    - Rename ConnectionClient to TCPClient to better reflect its content
+    - Rename TCPClient to TCPClient to better reflect its content
     - Separate internal parts into own files and sub-folders
     - Put API specific files into their own folder
 
@@ -16,7 +16,7 @@
     ## Proposed Solutions:
     - Look into using [<Measure>] attribute
 
-# ConnectionClient.fsx::TCPClient
+# TCPClient.fsx::TCPClient
     - Change from using ref to mutables. ref isn't really a necessary structure to use anymore.
     - Make Connect work as an async task so it doesnt block the calling thread
     - Look into refactoring into a Record type, but might not be needed as it's a create once type of object

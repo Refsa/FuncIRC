@@ -1,4 +1,4 @@
-#load "ConnectionClient.fsx"
+#load "TCPClient.fsx"
 #load "../Utils/MessageQueue.fsx"
 #load "../Client/IRCClientData.fsx"
 #load "../IRC/Types/NumericReplies.fsx"
@@ -7,7 +7,7 @@
 
 namespace FuncIRC
 
-open ConnectionClient
+open TCPClient
 open IRCClientData
 open MessageHandlers
 open MessageTypes

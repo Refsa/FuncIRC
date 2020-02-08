@@ -5,7 +5,7 @@ namespace FuncIRC
 
 open System.Threading
 open System.Threading.Tasks
-open ConnectionClient
+open TCPClient
 open IRCClientData
 open IRCStreamReader
 open IRCStreamWriter

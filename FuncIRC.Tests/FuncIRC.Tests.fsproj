@@ -31,7 +31,7 @@
         
         <Compile Include="PerformanceTests/MessageParser.performance.fsx" />
 
-        <Compile Include="ConnectionClientTests.fsx" />
+        <Compile Include="TCPClientTests.fsx" />
 
         <Compile Include="FuncIRCTests.fsx" />
         <Compile Include="Program.fsx" />
