@@ -1,0 +1,115 @@
+
+# General:
+    - Project structure needs abit of rework
+    - Some files are in the wrong place others can be further split into sub-folders
+
+    ## Proposed Solutions:
+    - Separate Types into their own files and sub-folders
+    - Rename ConnectionClient to TCPClient to better reflect its content
+    - Separate internal parts into own files and sub-folders
+    - Put API specific files into their own folder
+
+
+# Validators.fsx
+    - Wrap values passed to functions in a single case DUs
+
+    ## Proposed Solutions:
+    - Look into using [<Measure>] attribute
+
+# ConnectionClient.fsx::TCPClient
+    - Change from using ref to mutables. ref isn't really a necessary structure to use anymore.
+    - Make Connect work as an async task so it doesnt block the calling thread
+    - Look into refactoring into a Record type, but might not be needed as it's a create once type of object
+        Could also be useful to be able to store as a null value which is only possible with class
+
+# IRCClientData.fsx::IRCClientData
+    - MessageQueue should be replaced my MailboxProcessor
+    - Add XML Comments on the externally accessible members
+    - the mutable fields needs to be thread safe
+    - Add static typing of Event fields?
+
+# IRCInformation:
+    - Clean up IRCServerInfo, encapsulate values related to server features in its own Record
+    - Add comments to fields of IRCServerInfo so relevant information can be displayed in field info popup
+    - Move default constructors to their own file, or create separate files/modules for each of the record types
+
+# IRCClient.fsx:
+    - ircClient should take seperate values as parameters instead of a tuple?
+    - Thread.Sleep after the CancellationTokenSource for the threads is cancelled is using a magic number
+    - Not guaranteed that readStream/writeStream tasks are disposing correctly
+
+# IRCStreamReader.fsx:
+    - As mentioned, this should be using MailboxProcessor
+    - Not guaranteed that every IRC server sends their messages as octets
+    - Letting the receivedDataHandler parse the message could be a place of confusion. Might be better to run that in a separate function.
+    - No warning or special handling when an incoming string could not be parsed to a message
+    - Making a value to hold how many bytes are read from the stream could remove uncertainty about how it currently works
+    - Read thread is responsible for parsing and running the handler functions. With a lot of incoming messages 
+        this could lead to an unecessary delay/large incoming buffer from server
+    - Checking if the CancellationTokenSource Token is cancelled after each byte could lead to bad performance
+    - Catch all exception handling in readStream::readLoop
+
+# IRCStreamWriter.fsx:
+    - Make sendIRCMessage private as messages should be sent through IRCClientData::OutQueue
+    - Catch all exception in sendIRCMessage
+    - The way outbound messages are fetched from IRCClientData could lead to a race condition, MailboxProcessor will solve this
+    - No error reporting when trying to send empty string, it's handled but should be able to give some user feedback
+    - Checking if CancellationTokenSource is cancelled after each message sent could be less performant is some use cases
+
+# MessageQueue.fsx:
+    - No semaphore to protect internal state
+    - Should be refactored to using MailboxProcessor
+
+# IRCMessages.fsx:
+    - Internal message constructors should be moved to their own file
+    - sendRegistrationMessage should not raise an exception when too few parameters were passed to it?
+    - The different sendMessage functions are probably not interoperable with C# as they stand
+
+# ServerFeaturesHandler.fsx:
+    - Might be more performant to create and instantiate a factory function and pass the featureHandler in by currying it
+    - It is not updating IRCClientData with information in a thread-safe way
+    - Avoid using printfn in serverFeaturesHandler to warn that a feature isn't supported
+    - A factory function should make it easier to extend functionality externally
+    - chanLimitFeatureHandler is a bit unclear on how it functions, find a cleaner way to do the second part (chanLimitFeatureHandler::buildChannelPrefixes)
+
+
+# ErrorNumericsHandler.fsx
+    - No way to extend handling of new error numerics externally, should probably move to a module based system
+    - Only difference between the functions is the message they send to the ErrorNumericReceivedTrigger so there are better ways to handle this
+
+# IrcUtils.fsx:
+    - Nothing in particular, but could have comments to delimit and group the different parts of it.
+
+# MessageHandlers.fsx:
+    - Needs some cleanup of comments and structure
+        - Move functions that are empty to their own section
+        - currentUsersRegex and maxUsersRegex should be moved to IrcUtils
+        - pongMessageHandler > pingMessageHandler
+        - A lot of the functions are lacking comments even though they are directly named after the Numeric reply they handle
+    - dateTimeRegex only works for one specific DateTime format
+    - Functions aren't updating IRCClientData in a thread-safe way
+
+# MessageParser.fsx:
+    - Nothing in particular, XML documentation
+
+# MessageParserInternals.fsx:
+    - Move the regex values to IrcUtils.fsx or make them private
+    - names of extractTags, extractSource and extractCommand does not reflect their use-case
+    - parseTags could probably be split up into two functions to avoid indendation hell
+    - parseSource is a bit unreadable
+        - Active Pattern to parse the source parts could also handle returning the values
+    - move Active Patterns to their own file, create DU wrappers for the values they take
+    - messageSplit could be hard to decipher in the future. There should be better way to structure it more clearly.
+        - The comments makes it clear what order it should execute, but it's still due for a refactoring
+
+# MessageTypes.fsx:
+    - Move method implementations for the structures to their own file
+    - Move functions that digests the structures to their own file
+    - some of the ToString methods should make use of stringFromStringOption helper function in StringHelpers.fsx
+
+# GeneralHelpers.fsx:
+    - Move string helpers to StringHelpers.fsx
+
+# RegexHelpers.fsx:
+    - Add comments to functions and Active Patterns
+    - Clear up the namings of the functions to better reflect functionality
