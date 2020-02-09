@@ -45,10 +45,7 @@ module IRCClient =
             let tcpClient = (ircClientHandler clientData client)
             // Read Stream
             let readStream = (readStream clientData client)
-            // Write Stream
-            //let writeStream = (writeStream clientData client)
 
-            //let asParallel = Async.Parallel([tcpClient; readStream; writeStream], 3)
             let asParallel = Async.Parallel([tcpClient; readStream], 2)
             Async.StartAsTask(asParallel, TaskCreationOptions(), clientData.Token) |> ignore
 
