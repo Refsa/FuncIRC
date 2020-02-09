@@ -1,4 +1,4 @@
-#load "IRCClientData.fsx"
+#load "IRCClient.fsx"
 #load "../Utils/MessageQueue.fsx"
 #load "../IRC/Types/MessageTypes.fsx"
 #load "../IRC/Types/NumericReplies.fsx"
@@ -8,7 +8,7 @@
 
 namespace FuncIRC
 
-open IRCClientData
+open IRCClient
 open MessageTypes
 open MessageHandlers
 open MessageQueue
@@ -92,7 +92,7 @@ module IRCMessages =
     /// Creates a registration message and sends it to the outbound message queue
     /// Subscribes to incoming VERBs related to the registration message
     /// <param name="loginData"> tuple formatted as nick, user, realName, pass </param>
-    let sendRegistrationMessage (clientData: IRCClientData) (loginData: string * string * string * string) =
+    let sendRegistrationMessage (clientData: IRCClient) (loginData: string * string * string * string) =
         let messages = 
             match loginData with
             | InvalidLoginData -> raise RegistrationContentException
@@ -124,7 +124,7 @@ module IRCMessages =
 
     /// Creates a JOIN message to join a channel
     /// <returns> True if the message was added to the outbound message, false if not </returns>
-    let sendJoinMessage (clientData: IRCClientData) (channel: string) =
+    let sendJoinMessage (clientData: IRCClient) (channel: string) =
         match validateChannel clientData channel with
         | false -> false
         | true -> 
@@ -134,7 +134,7 @@ module IRCMessages =
     /// Creates a PRIVMSG with channel as target using the given message
     /// TODO: Remove if branches
     /// <returns> True if the message was added to the outbound message, false if not </returns>
-    let sendChannelPrivMsg (clientData: IRCClientData) (channel: string) (message: string) =
+    let sendChannelPrivMsg (clientData: IRCClient) (channel: string) (message: string) =
         if      message = "" then false
         else if message.Length > (clientData.GetServerInfo.LineLength - clientData.GetServerInfo.MaxHostLength) then false
         else
@@ -148,7 +148,7 @@ module IRCMessages =
     /// Creates a kick message and adds it to the outbound messages
     /// TODO: Remove if branches
     /// <returns> True if the message was added to the outbound message, false if not </returns>
-    let sendKickMessage (clientData: IRCClientData) (kickUser: string) (message: string) =
+    let sendKickMessage (clientData: IRCClient) (kickUser: string) (message: string) =
         if validateUser clientData kickUser |> not then false
         else if message = "" || message.Length > clientData.GetServerInfo.MaxKickLength then false
         else
@@ -158,7 +158,7 @@ module IRCMessages =
 
     /// Creates a topic message and adds it to the outbound messages
     /// <returns> True if the message was added to the outbound message, false if not </returns>
-    let sendTopicMessage (clientData: IRCClientData) (topic: string) =
+    let sendTopicMessage (clientData: IRCClient) (topic: string) =
         match validateTopic clientData topic with
         | false -> false
         | true ->
@@ -167,7 +167,7 @@ module IRCMessages =
 
     /// Creates a QUIT messages and adds it to the outbound message queue
     /// <returns> True if the message was added to outqueue, false if not </returns>
-    let sendQuitMessage (clientData: IRCClientData) (message: string) =
+    let sendQuitMessage (clientData: IRCClient) (message: string) =
         match message.Length > 200 with
         | true -> false
         | false ->
@@ -176,7 +176,7 @@ module IRCMessages =
 
     /// Creates an AWAY messages and adds it to the outboid message queue if the length of the message was within bounds
     /// <returns> True if the message was added to outqueue, false if not </returns>
-    let sendAwayMessage (clientData: IRCClientData) (message: string) =
+    let sendAwayMessage (clientData: IRCClient) (message: string) =
         match message.Length > clientData.GetServerInfo.MaxAwayLength with
         | true  -> false
         | false -> 
@@ -184,5 +184,5 @@ module IRCMessages =
             true
 
     /// NotImplemented
-    let sendListMessage (clientData: IRCClientData) (message: string) =
+    let sendListMessage (clientData: IRCClient) (message: string) =
         raise (System.NotImplementedException("sendListMessage is not implemented"))

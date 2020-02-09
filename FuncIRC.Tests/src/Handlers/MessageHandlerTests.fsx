@@ -7,13 +7,13 @@ namespace NUnit.Framework
 
 module MessageHandlerTests =
     open System
-    open FuncIRC.IRCClientData
+    open FuncIRC.IRCClient
     open FuncIRC.MessageTypes
     open FuncIRC.IRCInformation
     open FuncIRC.MessageHandlers
     open FuncIRC.GeneralHelpers
 
-    let ircClientData(): IRCClientData = IRCClientData()
+    let ircClientData(): IRCClient = IRCClient()
 
     let newVerbNameMessage verbName = Message.NewSimpleMessage (Some (Verb verbName)) None
 
@@ -59,7 +59,7 @@ module MessageHandlerTests =
 
     /// RPL_CREATED tests
     [<Test>]
-    let ``RPL_CREATED handler should update server info in IRCClientData with creation date``() =
+    let ``RPL_CREATED handler should update server info in IRCClient with creation date``() =
         let clientData = ircClientData()
         let testParams = "This server was created 23:25:21 Jan 24 2020"
         let parameters = Some (toParameters [|"Nick"; testParams|])
@@ -99,7 +99,7 @@ module MessageHandlerTests =
         serverFeatureContentEquals
 
     [<Test>]
-    let ``RPL_ISUPPORT handler should append the incoming parameters to IRCServerFeatures on IRCClientData``() =
+    let ``RPL_ISUPPORT handler should append the incoming parameters to IRCServerFeatures on IRCClient``() =
         // wanted outcome of RPL_ISUPPORT handler
         let wantedFeatures1 = 
             [| 
@@ -195,7 +195,7 @@ module MessageHandlerTests =
 
     /// RPL_LOCALUSERS tests
     [<Test>]
-    let ``RPL_LOCALUSERS handler should update server info on IRCClientData with local users info``() =
+    let ``RPL_LOCALUSERS handler should update server info on IRCClient with local users info``() =
         let clientData = ircClientData()
         let parameters = Some (toParameters [|"Nick"; "Current local users: 1  Max: 10"|])
         let verb = Some (Verb "RPL_LOCALUSERS")
@@ -210,7 +210,7 @@ module MessageHandlerTests =
 
     /// RPL_GLOBALUSERS tests
     [<Test>]
-    let ``RPL_GLOBALUSERS handler should update server info on IRCClientData with global users info``() =
+    let ``RPL_GLOBALUSERS handler should update server info on IRCClient with global users info``() =
         let clientData = ircClientData()
         let parameters = Some (toParameters [|"Nick"; "Current global users: 1  Max: 10"|])
         let verb = Some (Verb "RPL_GLOBALUSERS")
@@ -250,7 +250,7 @@ module MessageHandlerTests =
         Assert.AreEqual (clientData.GetUserInfoSelf, None)
 
     [<Test>]
-    let ``RPL_MOTD handler should update MOTD content of IRCClientData with all the received MOTD message lines``() =
+    let ``RPL_MOTD handler should update MOTD content of IRCClient with all the received MOTD message lines``() =
         let clientData = ircClientData()
         let verb = Some (Verb "RPL_MOTD")
 

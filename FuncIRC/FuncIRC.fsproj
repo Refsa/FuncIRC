@@ -25,9 +25,9 @@
 
     <Compile Include="src/Networking/IRCStreamWriter.fsx" />
 
-    <Compile Include="src/Client/IRCClientData.fsx" />
+    <Compile Include="src/Client/IRCClient.fsx" />
 
-    <Compile Include="src/Networking/IRCClient.fsx" />
+    <Compile Include="src/Networking/IRCClientHandler.fsx" />
     <Compile Include="src/Client/IRCMessages.fsx" />
     
     <Compile Include="src/IRC/Handlers/ServerFeatureHandlers.fsx" />

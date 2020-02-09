@@ -1,4 +1,4 @@
-#load "../../Client/IRCClientData.fsx"
+#load "../../Client/IRCClient.fsx"
 #load "../../Utils/RegexHelpers.fsx"
 #load "../../Utils/StringHelpers.fsx"
 #load "../../Utils/IrcUtils.fsx"
@@ -14,14 +14,14 @@ module Validators =
     open System
     open RegexHelpers
     open StringHelpers
-    open IRCClientData
+    open IRCClient
     open MessageTypes
     open IrcUtils
 
 //#region Source related
     /// Validates the hostname part of a Source
     /// <returns> true if it was valid </returns>
-    let validateHostname (clientData: IRCClientData) (hostname: string) =
+    let validateHostname (clientData: IRCClient) (hostname: string) =
         match hostname with
         | "" -> false
         | _ when hostname.IndexOf('.') <> -1 -> 
@@ -33,7 +33,7 @@ module Validators =
 
     /// Validates the nick string
     /// <returns> true if it was valid </returns>
-    let validateNick (clientData: IRCClientData) (nick: string) =
+    let validateNick (clientData: IRCClient) (nick: string) =
         if      nick = "" then false
         else if nick.IndexOf (' ') <> -1 then false
         else if nick.Length > clientData.GetServerInfo.MaxNickLength then false
@@ -41,7 +41,7 @@ module Validators =
 
     /// Validates the user string
     /// <returns> true if it was valid </returns>
-    let validateUser (clientData: IRCClientData) (user: string) =
+    let validateUser (clientData: IRCClient) (user: string) =
         if      user = "" then false
         else if user.IndexOf (' ') <> -1 then false
         else if user.Length > clientData.GetServerInfo.MaxUserLength then false
@@ -49,7 +49,7 @@ module Validators =
 
     /// Validates a Source
     /// <returns> true if it was valid </returns>
-    let validateSource (clientData: IRCClientData) (source: Source) =
+    let validateSource (clientData: IRCClient) (source: Source) =
         let hostname = stringFromStringOption source.Host
         let nick = stringFromStringOption source.Nick
         let user = stringFromStringOption source.User
@@ -63,7 +63,7 @@ module Validators =
 
     /// Validates a key of a tag
     /// <returns> true if it was valid </returns>
-    let validateTagKey (clientData: IRCClientData) (key: string) =
+    let validateTagKey (clientData: IRCClient) (key: string) =
         match key with
         | "" -> false
         | _ when key.Length > clientData.GetServerInfo.MaxKeyLength -> false
@@ -74,7 +74,7 @@ module Validators =
 
     /// Validates the value of a tag
     /// <returns> true if it was valid </returns>
-    let validateTagValue (clientData: IRCClientData) (value: string) =
+    let validateTagValue (clientData: IRCClient) (value: string) =
         match value with
         | _ when value.Length > clientData.GetServerInfo.MaxKeyLength -> false
         | _ when not (stringDoesNotContain value invalidTagValueCharacters) -> false
@@ -82,21 +82,21 @@ module Validators =
 
     /// Validate length of message string
     /// <returns> true if it was valid </returns>
-    let validateMessageString (clientData: IRCClientData) (message: string) =
+    let validateMessageString (clientData: IRCClient) (message: string) =
         match message with
         | _ when message.Length > clientData.GetServerInfo.LineLength -> false
         | _ -> true
 
     /// Validates the topic string
     /// <returns> true if it was valid </returns>
-    let validateTopic (clientData: IRCClientData) (topic: string) =
+    let validateTopic (clientData: IRCClient) (topic: string) =
         if      topic = "" then false
         else if topic.Length > clientData.GetServerInfo.MaxTopicLength then false
         else true
 
     /// Validates the channel string
     /// <returns> true if it was valid </returns>
-    let validateChannel (clientData: IRCClientData) (channel: string) =
+    let validateChannel (clientData: IRCClient) (channel: string) =
         if      channel = "" then false
         else if channel.Length > clientData.GetServerInfo.MaxChannelLength then false
         else
@@ -108,7 +108,7 @@ module Validators =
 
     /// Validates a list of channels in a comma separated string
     /// <returns> true if it was valid </returns>
-    let validateChannelsString (clientData: IRCClientData) (channelsString: string) =
+    let validateChannelsString (clientData: IRCClient) (channelsString: string) =
         let channelsSplit = channelsString.Split(',')
 
         match channelsSplit.Length with
@@ -121,7 +121,7 @@ module Validators =
 
     /// Validates a string of comma separated nicks
     /// <returns> true if it was valid </returns>
-    let validateNicksString (clientData: IRCClientData) (nicksString: string) =
+    let validateNicksString (clientData: IRCClient) (nicksString: string) =
         let nicksSplit = nicksString.Split(',')
 
         match nicksSplit.Length with

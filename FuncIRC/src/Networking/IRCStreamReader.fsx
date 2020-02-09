@@ -1,5 +1,5 @@
 #load "TCPClient.fsx"
-#load "IRCClientData.fsx"
+#load "IRCClient.fsx"
 #load "../IRC/MessageParser.fsx"
 #load "../IRC/MessageParserInternals.fsx"
 #load "../IRC/MessageTypes.fsx"
@@ -12,7 +12,7 @@ namespace FuncIRC
 open System
 open System.Diagnostics
 
-open IRCClientData
+open IRCClient
 open MessageParser
 open MessageParserInternals
 open MessageTypes
@@ -26,7 +26,7 @@ module internal IRCStreamReader =
 module IRCStreamReader =
 #endif
     /// Parses the whole message string from the server and runs the corresponding sub-handlers for tags, source, verb and params
-    let receivedDataHandler (data: string, clientData: IRCClientData) =
+    let receivedDataHandler (data: string, clientData: IRCClient) =
         async {
             data.Trim(' ').Replace("\r\n", "")
             |> function
@@ -48,7 +48,7 @@ module IRCStreamReader =
     /// Responsible for reading the incoming byte stream
     /// Reads on byte at a time, dispatches the callback delegate when \r\n EOM marker is found
     /// TODO: Make it dependant on the CancellationToken of the client
-    let readStream (clientData: IRCClientData) (client: TCPClient) =
+    let readStream (clientData: IRCClient) (client: TCPClient) =
         let processorAgent = 
             MailboxProcessor<string>.Start
                 (fun inbox ->

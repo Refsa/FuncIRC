@@ -1,5 +1,5 @@
+#load "TCPClient/IRCClientHandler.fsx"
 #load "TCPClient/IRCClient.fsx"
-#load "TCPClient/IRCClientData.fsx"
 #load "TCPClient/IRCStreamReader.fsx"
 #load "TCPClient/IRCStreamWriter.fsx"
 #load "IRC/MessageTypes.fsx"
@@ -7,8 +7,8 @@
 
 namespace FuncIRC
 
+open IRCClientHandler
 open IRCClient
-open IRCClientData
 open MessageTypes
 open MessageHandlers
 
@@ -25,7 +25,7 @@ module ClientSetup =
 
         clientData.MessageSubscriptionEvent 
         |> Event.add (
-            fun (m: Message, c: IRCClientData) ->
+            fun (m: Message, c: IRCClient) ->
                 match m.Verb.Value.Value with
                 | "PING" -> pongMessageHandler (m, c) |> ignore
                 | _ -> ()

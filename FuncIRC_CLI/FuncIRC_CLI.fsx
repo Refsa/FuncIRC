@@ -26,7 +26,7 @@ open System.Threading.Tasks
 open FuncIRC.IRCMessages
 open FuncIRC.MessageTypes
 open FuncIRC.ClientSetup
-open FuncIRC.IRCClientData
+open FuncIRC.IRCClient
 open FuncIRC.NumericReplies
 
 open Application
@@ -88,7 +88,7 @@ module CLI =
         with
             :? OperationCanceledException -> ()
 
-    let sendPrivMsgTask(message: string, channel: string, timeout: int, clientData: IRCClientData) =
+    let sendPrivMsgTask(message: string, channel: string, timeout: int, clientData: IRCClient) =
         let mutable counter = 0
 
         let rec messageLoop() =
@@ -101,14 +101,14 @@ module CLI =
             }
         messageLoop()
 
-    let printPrivMsg (message: Message, clientData: IRCClientData) =
+    let printPrivMsg (message: Message, clientData: IRCClient) =
         printfn "PRIVMSG: %s %s: %s" 
                     message.Params.Value.Value.[0].Value 
                     message.Source.Value.Nick.Value 
                     message.Params.Value.Value.[1].Value
         None
 
-    let joinChannelOnConnect (message: Message, clientData: IRCClientData) =
+    let joinChannelOnConnect (message: Message, clientData: IRCClient) =
         sendJoinMessage clientData "#testchannel" |> ignore
         //Async.StartAsTask ((sendPrivMsgTask ("spam", "#testchannel", 2000, clientData))) |> ignore
         None

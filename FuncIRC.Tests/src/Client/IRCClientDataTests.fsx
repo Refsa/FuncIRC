@@ -7,7 +7,7 @@ open NUnit
 open NUnit.Framework
 
 open FuncIRC.IRCMessages
-open FuncIRC.IRCClientData
+open FuncIRC.IRCClient
 
 module IRCClientDataTests =
     ()

@@ -16,12 +16,12 @@ open IRCStreamWriter
 
 // TODO: Remove recursive dependency in module
 #if !DEBUG
-module internal IRCClientData =
+module internal IRCClient =
 #else
-module IRCClientData =
+module IRCClient =
 #endif
 
-    type IRCClientData (client: TCPClient) =
+    type IRCClient (client: TCPClient) =
         // # FIELDS
         /// CancellationTokenSource for the internal tasks
         let tokenSource: CancellationTokenSource = new CancellationTokenSource()
@@ -46,7 +46,7 @@ module IRCClientData =
         let mutable serverChannels: IRCServerChannels  = {Channels = Map.empty}
 
         #if DEBUG
-        new () = new IRCClientData (new TCPClient ("", 0, false))
+        new () = new IRCClient (new TCPClient ("", 0, false))
         #endif
 
         interface IDisposable with
