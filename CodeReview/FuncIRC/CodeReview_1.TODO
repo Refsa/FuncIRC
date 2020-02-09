@@ -33,7 +33,7 @@
     - Move default constructors to their own file, or create separate files/modules for each of the record types
 
 # IRCClientHandler.fsx:
-    - ircClient should take seperate values as parameters instead of a tuple?
+    - startIrcClient should take seperate values as parameters instead of a tuple?
     - Thread.Sleep after the CancellationTokenSource for the threads is cancelled is using a magic number
     - Not guaranteed that readStream/writeStream tasks are disposing correctly
 

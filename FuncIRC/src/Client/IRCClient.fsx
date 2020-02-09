@@ -28,6 +28,7 @@ module IRCClient =
         /// MailboxProcessor to handle outbound messages
         let outQueue: MailboxProcessor<Message> = streamWriter (client)
 
+
         // # EVENTS
         /// Event when the client was disconnected from server
         let clientDisconnected:   Event<_> = new Event<_>()
@@ -40,7 +41,7 @@ module IRCClient =
 
         // # MUTABLES
         let mutable userInfoSelf:   IRCUserInfo option = None
-        let mutable serverInfo:     IRCServerInfo      = default_IRCServerInfo
+        let mutable serverInfo:     IRCServerInfo      = default_IRCServerInfo // Update this with MailboxProcessor
         let mutable serverMOTD:     IRCServerMOTD      = MOTD []
         let mutable serverFeatuers: IRCServerFeatures  = Features Map.empty
         let mutable serverChannels: IRCServerChannels  = {Channels = Map.empty}

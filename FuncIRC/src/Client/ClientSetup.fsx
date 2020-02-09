@@ -17,11 +17,11 @@ module ClientSetup =
     let startIrcClient (server: string, port: int, useSsl: bool) =
         let clientData = 
             match useSsl with
-            | true -> ircClient (server, 6697, useSsl)
+            | true -> startIrcClient (server, 6697, useSsl)
             | false -> 
                 match port with
-                | 6697 -> printfn "SSL port was used on a non-SSL connection"; ircClient (server, 6667, useSsl)
-                | _ -> ircClient (server, port, useSsl)
+                | 6697 -> printfn "SSL port was used on a non-SSL connection"; startIrcClient (server, 6667, useSsl)
+                | _ -> startIrcClient (server, port, useSsl)
 
         clientData.MessageSubscriptionEvent 
         |> Event.add (
