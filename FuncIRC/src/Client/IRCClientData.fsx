@@ -46,13 +46,15 @@ module IRCClientData =
         let mutable serverChannels: IRCServerChannels  = {Channels = Map.empty}
 
         #if DEBUG
-        new () = IRCClientData (new TCPClient ("", 0, false))
+        new () = new IRCClientData (new TCPClient ("", 0, false))
         #endif
 
-//#region private members
-        /// Messages from the outbound message queue
-        member private this.OutQueue = outQueue
-//#endregion private members
+        interface IDisposable with
+            member this.Dispose() =
+                (outQueue :> IDisposable).Dispose()
+                tokenSource.Dispose()
+                
+        member this.Dispose() = (this :> IDisposable).Dispose()
 
 //#region internal members
         // # FIELDS

@@ -3,6 +3,7 @@
 
 namespace FuncIRC
 
+open System
 open System.Threading
 open System.Threading.Tasks
 open TCPClient
@@ -24,8 +25,8 @@ module IRCClient =
                 clientData.TokenSource.Cancel()
                 Thread.Sleep (100)
 
+                clientData.Dispose()
                 client.Close
-                clientData.TokenSource.Dispose()
 
                 clientData.ClientDisconnected()
             }
@@ -39,7 +40,7 @@ module IRCClient =
 
         match client.Connect with
         | true -> 
-            let clientData = IRCClientData (client)
+            let clientData = new IRCClientData (client)
 
             // TcpClient
             let tcpClient = (ircClientHandler clientData client)
