@@ -29,7 +29,7 @@ module IRCStreamWriter =
         with
             | e -> printfn "Exception when writing message(s) to stream: %s" e.Message
 
-
+    /// Creates a MailboxProcessor resposible for sending messages using the Stream of the TcpClient
     let streamWriter (client: TCPClient) =
         MailboxProcessor<Message>.Start 
             (fun outbox ->

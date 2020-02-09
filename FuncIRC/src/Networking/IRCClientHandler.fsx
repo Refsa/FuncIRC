@@ -16,6 +16,10 @@ module internal IRCClientHandler =
 #else
 module IRCClientHandler =
 #endif
+
+    // Client wasn't connected successfully
+    exception ClientConnectionException
+
     /// Handles the client connection and disposes it if it loses connection or the cancellation token is invoked
     let ircClientHandler (clientData: IRCClient) (client: TCPClient) =
         let rec keepAlive() =

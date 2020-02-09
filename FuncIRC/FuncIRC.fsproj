@@ -18,6 +18,7 @@
     <Compile Include="src/IRC/Parsers/Validators.fsx" />
     <Compile Include="src/IRC/Parsers/MessageParser.fsx" />
 
+    <Compile Include="src/Utils/TcpClientHelpers.fsx" />
     <Compile Include="src/Networking/TCPClient.fsx" />
 
     <Compile Include="src/IRC/Types/IRCInformation.fsx" />
