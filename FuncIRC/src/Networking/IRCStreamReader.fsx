@@ -19,14 +19,17 @@ open IRCClientData
 open System.Net.Sockets
 open StringHelpers
 
+#if !DEBUG
 module internal IRCStreamReader =
+#else
+module IRCStreamReader =
+#endif
     /// Parses the whole message string from the server and runs the corresponding sub-handlers for tags, source, verb and params
     let receivedDataHandler (data: string, clientData: IRCClientData) =
         data.Trim(' ').Replace("\r\n", "")
         |> function
         | "" -> ()
         | data ->
-            //printfn "Message: %s" data
             let message = parseMessageString data
 
             match message.Verb with // Check if incoming message verb is a numeric

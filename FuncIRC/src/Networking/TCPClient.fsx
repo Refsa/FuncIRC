@@ -6,7 +6,13 @@ open System.Net.Security
 open System.Security.Authentication
 open System.Security.Cryptography.X509Certificates
 
+#if !DEBUG
 module internal TCPClient =
+#else
+module TCPClient =
+#endif
+
+    // Client wasn't connected successfully
     exception ClientConnectionException
 
     let inline validateCertCallback cb = new RemoteCertificateValidationCallback(cb)

@@ -6,7 +6,11 @@
 
 namespace FuncIRC
 
+#if !DEBUG
+module internal Validators =
+#else
 module Validators =
+#endif
     open System
     open RegexHelpers
     open StringHelpers

@@ -1,3 +1,5 @@
+#load "../Networking/TCPClient.fsx"
+#load "../Networking/IRCStreamWriter.fsx"
 #load "../Utils/MessageQueue.fsx"
 #load "../IRC/Types/IRCInformation.fsx"
 #load "../IRC/Types/MessageTypes.fsx"
@@ -9,16 +11,22 @@ open IRCInformation
 open System.Threading
 open MessageQueue
 open MessageTypes
+open TCPClient
+open IRCStreamWriter
 
 // TODO: Remove recursive dependency in module
+#if !DEBUG
+module internal IRCClientData =
+#else
 module IRCClientData =
+#endif
 //#region IRCClientData implementation
-    type IRCClientData() =
+    type IRCClientData (client: TCPClient) =
         // # FIELDS
         /// CancellationTokenSource for the internal tasks
         let tokenSource: CancellationTokenSource = new CancellationTokenSource()
         /// Contains all the outbound messages since the last sendMessage event trigger
-        let outQueue: MessageQueue = MessageQueue()
+        let outQueue: MailboxProcessor<Message> = streamWriter (client)
 
         // # EVENTS
         /// Event when the client was disconnected from server
@@ -101,9 +109,9 @@ module IRCClientData =
 
         // TODO: Add outboud message validation
         /// Adds one message to the outbound queue and triggers the sendMessage event
-        member this.AddOutMessage message   = outQueue.AddMessage message; sendMessage.Trigger()
+        member this.AddOutMessage message   = outQueue.Post message //outQueue.AddMessage message; sendMessage.Trigger()
         /// Adds multiple messages to the outbound queue and triggers the sendMessage event
-        member this.AddOutMessages messages = outQueue.AddMessages messages; sendMessage.Trigger()
+        member this.AddOutMessages messages = messages |> List.iter this.AddOutMessage //outQueue.AddMessages messages; sendMessage.Trigger()
 //#endregion
 
 //#region External Events
@@ -129,8 +137,9 @@ module IRCClientData =
 #endif
         /// Retreives outbound messages, if any, from the outbound MessageQueue in IRCClientData
         member this.GetOutboundMessages =
-            match this.OutQueue with
-            | EmptyQueue -> ""
-            | SingleItemInQueue item     -> item.ToMessageString
-            | MultipleItemsInQueue items -> messagesToString items
+            ()
+            //match this.OutQueue with
+            //| EmptyQueue -> ""
+            //| SingleItemInQueue item     -> item.ToMessageString
+            //| MultipleItemsInQueue items -> messagesToString items
 //#endregion

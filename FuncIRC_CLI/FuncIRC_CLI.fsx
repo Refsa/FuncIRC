@@ -89,12 +89,11 @@ module CLI =
             :? OperationCanceledException -> ()
 
     let sendPrivMsgTask(message: string, channel: string, timeout: int, clientData: IRCClientData) =
-        let outMessage = channelMessage message channel
         let mutable counter = 0
 
         let rec messageLoop() =
             async {
-                clientData.AddOutMessage {outMessage with Params = Some (toParameters [|channel; message + "_" + counter.ToString()|])}
+                sendChannelPrivMsg clientData (message + "_" + counter.ToString()) |> ignore
                 Thread.Sleep (timeout)
 
                 counter <- counter + 1
@@ -110,7 +109,7 @@ module CLI =
         None
 
     let joinChannelOnConnect (message: Message, clientData: IRCClientData) =
-        clientData.AddOutMessage (joinChannelMessage "#testchannel")
+        sendJoinMessage clientData "#testchannel" |> ignore
         //Async.StartAsTask ((sendPrivMsgTask ("spam", "#testchannel", 2000, clientData))) |> ignore
         None
 
@@ -131,7 +130,7 @@ module CLI =
         //(app.Run())
 
         let remoteServerAddress = ("testnet.inspircd.org", 6697, true)
-        let localServerAddress = ("127.0.0.1", 6697, false)
+        let localServerAddress = ("127.0.0.1", 6697, true)
 
         let clientData    = startIrcClient localServerAddress
         clientData.ErrorNumericReceivedEvent.Add (fun em -> printfn "Error: %s" em)
@@ -141,7 +140,7 @@ module CLI =
             fun (m, c) ->
                 match m.Verb.Value.Value with
                 | verb when verb = "PRIVMSG" -> printPrivMsg(m, c) |> ignore
-                | verb when verb = (NumericsReplies.RPL_MYINFO.ToString()) -> joinChannelOnConnect(m, c) |> ignore
+                | verb when verb = (NumericsReplies.RPL_ENDOFMOTD.ToString()) -> joinChannelOnConnect(m, c) |> ignore
                 | _ -> ()
         )
 
@@ -151,7 +150,7 @@ module CLI =
         while Console.ReadKey().Key <> ConsoleKey.Q do
             ()
 
-        clientData |> sendQuitMessage <| "Bye everyone!"
+        clientData |> sendQuitMessage <| "Bye everyone!" |> ignore
         clientData.DisconnectClient()
 
         0 // return an integer exit code
