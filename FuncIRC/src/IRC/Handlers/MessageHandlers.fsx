@@ -1,5 +1,5 @@
 #load "../../Client/IRCClientData.fsx"
-#load "../Handlers/ServerFeaturesHandler.fsx"
+#load "../Handlers/ServerFeatureHandlers.fsx"
 #load "../Parsers/MessageParserInternals.fsx"
 #load "../Types/MessageTypes.fsx"
 #load "../Types/NumericReplies.fsx"
@@ -13,7 +13,7 @@ open IRCInformation
 open NumericReplies
 open MessageParserInternals
 open RegexHelpers
-open ServerFeaturesHandler
+open ServerFeatureHandlers
 open System
 
 #if !DEBUG

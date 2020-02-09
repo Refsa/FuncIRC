@@ -24,13 +24,13 @@
     <Compile Include="src/Utils/MessageQueue.fsx" />
 
     <Compile Include="src/Networking/IRCStreamWriter.fsx" />
-    
+
     <Compile Include="src/Client/IRCClientData.fsx" />
 
     <Compile Include="src/Networking/IRCClient.fsx" />
     <Compile Include="src/Client/IRCMessages.fsx" />
     
-    <Compile Include="src/IRC/Handlers/ServerFeaturesHandler.fsx" />
+    <Compile Include="src/IRC/Handlers/ServerFeatureHandlers.fsx" />
     <Compile Include="src/IRC/Handlers/MessageHandlers.fsx" />
     <Compile Include="src/IRC/Handlers/ErrorNumericsHandlers.fsx" />
     

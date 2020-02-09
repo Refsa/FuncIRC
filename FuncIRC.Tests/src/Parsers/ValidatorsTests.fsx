@@ -19,6 +19,7 @@ open FuncIRC.Validators
 module ValidatorsTests =
 
     /// Creates a IRCClientData object with the given comma separated channel prefixes added
+    /// TODO: Move to utils
     let mockIRCClientDataWithChannelPrefix (channelPrefixes: string) =
         let clientData = IRCClientData()
         let feature = [| ("CHANTYPES", channelPrefixes) |]

@@ -29,7 +29,7 @@ module Validators =
             | _ when hostname.Length > clientData.ServerInfo.MaxHostLength -> false
             | _ when Char.IsLetterOrDigit (hostname.[0]) -> true
             | _ -> false
-        |_ -> false
+        | _ -> false
 
     /// Validates the nick string
     /// <returns> true if it was valid </returns>

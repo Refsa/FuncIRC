@@ -1,6 +1,6 @@
-#load "IRCClientData.fsx"
-#load "IRCInformation.fsx"
-#load "../Utils/GeneralHelpers.fsx"
+#load "../../Client/IRCClientData.fsx"
+#load "../Types/IRCInformation.fsx"
+#load "../../Utils/GeneralHelpers.fsx"
 
 namespace FuncIRC
 
@@ -9,9 +9,9 @@ open IRCInformation
 open GeneralHelpers
 
 #if !DEBUG
-module internal ServerFeaturesHandler =
+module internal ServerFeatureHandlers =
 #else
-module ServerFeaturesHandler =
+module ServerFeatureHandlers =
 #endif
 
     /// NETWORK

@@ -45,7 +45,9 @@ module IRCClientData =
         let mutable serverFeatuers: IRCServerFeatures  = Features Map.empty
         let mutable serverChannels: IRCServerChannels  = {Channels = Map.empty}
 
+        #if DEBUG
         new () = IRCClientData (new TCPClient ("", 0, false))
+        #endif
 
 //#region private members
         /// Messages from the outbound message queue
