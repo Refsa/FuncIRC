@@ -45,6 +45,20 @@ module IRCClient =
         let mutable serverFeatures: IRCServerFeatures  = Features Map.empty
         let mutable serverChannels: IRCServerChannels  = {Channels = Map.empty}
 
+        let serverFeaturesUpdateQueue: MailboxProcessor<IRCServerInfo> =
+            MailboxProcessor<IRCServerInfo>.Start
+                (fun update ->
+                    let rec loop() = async {
+                        let! newInfo = update.Receive()
+
+                        serverInfo <- newInfo
+
+                        return! loop()
+                    }
+
+                    loop()
+                )
+
         #if DEBUG
         new () = new IRCClient (new TCPClient ("", 0, false))
         #endif
@@ -52,6 +66,7 @@ module IRCClient =
         interface IDisposable with
             member this.Dispose() =
                 (outQueue :> IDisposable).Dispose()
+                (serverFeaturesUpdateQueue :> IDisposable).Dispose()
                 tokenSource.Dispose()
                 
         member this.Dispose() = (this :> IDisposable).Dispose()
@@ -67,7 +82,7 @@ module IRCClient =
         /// Server info
         member internal this.ServerInfo 
             with get()     = serverInfo
-            and set(value) = serverInfo <- value
+            and set(value) = serverFeaturesUpdateQueue.Post value
         /// Server MOTD
         member internal this.ServerMOTD
             with get()     = serverMOTD.Value
