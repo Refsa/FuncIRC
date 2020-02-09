@@ -42,7 +42,9 @@ module IRCClientHandler =
     let startIrcClient (server: string, port: int, useSsl: bool) = 
         let client = new TCPClient (server, port, useSsl)
 
-        match client.Connect with
+        let connected = client.Connect
+
+        match connected with
         | true -> 
             let clientData = new IRCClient (client)
 

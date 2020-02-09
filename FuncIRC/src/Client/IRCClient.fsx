@@ -28,7 +28,6 @@ module IRCClient =
         /// MailboxProcessor to handle outbound messages
         let outQueue: MailboxProcessor<Message> = streamWriter (client)
 
-
         // # EVENTS
         /// Event when the client was disconnected from server
         let clientDisconnected:   Event<_> = new Event<_>()
@@ -43,7 +42,7 @@ module IRCClient =
         let mutable userInfoSelf:   IRCUserInfo option = None
         let mutable serverInfo:     IRCServerInfo      = default_IRCServerInfo // Update this with MailboxProcessor
         let mutable serverMOTD:     IRCServerMOTD      = MOTD []
-        let mutable serverFeatuers: IRCServerFeatures  = Features Map.empty
+        let mutable serverFeatures: IRCServerFeatures  = Features Map.empty
         let mutable serverChannels: IRCServerChannels  = {Channels = Map.empty}
 
         #if DEBUG
@@ -75,8 +74,8 @@ module IRCClient =
             and set(value) = serverMOTD <- MOTD value
         /// Server Features
         member internal this.ServerFeatures
-            with get()     = serverFeatuers.Value
-            and set(value) = serverFeatuers <- Features value
+            with get()     = serverFeatures.Value
+            and set(value) = serverFeatures <- Features value
         /// Server Channels
         member internal this.SetChannelInfo channel info =
             if serverChannels.Channels.ContainsKey channel then
@@ -102,7 +101,8 @@ module IRCClient =
         member this.GetUserInfoSelf   = userInfoSelf
         member this.GetServerInfo     = serverInfo
         member this.GetServerMOTD     = serverMOTD.Value
-        member this.GetServerFeatures = serverFeatuers.Value
+        member this.GetServerFeatures = serverFeatures.Value
+
         member this.GetChannelInfo channel =
             if serverChannels.Channels.ContainsKey channel then
                 Some serverChannels.Channels.[channel]
@@ -130,3 +130,5 @@ module IRCClient =
         /// Event trigger for the disconnectClient event
         member this.DisconnectClient() = disconnectClient.Trigger()
 //#endregion external events
+
+
