@@ -40,8 +40,8 @@ module TCPClient =
         /// Reads byte array data from stream
         member this.ReadFromStream (data: byte array) (startOffset: int) (length: int) =
             match useSsl with
-            | false -> networkStream.Value.Read (data, 0, data.Length)
-            | true  -> sslStream.Value.Read (data, 0, data.Length)
+            | false -> networkStream.Value.Read (data, startOffset, data.Length)
+            | true  -> sslStream.Value.Read (data, startOffset, data.Length)
 
         member this.Client    = client.Value
         member this.Connected = this.Client.Connected

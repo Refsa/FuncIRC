@@ -40,6 +40,7 @@ module ServerFeatureHandlers =
                 for c in chanTypesFeature -> (c, 10)
             |] |> Map.ofArray
 
+        printfn "%A" supportedChanTypes
         clientData.ServerInfo <- {clientData.ServerInfo with ChannelPrefixes = supportedChanTypes}
 
     /// CHANLIMIT
@@ -52,7 +53,9 @@ module ServerFeatureHandlers =
             [|
                 for chan in channels ->
                     let kvp = chan.Split(':')
-                    (char kvp.[0], int kvp.[1])
+                    match kvp.Length with
+                    | 1 -> (char kvp.[0], 10)
+                    | _ -> (char kvp.[0], int kvp.[1])
             |]
             |> Map.ofArray
 

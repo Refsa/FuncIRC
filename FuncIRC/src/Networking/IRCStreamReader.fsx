@@ -64,8 +64,8 @@ module IRCStreamReader =
                             return! readLoop("")
                         else
                             return! readLoop(receivedNext)
-                with 
-                    e -> printfn "readLoop - Exception: %s" e.Message
+                with
+                    e -> printfn "readLoop - Exception: %s - Content of received so far: %s" e.Message received
             }
 
         readLoop("")
