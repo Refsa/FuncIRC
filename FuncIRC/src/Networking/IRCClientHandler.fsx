@@ -33,14 +33,14 @@ module IRCClientHandler =
 
                 clientData.Dispose()
                 client.Close
-                (serverFeaturesProcessor :> IDisposable).Dispose()
+                //(serverFeaturesProcessor :> IDisposable).Dispose()
 
                 clientData.ClientDisconnected()
             }
 
         keepAlive()
 
-    /// Starts the TcpClient and connects the NetworkStream to the corresponding reader/writer handlers
+    /// Starts the TcpClient and connects the Stream to the corresponding reader/writer handlers
     /// Raises <typeref="ClientConnectionException"> if the connection was unsuccessful
     let startIrcClient (server: string, port: int, useSsl: bool) = 
         let client = new TCPClient (server, port, useSsl)

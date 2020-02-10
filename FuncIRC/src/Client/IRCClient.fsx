@@ -46,10 +46,9 @@ module IRCClient =
         let mutable serverFeatures: IRCServerFeatures  = Features Map.empty
         let mutable serverChannels: IRCServerChannels  = {Channels = Map.empty}
 
-        /// Concurrent way to update serverInfo
+        /// Concurrent way to update serverInfo using MailboxProcessor
         let serverInfoUpdateQueue: MailboxProcessor<IRCServerInfo> =
-            mailboxProcessorFactory<IRCServerInfo>
-                (fun newInfo -> serverInfo <- newInfo)
+            (fun newInfo -> serverInfo <- newInfo) |> mailboxProcessorFactory<IRCServerInfo> 
 
         #if DEBUG
         new () = new IRCClient (new TCPClient ("", 0, false))
@@ -60,7 +59,8 @@ module IRCClient =
                 (outQueue :> IDisposable).Dispose()
                 (serverInfoUpdateQueue :> IDisposable).Dispose()
                 tokenSource.Dispose()
-                
+
+        /// Runs the dispose function on this object cast as IDisposable
         member this.Dispose() = (this :> IDisposable).Dispose()
 
 //#region internal members

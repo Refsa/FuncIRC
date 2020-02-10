@@ -5,6 +5,8 @@
 
 namespace FuncIRC
 
+open System
+
 open IRCClient
 open IRCInformation
 open GeneralHelpers
@@ -256,7 +258,7 @@ module ServerFeatureHandlers =
         ()
 
     /// MailboxProcessor to handle incoming features
-    let serverFeaturesProcessor =
+    let private serverFeaturesProcessor =
         mailboxProcessorFactory<(string * string * IRCClient)>
             (fun feature ->
                 let k, v, c = feature
@@ -285,7 +287,7 @@ module ServerFeatureHandlers =
                     | "MAXLIST"     -> maxListHandler
                     | "SAFELIST"    -> safelistHandler
                     | "ELIST"       -> elistHandler
-                    | _             -> printfn "No handler for feature %s with parameter %s" k v ; noFeatureHandler
+                    | _             -> printfn "No handler for feature: %s with parameter: %s" k v ; noFeatureHandler
                 )
             )
 

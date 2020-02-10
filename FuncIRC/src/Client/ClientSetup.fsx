@@ -31,6 +31,7 @@ module ClientSetup =
                 | _ -> ()
         )
 
+        /// TODO: Add a sync await here
         System.Threading.Thread.Sleep (100)
 
         clientData

@@ -47,11 +47,9 @@ module IRCStreamReader =
 
     /// Responsible for reading the incoming byte stream
     /// Reads on byte at a time, dispatches the callback delegate when \r\n EOM marker is found
-    /// TODO: Make it dependant on the CancellationToken of the client
     let readStream (clientData: IRCClient) (client: TCPClient) =
         let processorAgent =
-            mailboxProcessorFactory<string>
-                ( fun msg -> receivedDataHandler(msg, clientData) ) 
+            ( fun msg -> receivedDataHandler(msg, clientData) ) |> mailboxProcessorFactory<string>
             
         let data = [| byte 0 |]
         let rec readLoop(received: string) =
