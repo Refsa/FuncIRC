@@ -1,19 +1,20 @@
-#load "TCPClient/IRCClientHandler.fsx"
-#load "TCPClient/IRCClient.fsx"
-#load "TCPClient/IRCStreamReader.fsx"
-#load "TCPClient/IRCStreamWriter.fsx"
-#load "IRC/MessageTypes.fsx"
-#load "IRC/MessageHandlers.fsx"
+#load "../Networking/IRCClientHandler.fsx"
+#load "../Networking/IRCClient.fsx"
+#load "../Networking/IRCStreamReader.fsx"
+#load "../Networking/IRCStreamWriter.fsx"
+#load "../IRC/Types/MessageTypes.fsx"
+#load "../IRC/Handlers/MessageHandlers.fsx"
 
 namespace FuncIRC
 
 open IRCClientHandler
-open IRCClient
 open MessageTypes
-open MessageHandlers
 
 module ClientSetup =
+
+    /// <summary>
     /// Creates the server connection and adds required internal message subscriptions
+    /// </summary>
     let startIrcClient (server: string, port: int, useSsl: bool) =
         let clientData = 
             match useSsl with

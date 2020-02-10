@@ -19,10 +19,14 @@ module internal IRCClientHandler =
 module IRCClientHandler =
 #endif
 
-    // Client wasn't connected successfully
+    /// <summary>
+    /// Client wasn't connected successfully
+    /// </summary>
     exception ClientConnectionException
 
+    /// <summary>
     /// Handles the client connection and disposes it if it loses connection or the cancellation token is invoked
+    /// </summary>
     let ircClientHandler (clientData: IRCClient) (client: TCPClient) =
         let rec keepAlive() =
             async {
@@ -40,8 +44,10 @@ module IRCClientHandler =
 
         keepAlive()
 
+    /// <summary>
     /// Starts the TcpClient and connects the Stream to the corresponding reader/writer handlers
     /// Raises <typeref="ClientConnectionException"> if the connection was unsuccessful
+    /// </summary>
     let startIrcClient (server: string, port: int, useSsl: bool) = 
         let client = new TCPClient (server, port, useSsl)
 

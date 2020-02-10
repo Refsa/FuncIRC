@@ -3,7 +3,7 @@
 #load "../Parsers/MessageParserInternals.fsx"
 #load "../Types/MessageTypes.fsx"
 #load "../Types/NumericReplies.fsx"
-#load "../Utils/RegexHelpers.fsx"
+#load "../../Utils/RegexHelpers.fsx"
 
 namespace FuncIRC
 

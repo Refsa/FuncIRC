@@ -28,7 +28,7 @@ funcirc_cli_tests:
 pages:
   script:
     - docfx Documentation/docfx_project/docfx.json
-    - mv Documentation/docfx_project/api public
+    - mv Documentation/docfx_project/_site public
   artifacts:
     paths:
       - public
