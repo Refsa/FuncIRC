@@ -51,7 +51,7 @@ module IRCStreamReader =
     let readStream (clientData: IRCClient) (client: TCPClient) =
         let processorAgent =
             mailboxProcessorFactory<string>
-                (fun msg -> receivedDataHandler(msg, clientData)) 
+                ( fun msg -> receivedDataHandler(msg, clientData) ) 
             
         let data = [| byte 0 |]
         let rec readLoop(received: string) =

@@ -151,6 +151,7 @@ module IRCMessagesTests =
         let clientData = new IRCClient()
         let feature = [| ("CHANTYPES", "#") |]
         serverFeaturesHandler (feature, clientData)
+        System.Threading.Thread.Sleep(100)
 
         sendJoinMessage clientData "#channel" |> Assert.True
         sendJoinMessage clientData "@channel" |> Assert.False
@@ -163,6 +164,7 @@ module IRCMessagesTests =
         let clientData = new IRCClient()
         let feature = [| ("CHANTYPES", "#") |]
         serverFeaturesHandler (feature, clientData)
+        System.Threading.Thread.Sleep(100)
 
         sendChannelPrivMsg clientData "#channel" "some message" |> Assert.True
         sendChannelPrivMsg clientData "channel" "some message" |> Assert.False

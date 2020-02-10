@@ -24,6 +24,8 @@ module ValidatorsTests =
         let clientData = new IRCClient()
         let feature = [| ("CHANTYPES", channelPrefixes) |]
         serverFeaturesHandler (feature, clientData)
+
+        System.Threading.Thread.Sleep(1)
         clientData
 
     // validateChannel tests
