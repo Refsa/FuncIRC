@@ -1,18 +1,19 @@
 #load "../Networking/TCPClient.fsx"
 #load "../Networking/IRCStreamWriter.fsx"
-#load "../Utils/MessageQueue.fsx"
+#load "../Utils/MailboxProcessorHelpers.fsx"
 #load "../IRC/Types/IRCInformation.fsx"
 #load "../IRC/Types/MessageTypes.fsx"
 
 namespace FuncIRC
 
 open System
-open IRCInformation
 open System.Threading
-open MessageQueue
+
+open IRCInformation
+open IRCStreamWriter
+open MailboxProcessorHelpers
 open MessageTypes
 open TCPClient
-open IRCStreamWriter
 
 // TODO: Remove recursive dependency in module
 #if !DEBUG
@@ -45,19 +46,10 @@ module IRCClient =
         let mutable serverFeatures: IRCServerFeatures  = Features Map.empty
         let mutable serverChannels: IRCServerChannels  = {Channels = Map.empty}
 
+        /// Concurrent way to update serverInfo
         let serverFeaturesUpdateQueue: MailboxProcessor<IRCServerInfo> =
-            MailboxProcessor<IRCServerInfo>.Start
-                (fun update ->
-                    let rec loop() = async {
-                        let! newInfo = update.Receive()
-
-                        serverInfo <- newInfo
-
-                        return! loop()
-                    }
-
-                    loop()
-                )
+            mailboxProcessorFactory<IRCServerInfo>
+                (fun newInfo -> serverInfo <- newInfo)
 
         #if DEBUG
         new () = new IRCClient (new TCPClient ("", 0, false))
