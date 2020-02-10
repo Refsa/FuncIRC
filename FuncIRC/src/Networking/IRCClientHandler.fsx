@@ -1,3 +1,4 @@
+#load "../IRC/Handlers/ServerFeatureHandlers.fsx"
 #load "IRCStreamReader.fsx"
 #load "IRCStreamWriter.fsx"
 
@@ -10,6 +11,7 @@ open TCPClient
 open IRCClient
 open IRCStreamReader
 open IRCStreamWriter
+open ServerFeatureHandlers
 
 #if !DEBUG
 module internal IRCClientHandler =
@@ -31,6 +33,7 @@ module IRCClientHandler =
 
                 clientData.Dispose()
                 client.Close
+                (serverFeaturesProcessor :> IDisposable).Dispose()
 
                 clientData.ClientDisconnected()
             }

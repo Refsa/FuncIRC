@@ -13,7 +13,7 @@ module MessageHandlerTests =
     open FuncIRC.MessageHandlers
     open FuncIRC.GeneralHelpers
 
-    let ircClientData(): IRCClient = IRCClient()
+    let ircClientData(): IRCClient = new IRCClient()
 
     let newVerbNameMessage verbName = Message.NewSimpleMessage (Some (Verb verbName)) None
 

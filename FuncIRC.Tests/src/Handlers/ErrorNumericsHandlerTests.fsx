@@ -10,7 +10,7 @@ module ErrorNumericsHandlerTests =
     open FuncIRC.MessageTypes
     open FuncIRC.ErrorNumericsHandlers
 
-    let ircClientData(): IRCClient = IRCClient()
+    let ircClientData(): IRCClient = new IRCClient()
 
     let newVerbNameMessage verbName = Message.NewSimpleMessage (Some (Verb verbName)) None
 

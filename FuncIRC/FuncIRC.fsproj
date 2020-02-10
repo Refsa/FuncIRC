@@ -28,7 +28,6 @@
 
     <Compile Include="src/Client/IRCClient.fsx" />
 
-    <Compile Include="src/Networking/IRCClientHandler.fsx" />
     <Compile Include="src/Client/IRCMessages.fsx" />
     
     <Compile Include="src/IRC/Handlers/ServerFeatureHandlers.fsx" />
@@ -37,6 +36,7 @@
     
     <Compile Include="src/Networking/IRCStreamReader.fsx" />
     
+    <Compile Include="src/Networking/IRCClientHandler.fsx" />
     <Compile Include="src/Client/ClientSetup.fsx" />
 
     <None Include="FuncIRC.fsx" />

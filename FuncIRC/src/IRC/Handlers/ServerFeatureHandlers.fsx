@@ -1,12 +1,14 @@
 #load "../../Client/IRCClient.fsx"
 #load "../Types/IRCInformation.fsx"
 #load "../../Utils/GeneralHelpers.fsx"
+#load "../../Utils/MailboxProcessorHelpers.fsx"
 
 namespace FuncIRC
 
 open IRCClient
 open IRCInformation
 open GeneralHelpers
+open MailboxProcessorHelpers
 
 #if !DEBUG
 module internal ServerFeatureHandlers =
@@ -253,13 +255,13 @@ module ServerFeatureHandlers =
     let noFeatureHandler (noFeature, clientData: IRCClient) =
         ()
 
-    /// Entry point, takes the split features reported by RPL_ISUPPORT and hooks them up with the correct parser/handler
-    let serverFeaturesHandler (features: (string * string) array, clientData: IRCClient) =
-        features
-        |> Array.iter
-            (fun ai ->
-                let k, v = ai
-                (v, clientData) |>
+    /// MailboxProcessor to handle incoming features
+    let serverFeaturesProcessor =
+        mailboxProcessorFactory<(string * string * IRCClient)>
+            (fun feature ->
+                let k, v, c = feature
+
+                (v, c) |>
                 (
                     match k with
                     | "NETWORK"     -> networkFeatureHandler
@@ -286,3 +288,11 @@ module ServerFeatureHandlers =
                     | _             -> printfn "No handler for feature %s with parameter %s" k v ; noFeatureHandler
                 )
             )
+
+    /// Entry point, takes the split features reported by RPL_ISUPPORT and hooks them up with the correct parser/handler
+    let serverFeaturesHandler (features: (string * string) array, clientData: IRCClient) =
+        features
+        |> Array.iter
+            ( fun ai -> serverFeaturesProcessor.Post (fst ai, snd ai, clientData) )
+
+
