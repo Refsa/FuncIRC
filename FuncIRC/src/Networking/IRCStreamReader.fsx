@@ -6,6 +6,7 @@
 #load "../IRC/NumericReplies.fsx"
 #load "../IRC/MessageHandlers.fsx"
 #load "../Utils/StringHelpers.fsx"
+#load "../Utils/MailboxProcessorHelpers.fsx"
 
 namespace FuncIRC
 
@@ -13,6 +14,7 @@ open System
 open System.Diagnostics
 
 open IRCClient
+open MailboxProcessorHelpers
 open MessageParser
 open MessageParserInternals
 open MessageTypes
@@ -27,42 +29,30 @@ module IRCStreamReader =
 #endif
     /// Parses the whole message string from the server and runs the corresponding sub-handlers for tags, source, verb and params
     let receivedDataHandler (data: string, clientData: IRCClient) =
-        async {
-            data.Trim(' ').Replace("\r\n", "")
-            |> function
-            | "" -> ()
-            | data ->
-                let message = parseMessageString data
+        data.Trim(' ').Replace("\r\n", "")
+        |> function
+        | "" -> ()
+        | data ->
+            let message = parseMessageString data
 
-                match message.Verb with // Check if incoming message verb is a numeric
-                | Some verb ->
-                    let verbName = 
-                        match verb with
-                        | IsVerbName command -> Verb command
-                        | IsNumeric numeric -> Verb (numericReplies.[numeric].ToString())
+            match message.Verb with // Check if incoming message verb is a numeric
+            | Some verb ->
+                let verbName = 
+                    match verb with
+                    | IsVerbName command -> Verb command
+                    | IsNumeric numeric -> Verb (numericReplies.[numeric].ToString())
 
-                    clientData.MessageSubscriptionTrigger {message with Verb = Some verbName}
-                | None -> ()
-        }
+                clientData.MessageSubscriptionTrigger {message with Verb = Some verbName}
+            | None -> ()
 
     /// Responsible for reading the incoming byte stream
     /// Reads on byte at a time, dispatches the callback delegate when \r\n EOM marker is found
     /// TODO: Make it dependant on the CancellationToken of the client
     let readStream (clientData: IRCClient) (client: TCPClient) =
-        let processorAgent = 
-            MailboxProcessor<string>.Start
-                (fun inbox ->
-                    let rec loop() = async{
-                        let! msg = inbox.Receive()
-
-                        do! receivedDataHandler (msg, clientData)
-
-                        return! loop()
-                    }
-
-                    loop()
-                )
-
+        let processorAgent =
+            mailboxProcessorFactory<string>
+                (fun msg -> receivedDataHandler(msg, clientData)) 
+            
         let data = [| byte 0 |]
         let rec readLoop(received: string) =
             async {

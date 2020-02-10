@@ -41,7 +41,7 @@ module IRCClient =
 
         // # MUTABLES
         let mutable userInfoSelf:   IRCUserInfo option = None
-        let mutable serverInfo:     IRCServerInfo      = default_IRCServerInfo // Update this with MailboxProcessor
+        let mutable serverInfo:     IRCServerInfo      = default_IRCServerInfo
         let mutable serverMOTD:     IRCServerMOTD      = MOTD []
         let mutable serverFeatures: IRCServerFeatures  = Features Map.empty
         let mutable serverChannels: IRCServerChannels  = {Channels = Map.empty}
