@@ -1,5 +1,5 @@
-#load "../../Client/IRCClientData.fsx"
-#load "../Handlers/ServerFeaturesHandler.fsx"
+#load "../../Client/IRCClient.fsx"
+#load "../Handlers/ServerFeatureHandlers.fsx"
 #load "../Parsers/MessageParserInternals.fsx"
 #load "../Types/MessageTypes.fsx"
 #load "../Types/NumericReplies.fsx"
@@ -8,12 +8,12 @@
 namespace FuncIRC
 
 open MessageTypes
-open IRCClientData
+open IRCClient
 open IRCInformation
 open NumericReplies
 open MessageParserInternals
 open RegexHelpers
-open ServerFeaturesHandler
+open ServerFeatureHandlers
 open System
 
 #if !DEBUG
@@ -26,17 +26,17 @@ module MessageHandlers =
     /// PONG message const 
     let private pongMessage = Message.NewSimpleMessage (Some (Verb "PONG")) None
     /// PING message handler
-    let pongMessageHandler (message: Message, clientData: IRCClientData) =
+    let pongMessageHandler (message: Message, clientData: IRCClient) =
         clientData.AddOutMessage pongMessage
 //#endregion PING message handler
 
     /// RPL_WELCOME handler
-    let rplWelcomeHandler (message: Message, clientData: IRCClientData) =
+    let rplWelcomeHandler (message: Message, clientData: IRCClient) =
         ()
         //printfn "RPL_WELCOME: %s" message.Params.Value.Value.[1].Value
 
     /// RPL_YOURHOST handler
-    let rplYourHostHandler (message: Message, clientData: IRCClientData) =
+    let rplYourHostHandler (message: Message, clientData: IRCClient) =
         ()
         //printfn "RPL_YOURHOST: %s" message.Params.Value.Value.[1].Value
 
@@ -45,7 +45,7 @@ module MessageHandlers =
     /// TODO: Add capturing of different DateTime formats
     let dateTimeRegex = @"(\d{2}:\d{2}:\d{2}.+)"
     /// RPL_CREATED handler
-    let rplCreatedHandler (message: Message, clientData: IRCClientData) =
+    let rplCreatedHandler (message: Message, clientData: IRCClient) =
         let wantedParam = message.Params.Value.Value.[1].Value
 
         let createdDateTimeString =
@@ -64,18 +64,18 @@ module MessageHandlers =
 //#endregion RPL_CREATED handler
 
     /// RPL_MYINFO handler
-    let rplMyInfoHandler (message: Message, clientData: IRCClientData) = ()
+    let rplMyInfoHandler (message: Message, clientData: IRCClient) = ()
     /// RPL_LUSERCLIENT handler
-    let rplLUserClientHandler (message: Message, clientData: IRCClientData) = ()
+    let rplLUserClientHandler (message: Message, clientData: IRCClient) = ()
     /// RPL_LUSERUNKNOWN handler
-    let rplLUserUnknownHandler (message: Message, clientData: IRCClientData) = ()
+    let rplLUserUnknownHandler (message: Message, clientData: IRCClient) = ()
     /// RPL_LUSERCHANNELS handler
-    let rplLUserChannelsHandler (message: Message, clientData: IRCClientData) = ()
+    let rplLUserChannelsHandler (message: Message, clientData: IRCClient) = ()
     /// RPL_LUSERME handler
-    let rplLUserMeHandler (message: Message, clientData: IRCClientData) = ()
+    let rplLUserMeHandler (message: Message, clientData: IRCClient) = ()
 
     /// RPL_ISUPPORT handler
-    let rplISupportHandler (message: Message, clientData: IRCClientData) =
+    let rplISupportHandler (message: Message, clientData: IRCClient) =
         let paramsLen = message.Params.Value.Value.Length
         let wantedParams = message.Params.Value.Value.[1..paramsLen-2]
 
@@ -119,33 +119,33 @@ module MessageHandlers =
         (currentUsers, maxUsers)
 
     /// RPL_LOCALUSERS handler
-    let rplLocalUsersHandler (message: Message, clientData: IRCClientData) =
+    let rplLocalUsersHandler (message: Message, clientData: IRCClient) =
         let wantedParam = message.Params.Value.Value.[1].Value
 
         clientData.ServerInfo <- {clientData.ServerInfo with LocalUserInfo = getCurrentAndMaxUsers wantedParam}
 
     /// RPL_GLOBALUSERS handler
-    let rplGlobalUsersHandler (message: Message, clientData: IRCClientData) =
+    let rplGlobalUsersHandler (message: Message, clientData: IRCClient) =
         let wantedParam = message.Params.Value.Value.[1].Value
 
         clientData.ServerInfo <- {clientData.ServerInfo with GlobalUserInfo = getCurrentAndMaxUsers wantedParam}
 //#endregion RPL_LOCALUSERS/RPL_GLOBALUSERS handlers
 
 //#region MOTD handlers
-    let rplMotdStartHandler (message: Message, clientData: IRCClientData) =
+    let rplMotdStartHandler (message: Message, clientData: IRCClient) =
         ()
 
-    let rplMotdHandler (message: Message, clientData: IRCClientData) =
+    let rplMotdHandler (message: Message, clientData: IRCClient) =
         let wantedParam = message.Params.Value.Value.[1].Value
 
         clientData.ServerMOTD <- clientData.ServerMOTD @ [wantedParam]
 
-    let rplEndOfMotdHandler (message: Message, clientData: IRCClientData) =
+    let rplEndOfMotdHandler (message: Message, clientData: IRCClient) =
         ()
 //#endregion MOTD handlers
 
 //#region Channel messages
-    let rplNamReplyHandler (message: Message, clientData: IRCClientData) =
+    let rplNamReplyHandler (message: Message, clientData: IRCClient) =
         let channelStatus = parseChannelStatus (message.Params.Value.Value.[1].Value)
         let channelName = message.Params.Value.Value.[2].Value
         let channelUsers = [| for cu in message.Params.Value.Value.[3..] -> cu.Value |]
@@ -158,10 +158,10 @@ module MessageHandlers =
             {Name = channelName; Status = channelStatus; Topic = ""; UserCount = channelUsers.Length; Users = channelUsers}
         |> clientData.SetChannelInfo channelName
 
-    let rplEndOfNamesHandler (message: Message, clientData: IRCClientData) =
+    let rplEndOfNamesHandler (message: Message, clientData: IRCClient) =
         ()
 
-    let rplTopicHandler (message: Message, clientData: IRCClientData) =
+    let rplTopicHandler (message: Message, clientData: IRCClient) =
         let channelName = message.Params.Value.Value.[1].Value
         let channelTopic = message.Params.Value.Value.[2].Value
 
@@ -173,6 +173,6 @@ module MessageHandlers =
             {Name = ""; Status = ""; Topic = channelTopic; UserCount = 0; Users = [||]}
         |> clientData.SetChannelInfo channelName
 
-    let rplAwayHandler (message: Message, clientData: IRCClientData) =
+    let rplAwayHandler (message: Message, clientData: IRCClient) =
         ()
 //#endregion

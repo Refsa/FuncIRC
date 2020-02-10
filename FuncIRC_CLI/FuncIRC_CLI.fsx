@@ -26,7 +26,7 @@ open System.Threading.Tasks
 open FuncIRC.IRCMessages
 open FuncIRC.MessageTypes
 open FuncIRC.ClientSetup
-open FuncIRC.IRCClientData
+open FuncIRC.IRCClient
 open FuncIRC.NumericReplies
 
 open Application
@@ -88,13 +88,12 @@ module CLI =
         with
             :? OperationCanceledException -> ()
 
-    let sendPrivMsgTask(message: string, channel: string, timeout: int, clientData: IRCClientData) =
-        let outMessage = channelMessage message channel
+    let sendPrivMsgTask(message: string, channel: string, timeout: int, clientData: IRCClient) =
         let mutable counter = 0
 
         let rec messageLoop() =
             async {
-                clientData.AddOutMessage {outMessage with Params = Some (toParameters [|channel; message + "_" + counter.ToString()|])}
+                sendChannelPrivMsg clientData (message + "_" + counter.ToString()) |> ignore
                 Thread.Sleep (timeout)
 
                 counter <- counter + 1
@@ -102,15 +101,15 @@ module CLI =
             }
         messageLoop()
 
-    let printPrivMsg (message: Message, clientData: IRCClientData) =
+    let printPrivMsg (message: Message, clientData: IRCClient) =
         printfn "PRIVMSG: %s %s: %s" 
                     message.Params.Value.Value.[0].Value 
                     message.Source.Value.Nick.Value 
                     message.Params.Value.Value.[1].Value
         None
 
-    let joinChannelOnConnect (message: Message, clientData: IRCClientData) =
-        clientData.AddOutMessage (joinChannelMessage "#testchannel")
+    let joinChannelOnConnect (message: Message, clientData: IRCClient) =
+        sendJoinMessage clientData "#testchannel" |> ignore
         //Async.StartAsTask ((sendPrivMsgTask ("spam", "#testchannel", 2000, clientData))) |> ignore
         None
 
@@ -131,7 +130,7 @@ module CLI =
         //(app.Run())
 
         let remoteServerAddress = ("testnet.inspircd.org", 6697, true)
-        let localServerAddress = ("127.0.0.1", 6697, false)
+        let localServerAddress = ("127.0.0.1", 6697, true)
 
         let clientData    = startIrcClient localServerAddress
         clientData.ErrorNumericReceivedEvent.Add (fun em -> printfn "Error: %s" em)
@@ -141,7 +140,7 @@ module CLI =
             fun (m, c) ->
                 match m.Verb.Value.Value with
                 | verb when verb = "PRIVMSG" -> printPrivMsg(m, c) |> ignore
-                | verb when verb = (NumericsReplies.RPL_MYINFO.ToString()) -> joinChannelOnConnect(m, c) |> ignore
+                | verb when verb = (NumericsReplies.RPL_ENDOFMOTD.ToString()) -> joinChannelOnConnect(m, c) |> ignore
                 | _ -> ()
         )
 
@@ -151,7 +150,7 @@ module CLI =
         while Console.ReadKey().Key <> ConsoleKey.Q do
             ()
 
-        clientData |> sendQuitMessage <| "Bye everyone!"
+        clientData |> sendQuitMessage <| "Bye everyone!" |> ignore
         clientData.DisconnectClient()
 
         0 // return an integer exit code

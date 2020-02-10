@@ -12,21 +12,25 @@ open NUnitTestHelpers
 open TestMessages
 
 open FuncIRC.IRCMessages
-open FuncIRC.IRCClientData
-open FuncIRC.ServerFeaturesHandler
+open FuncIRC.IRCClient
+open FuncIRC.ServerFeatureHandlers
 open FuncIRC.Validators
 
 module ValidatorsTests =
-    /// Creates a IRCClientData object with the given comma separated channel prefixes added
+
+    /// Creates a IRCClient object with the given comma separated channel prefixes added
+    /// TODO: Move to utils
     let mockIRCClientDataWithChannelPrefix (channelPrefixes: string) =
-        let clientData = IRCClientData()
+        let clientData = new IRCClient()
         let feature = [| ("CHANTYPES", channelPrefixes) |]
         serverFeaturesHandler (feature, clientData)
+
+        System.Threading.Thread.Sleep(1)
         clientData
 
     // validateChannel tests
     [<Test>]
-    let ``validateChannel should correctly validate a channel string based on information in IRCClientData``() =
+    let ``validateChannel should correctly validate a channel string based on information in IRCClient``() =
         let clientData = mockIRCClientDataWithChannelPrefix "#"
 
         let validChannel1 = "#channel"
@@ -47,8 +51,8 @@ module ValidatorsTests =
 
     // validateNick tests
     [<Test>]
-    let ``validateNick should validate nick string based on information in IRCClientData``() =
-        let clientData = IRCClientData()
+    let ``validateNick should validate nick string based on information in IRCClient``() =
+        let clientData = new IRCClient()
 
         let validNick1 = "somenick"
         let validNick2 = "someOtherNick"
@@ -68,8 +72,8 @@ module ValidatorsTests =
 
     // validateUser tests
     [<Test>]
-    let ``validateUser should validate user string based on information in IRCClientData``() =
-        let clientData = IRCClientData()
+    let ``validateUser should validate user string based on information in IRCClient``() =
+        let clientData = new IRCClient()
 
         let validUser1 = "someUser"
         let validUser2 = "otherUser"
@@ -89,8 +93,8 @@ module ValidatorsTests =
 
     // validateTopic tests
     [<Test>]
-    let ``validateTopic should validate topic string based on information in IRCClientData``() =
-        let clientData = IRCClientData()
+    let ``validateTopic should validate topic string based on information in IRCClient``() =
+        let clientData = new IRCClient()
 
         let validTopic1 = "some topic"
         let validTopic2 = "some other topic"
@@ -109,7 +113,7 @@ module ValidatorsTests =
     /// validateHostname tests
     [<Test>]
     let ``validateHostname should filter out invalid hostnames``() =
-        let clientData = IRCClientData()
+        let clientData = new IRCClient()
 
         hostnameTests
         |> List.iter
@@ -124,8 +128,8 @@ module ValidatorsTests =
 
     /// validateSource tests
     [<Test>]
-    let ``validateSource should validate Source record based on information in IRCClientData``()=
-        let clientData = IRCClientData()
+    let ``validateSource should validate Source record based on information in IRCClient``()=
+        let clientData = new IRCClient()
 
         sourceTests
         |> List.iter
@@ -141,7 +145,7 @@ module ValidatorsTests =
     /// validateTagKey tests
     [<Test>]
     let ``validateTagKey should validate keys of tags in a message``() =
-        let clientData = IRCClientData()
+        let clientData = new IRCClient()
 
         // Valid tests
         testMessages
@@ -174,7 +178,7 @@ module ValidatorsTests =
     /// validateTagValue tests
     [<Test>]
     let ``validateTagValue should validate values of Tags in a message``() =
-        let clientData = IRCClientData()
+        let clientData = new IRCClient()
 
         // Valid tests
         testMessages
@@ -213,7 +217,7 @@ module ValidatorsTests =
     /// validateMessageString tests
     [<Test>]
     let ``validateMessageString should check if length of string is within line length of IRCServerInfo``() =
-        let clientData = IRCClientData()
+        let clientData = new IRCClient()
 
         let validMessageString = createString clientData.GetServerInfo.LineLength
         let invalidMessageString = createString (clientData.GetServerInfo.LineLength + 1)
@@ -251,7 +255,7 @@ module ValidatorsTests =
     // validateNicksString tests
     [<Test>]
     let ``validateNicksString should check the amount of targets``() =
-        let clientData = IRCClientData()
+        let clientData = new IRCClient()
 
         let validNicks1 = "target1,target2"
         

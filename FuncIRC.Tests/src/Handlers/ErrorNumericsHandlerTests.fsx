@@ -6,16 +6,16 @@ namespace NUnit
 namespace NUnit.Framework
 
 module ErrorNumericsHandlerTests =
-    open FuncIRC.IRCClientData
+    open FuncIRC.IRCClient
     open FuncIRC.MessageTypes
     open FuncIRC.ErrorNumericsHandlers
 
-    let ircClientData(): IRCClientData = IRCClientData()
+    let ircClientData(): IRCClient = new IRCClient()
 
     let newVerbNameMessage verbName = Message.NewSimpleMessage (Some (Verb verbName)) None
 
 //#region Error responses from server
-    let verifyErrorResponse wantedResponse handler message (clientData: IRCClientData) =
+    let verifyErrorResponse wantedResponse handler message (clientData: IRCClient) =
         let mutable errorResponse = ""
         clientData.ErrorNumericReceivedEvent
         |> Event.add (

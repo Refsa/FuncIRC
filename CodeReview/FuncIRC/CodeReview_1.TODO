@@ -21,7 +21,7 @@
     - Look into refactoring into a Record type, but might not be needed as it's a create once type of object
         Could also be useful to be able to store as a null value which is only possible with class
 
-# IRCClientData.fsx::IRCClientData
+# IRCClient.fsx::IRCClient
     - MessageQueue should be replaced my MailboxProcessor
     - Add XML Comments on the externally accessible members
     - the mutable fields needs to be thread safe
@@ -32,8 +32,8 @@
     - Add comments to fields of IRCServerInfo so relevant information can be displayed in field info popup
     - Move default constructors to their own file, or create separate files/modules for each of the record types
 
-# IRCClient.fsx:
-    - ircClient should take seperate values as parameters instead of a tuple?
+# IRCClientHandler.fsx:
+    - startIrcClient should take seperate values as parameters instead of a tuple?
     - Thread.Sleep after the CancellationTokenSource for the threads is cancelled is using a magic number
     - Not guaranteed that readStream/writeStream tasks are disposing correctly
 
@@ -49,9 +49,9 @@
     - Catch all exception handling in readStream::readLoop
 
 # IRCStreamWriter.fsx:
-    - Make sendIRCMessage private as messages should be sent through IRCClientData::OutQueue
+    - Make sendIRCMessage private as messages should be sent through IRCClient::OutQueue
     - Catch all exception in sendIRCMessage
-    - The way outbound messages are fetched from IRCClientData could lead to a race condition, MailboxProcessor will solve this
+    - The way outbound messages are fetched from IRCClient could lead to a race condition, MailboxProcessor will solve this
     - No error reporting when trying to send empty string, it's handled but should be able to give some user feedback
     - Checking if CancellationTokenSource is cancelled after each message sent could be less performant is some use cases
 
@@ -66,7 +66,7 @@
 
 # ServerFeaturesHandler.fsx:
     - Might be more performant to create and instantiate a factory function and pass the featureHandler in by currying it
-    - It is not updating IRCClientData with information in a thread-safe way
+    - It is not updating IRCClient with information in a thread-safe way
     - Avoid using printfn in serverFeaturesHandler to warn that a feature isn't supported
     - A factory function should make it easier to extend functionality externally
     - chanLimitFeatureHandler is a bit unclear on how it functions, find a cleaner way to do the second part (chanLimitFeatureHandler::buildChannelPrefixes)
@@ -86,7 +86,7 @@
         - pongMessageHandler > pingMessageHandler
         - A lot of the functions are lacking comments even though they are directly named after the Numeric reply they handle
     - dateTimeRegex only works for one specific DateTime format
-    - Functions aren't updating IRCClientData in a thread-safe way
+    - Functions aren't updating IRCClient in a thread-safe way
 
 # MessageParser.fsx:
     - Nothing in particular, XML documentation
