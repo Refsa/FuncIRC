@@ -24,3 +24,13 @@ funcirc_cli_tests:
     - paket.exe install
     - ./build_funcirc_cli.cmd
     - ./run_cli_tests.cmd
+
+pages:
+  script:
+    - docfx Documentation/docfx_project/docfx.json
+    - mv Documentation/docfx_project/api public
+  artifacts:
+    paths:
+      - public
+  only:
+    - master
