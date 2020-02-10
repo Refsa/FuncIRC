@@ -5,8 +5,9 @@ NUGET
   remote: https://api.nuget.org/v3/index.json
     FParsec (1.1.1)
       FSharp.Core (>= 4.3.4)
-    FSharp.Compiler.Service (33.0.1)
+    FSharp.Compiler.Service (34.0.1)
       FSharp.Core (>= 4.6.2)
+      System.Buffers (>= 4.5)
       System.Collections.Immutable (>= 1.5)
       System.Diagnostics.Process (>= 4.1)
       System.Diagnostics.TraceSource (>= 4.0)
@@ -84,7 +85,7 @@ NUGET
     runtime.ubuntu.16.04-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3.3)
     runtime.ubuntu.16.10-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3.3)
     runtime.ubuntu.18.04-x64.runtime.native.System.Security.Cryptography.OpenSsl (4.3.3)
-    System.Buffers (4.5) - restriction: || (&& (== netcoreapp2.0) (>= monoandroid) (< netstandard2.0)) (&& (== netcoreapp2.0) (>= monotouch)) (&& (== netcoreapp2.0) (>= net461)) (&& (== netcoreapp2.0) (>= xamarinios)) (&& (== netcoreapp2.0) (>= xamarinmac)) (&& (== netcoreapp2.0) (>= xamarintvos)) (&& (== netcoreapp2.0) (>= xamarinwatchos)) (&& (== netcoreapp2.1) (>= monoandroid) (< netstandard2.0)) (&& (== netcoreapp2.1) (>= monotouch)) (&& (== netcoreapp2.1) (>= net461)) (&& (== netcoreapp2.1) (< netcoreapp2.0)) (&& (== netcoreapp2.1) (>= xamarinios)) (&& (== netcoreapp2.1) (>= xamarinmac)) (&& (== netcoreapp2.1) (>= xamarintvos)) (&& (== netcoreapp2.1) (>= xamarinwatchos)) (== netstandard2.0)
+    System.Buffers (4.5)
     System.Collections (4.3)
       Microsoft.NETCore.Platforms (>= 1.1)
       Microsoft.NETCore.Targets (>= 1.1)
@@ -305,7 +306,7 @@ GROUP Build
 NUGET
   remote: https://www.nuget.org/api/v2
     FAKE (5.16)
-    FParsec (1.1)
+    FParsec (1.1.1)
       FSharp.Core (>= 4.3.4) - restriction: || (>= net45) (>= netstandard2.0)
       System.ValueTuple (>= 4.4) - restriction: >= net45
     FSharp.Core (4.7) - restriction: || (>= net45) (>= netstandard2.0)

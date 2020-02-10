@@ -1,0 +1,726 @@
+{
+  "homepages": [],
+  "source_base_path": "C:/Users/refsa/Documents/F#/FuncIRC/Documentation/docfx_project",
+  "xrefmap": "xrefmap.yml",
+  "files": [
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.ClientSetup.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.ClientSetup.html",
+          "hash": "cl/DRcjNp25IpCUNrNq/7w=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.ErrorNumericsHandlers.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.ErrorNumericsHandlers.html",
+          "hash": "BOs5u/oroWywaIVqixOgig=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.GeneralHelpers.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.GeneralHelpers.html",
+          "hash": "Hnm54HZTX1s5rV8OnKCz5Q=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.IRCClient.IRCClient.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.IRCClient.IRCClient.html",
+          "hash": "TO7NPs2p4Y4PKRIHHmUB4g=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.IRCClient.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.IRCClient.html",
+          "hash": "MRP1x6a0gzVstrraeWjN3Q=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.IRCClientHandler.ClientConnectionException.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.IRCClientHandler.ClientConnectionException.html",
+          "hash": "/7RCeBa6C8XANwUxPEsQSQ=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.IRCClientHandler.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.IRCClientHandler.html",
+          "hash": "HQ4LIOaruCwNblWAbdT+OA=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.IRCInformation.Casemapping.Tags.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.IRCInformation.Casemapping.Tags.html",
+          "hash": "0YDeW+a8pTXBJLubGJff+Q=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.IRCInformation.Casemapping.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.IRCInformation.Casemapping.html",
+          "hash": "JP5wIpwHrUjj7Uu9nF9Eqw=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.IRCInformation.IRCChannelInfo.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.IRCInformation.IRCChannelInfo.html",
+          "hash": "uNdKhNErW/Gtd8aySccrtQ=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.IRCInformation.IRCChannelModes.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.IRCInformation.IRCChannelModes.html",
+          "hash": "/SaXPWi+RM0TK5jAO6hhqA=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.IRCInformation.IRCServerChannels.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.IRCInformation.IRCServerChannels.html",
+          "hash": "xYHz0cyWCtE967b+GPTGlQ=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.IRCInformation.IRCServerFeatures.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.IRCInformation.IRCServerFeatures.html",
+          "hash": "BKu5WQmpesaXZrHbX3PhSQ=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.IRCInformation.IRCServerInfo.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.IRCInformation.IRCServerInfo.html",
+          "hash": "um6fad383ZtS1Ad7oYSs+Q=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.IRCInformation.IRCServerMOTD.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.IRCInformation.IRCServerMOTD.html",
+          "hash": "cnb40jCemT7opiCuAfElrQ=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.IRCInformation.IRCUserInfo.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.IRCInformation.IRCUserInfo.html",
+          "hash": "r+thOMSqtHcNS4kQl+2JQQ=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.IRCInformation.IRCUserModes.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.IRCInformation.IRCUserModes.html",
+          "hash": "GD6OdAINSwr7joaoTVo84w=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.IRCInformation.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.IRCInformation.html",
+          "hash": "zWmASNgEpTUl0ubQPNBIow=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.IRCMessages.RegistrationContentException.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.IRCMessages.RegistrationContentException.html",
+          "hash": "ATW8m1QvItbIx3eAFN4uww=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.IRCMessages.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.IRCMessages.html",
+          "hash": "dY1Pxw4j1LxX/5Dx5wDhbQ=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.IRCStreamReader.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.IRCStreamReader.html",
+          "hash": "t4uDZQjg4dwBGuJreFiVGw=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.IRCStreamWriter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.IRCStreamWriter.html",
+          "hash": "jDB+yxzBfl6dZWlkVJDcjg=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.MailboxProcessorHelpers.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.MailboxProcessorHelpers.html",
+          "hash": "6kB3TZc5b325/GrdaXq1yQ=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.MessageHandlers.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.MessageHandlers.html",
+          "hash": "UxbqRdNVyvmX628OanbNhQ=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.MessageParser.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.MessageParser.html",
+          "hash": "ZRLYrJlLisfswq+Xyn3+nA=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.MessageQueue.MessageQueue.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.MessageQueue.MessageQueue.html",
+          "hash": "A9+GGspfIIlkpA0v7rRYiw=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.MessageQueue.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.MessageQueue.html",
+          "hash": "YWO+5ldpB2kKn4PIvuR4qA=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.MessageTypes.Message.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.MessageTypes.Message.html",
+          "hash": "euK9P8OeijOAvqS6QeYP3g=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.MessageTypes.Parameter.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.MessageTypes.Parameter.html",
+          "hash": "EuQiqCMwZATchbQAsZ7hlQ=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.MessageTypes.Parameters.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.MessageTypes.Parameters.html",
+          "hash": "SKfSB5j+Lyze4/O+HildTg=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.MessageTypes.Source.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.MessageTypes.Source.html",
+          "hash": "XfGP8DafjPv4oxSEHJPesA=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.MessageTypes.Tag.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.MessageTypes.Tag.html",
+          "hash": "87xGjBQNF9H4NOHrnoJy4Q=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.MessageTypes.Verb.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.MessageTypes.Verb.html",
+          "hash": "thzf6+2P1MuGDySMCyMYmg=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.MessageTypes.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.MessageTypes.html",
+          "hash": "DT2w0n++hIiwC5WaE9Lgyw=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.Modes.ChannelMembershipPrefix.Tags.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.Modes.ChannelMembershipPrefix.Tags.html",
+          "hash": "AW/O251j0rLZQ3Y52WNeKA=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.Modes.ChannelMembershipPrefix.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.Modes.ChannelMembershipPrefix.html",
+          "hash": "8hUzCoWNkBaeXNSNlEyDZQ=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.Modes.ChannelMode.Tags.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.Modes.ChannelMode.Tags.html",
+          "hash": "VqXeWT6+uAJ/W0VjqXnzDg=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.Modes.ChannelMode.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.Modes.ChannelMode.html",
+          "hash": "zvDhWXDg+HJBo4m6qJiUZw=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.Modes.UserMode.Tags.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.Modes.UserMode.Tags.html",
+          "hash": "/he+/spAJFhcWyh2aoJ5jg=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.Modes.UserMode.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.Modes.UserMode.html",
+          "hash": "Jk9EMcYJj8beQb+CRi0lYQ=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.Modes.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.Modes.html",
+          "hash": "Vaf+ghsPI05L4wm87qOCMQ=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.NumericReplies.NumericsReplies.Tags.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.NumericReplies.NumericsReplies.Tags.html",
+          "hash": "Njk5C+2pRSs9UxargLP/uw=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.NumericReplies.NumericsReplies.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.NumericReplies.NumericsReplies.html",
+          "hash": "ueC1WuykNqMcQnjaXhFbfA=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.NumericReplies.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.NumericReplies.html",
+          "hash": "S15fWFzrAdd9zDc1m6yT7A=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.RegexHelpers.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.RegexHelpers.html",
+          "hash": "IHkWkWmL8Vgp/vBQ9c29lw=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.ServerFeatureHandlers.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.ServerFeatureHandlers.html",
+          "hash": "f6E54I0Cp52NGR9fdcDHhA=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.StringHelpers.IncomingByteMessageParsingException.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.StringHelpers.IncomingByteMessageParsingException.html",
+          "hash": "VvgKNBoxzk9j5ROWUdPYsg=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.StringHelpers.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.StringHelpers.html",
+          "hash": "z0fJj33iJ4rJ02nvFZj7Qg=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.TCPClient.TCPClient.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.TCPClient.TCPClient.html",
+          "hash": "aM5+u7C0qNoH2ndy8bLoUw=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.TCPClient.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.TCPClient.html",
+          "hash": "XXE2rwKxFnrp90+1yLtNyg=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.TcpClientHelpers.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.TcpClientHelpers.html",
+          "hash": "H96/mDvUZWQRbUHt5sWXrA=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.Validators.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.Validators.html",
+          "hash": "DZ0dVfBqpGIPFet8IAXacQ=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "ManagedReference",
+      "source_relative_path": "api/FuncIRC.yml",
+      "output": {
+        ".html": {
+          "relative_path": "api/FuncIRC.html",
+          "hash": "4lQ1tYC43cHzIaprh80+QQ=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "api/index.md",
+      "output": {
+        ".html": {
+          "relative_path": "api/index.html",
+          "hash": "syce6UCwM4gwtKEnu89X6g=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "articles/intro.md",
+      "output": {
+        ".html": {
+          "relative_path": "articles/intro.html",
+          "hash": "/ui+/+ztqUrfWfAEhitreA=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    },
+    {
+      "type": "Conceptual",
+      "source_relative_path": "index.md",
+      "output": {
+        ".html": {
+          "relative_path": "index.html",
+          "hash": "kl1+ESO6gQ4T2sBgMZbnvg=="
+        }
+      },
+      "is_incremental": true,
+      "version": ""
+    }
+  ],
+  "incremental_info": [
+    {
+      "status": {
+        "can_incremental": true,
+        "incrementalPhase": "build",
+        "total_file_count": 0,
+        "skipped_file_count": 0
+      },
+      "processors": {
+        "ManagedReferenceDocumentProcessor": {
+          "can_incremental": true,
+          "incrementalPhase": "build",
+          "total_file_count": 53,
+          "skipped_file_count": 53
+        },
+        "ConceptualDocumentProcessor": {
+          "can_incremental": true,
+          "incrementalPhase": "build",
+          "total_file_count": 3,
+          "skipped_file_count": 3
+        },
+        "TocDocumentProcessor": {
+          "can_incremental": false,
+          "details": "Processor TocDocumentProcessor cannot support incremental build because the processor doesn't implement ISupportIncrementalDocumentProcessor interface.",
+          "incrementalPhase": "build",
+          "total_file_count": 0,
+          "skipped_file_count": 0
+        }
+      }
+    },
+    {
+      "status": {
+        "can_incremental": true,
+        "details": "Can support incremental post processing.",
+        "incrementalPhase": "postProcessing",
+        "total_file_count": 0,
+        "skipped_file_count": 0
+      },
+      "processors": {}
+    }
+  ],
+  "version_info": {},
+  "groups": [
+    {
+      "xrefmap": "xrefmap.yml"
+    }
+  ]
+}
