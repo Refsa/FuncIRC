@@ -27,6 +27,8 @@ funcirc_cli_tests:
 
 pages:
   script:
+    - paket.exe install
+    - ./build_funcirc.cmd
     - docfx "Documentation/docfx_project/docfx.json"
     - mv Documentation/docfx_project/_site public
   artifacts:
