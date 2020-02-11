@@ -17,7 +17,9 @@ module internal TCPClient =
 module TCPClient =
 #endif
 
+    /// <summary>
     /// Wrapper for TcpClient and SslStream
+    /// </summary>
     [<Sealed>]
     type TCPClient(server: string, port: int, useSsl: bool) =
         let client: TcpClient ref = ref null
@@ -31,8 +33,11 @@ module TCPClient =
         member this.ReadFromStream (data: byte array) (startOffset: int) (length: int) =
             stream.Value.Read (data, startOffset, data.Length)
 
+        /// Gets the underlying .Net TcpClient object
         member this.Client    = client.Value
+        /// Checks if the underlying .Net TcpClient is connected
         member this.Connected = this.Client.Connected
+        /// Returns a string of the supplied server and port formatted as <server>:<port>
         member this.Address   = server + ":" + string port
 
         /// Connects client to server if it's not already connected

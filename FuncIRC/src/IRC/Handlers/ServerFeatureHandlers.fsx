@@ -5,8 +5,6 @@
 
 namespace FuncIRC
 
-open System
-
 open IRCClient
 open IRCInformation
 open GeneralHelpers

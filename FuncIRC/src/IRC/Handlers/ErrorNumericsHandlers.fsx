@@ -1,18 +1,10 @@
-#load "../TCPClient/IRCClient.fsx"
-#load "../Utils/RegexHelpers.fsx"
-#load "MessageTypes.fsx"
-#load "MessageParserInternals.fsx"
-#load "NumericReplies.fsx"
+#load "../../Client/IRCClient.fsx"
+#load "../Types/MessageTypes.fsx"
 
 namespace FuncIRC
 
 open MessageTypes
 open IRCClient
-open IRCInformation
-open NumericReplies
-open MessageParserInternals
-open RegexHelpers
-open System
 
 #if !DEBUG
 module internal ErrorNumericsHandlers =

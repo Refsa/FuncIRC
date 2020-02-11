@@ -9,11 +9,15 @@ module StringHelpers =
     /// UTF-8 Encoding object
     let utf8Encoding = Encoding.UTF8 
 
+    /// <summary>
     /// Raised when the incoming byte array/stream couldn't be parsed with either UTF-8 or Latin-1
+    /// </summary>
     exception IncomingByteMessageParsingException
 
+    /// <summary>
     /// Takes a byte array and first attemps to decode using UTF8, uses Latin-1 if that fails
     /// raises: <typeref "IncomingByteMessageParsingException">
+    /// </summary>
     let parseByteString (data: byte array) =
         try
             utf8Encoding.GetString(data, 0, data.Length)
@@ -24,7 +28,9 @@ module StringHelpers =
                 with
                 | e -> raise IncomingByteMessageParsingException
 
+    /// <summary>
     /// Trims the first character of a string if it's the given character
+    /// </summary>
     /// <params name="target"> string to trim </params>
     /// <params name="character"> character to look for and trim off the start </params>
     /// <returns> A trimmed string or just the original string </returns>
@@ -34,7 +40,9 @@ module StringHelpers =
         else
             target
 
+    /// <summary>
     /// Trims the last character of a string if it's the given character
+    /// </summary>
     /// <params name="target"> string to trim </params>
     /// <params name="character"> character to look for and trim off the end </params>
     /// <returns> A trimmed string or just the original string </returns>
@@ -44,14 +52,18 @@ module StringHelpers =
         else
             target
 
+    /// <summary>
     /// Takes the value from a string option if it is some
+    /// </summary>
     /// <returns> the string value if it is Some, empty string if None </returns>
     let stringFromStringOption (target: string option) =
         match target with
         | Some target -> target
         | None -> ""
 
+    /// <summary>
     /// Checks if the given string is only alphanumeric
+    /// </summary>
     /// <params name="string"> string to look through </params>
     /// <returns> true if its an alphanumeric string </returns>
     let stringIsOnlyAlphaNumeric (target: string) =
@@ -62,7 +74,9 @@ module StringHelpers =
                 Char.IsLetterOrDigit c
             ) 
 
+    /// <summary>
     /// Checks that the given string is alphanumeric and doesn't contain any of the given characters
+    /// </summary>
     /// <params name="target"> string to look through </params>
     /// <params name="except"> Array of chars to check for </params>
     /// <returns> true if it is alphanumeric and contains none of the chars in the except array </returns>
@@ -77,7 +91,9 @@ module StringHelpers =
                     true
             )
 
+    /// <summary>
     /// Checks that a string does not contain any of the given chars in the characters array
+    /// </summary>
     /// <params name="target"> target string to look through </params>
     /// <params name="characters"> array of characters to look for </params>
     /// <returns> true if it contains any of the given characters </returns>

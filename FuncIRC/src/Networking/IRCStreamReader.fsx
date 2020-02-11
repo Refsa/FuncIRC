@@ -1,17 +1,16 @@
 #load "TCPClient.fsx"
 #load "IRCClient.fsx"
-#load "../IRC/MessageParser.fsx"
-#load "../IRC/MessageParserInternals.fsx"
-#load "../IRC/MessageTypes.fsx"
-#load "../IRC/NumericReplies.fsx"
-#load "../IRC/MessageHandlers.fsx"
+#load "../IRC/Parsers/MessageParser.fsx"
+#load "../IRC/Parsers/MessageParserInternals.fsx"
+#load "../IRC/Types/MessageTypes.fsx"
+#load "../IRC/Types/NumericReplies.fsx"
+#load "../IRC/Handlers/MessageHandlers.fsx"
 #load "../Utils/StringHelpers.fsx"
 #load "../Utils/MailboxProcessorHelpers.fsx"
 
 namespace FuncIRC
 
 open System
-open System.Diagnostics
 
 open IRCClient
 open MailboxProcessorHelpers
@@ -27,7 +26,9 @@ module internal IRCStreamReader =
 #else
 module IRCStreamReader =
 #endif
+    /// <summary>
     /// Parses the whole message string from the server and runs the corresponding sub-handlers for tags, source, verb and params
+    /// </summary>
     let receivedDataHandler (data: string, clientData: IRCClient) =
         data.Trim(' ').Replace("\r\n", "")
         |> function
@@ -45,8 +46,10 @@ module IRCStreamReader =
                 clientData.MessageSubscriptionTrigger {message with Verb = Some verbName}
             | None -> ()
 
+    /// <summary>
     /// Responsible for reading the incoming byte stream
     /// Reads on byte at a time, dispatches the callback delegate when \r\n EOM marker is found
+    /// </summary>
     let readStream (clientData: IRCClient) (client: TCPClient) =
         let processorAgent =
             ( fun msg -> receivedDataHandler(msg, clientData) ) |> mailboxProcessorFactory<string>

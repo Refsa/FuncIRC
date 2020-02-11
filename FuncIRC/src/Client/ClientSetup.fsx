@@ -7,6 +7,8 @@
 
 namespace FuncIRC
 
+open MessageHandlers
+open IRCClient
 open IRCClientHandler
 open MessageTypes
 
