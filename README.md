@@ -1,5 +1,10 @@
 # FuncIRC - IRCv3 Client in F#
 
+## Gitlab Pages
+You can find more documentation and API reference over at the [Gitlab Pages](https://refsa22.gitlab.io/funcirc/index.html) for this project.
+
+In the future most of the documentation found here now will be available at the gitlab pages instead.
+
 ## Required
 #### .Net Standard
 Project uses .Net Standard 2.0 as referenced here: https://docs.microsoft.com/en-us/dotnet/standard/net-standard
