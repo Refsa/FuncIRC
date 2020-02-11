@@ -6,7 +6,9 @@ open MessageTypes
 
 module MessageQueue =
 
-    // TODO: Refactor into a generic queue type
+    /// <summary>
+    // TODO: Remove this from the project
+    /// </summary>
     [<Sealed>]
     type MessageQueue() =
         let mutable messages: Message list = []
@@ -29,7 +31,10 @@ module MessageQueue =
             messages <- []
             storedMessages
 
+    /// <summary>
     /// Checks how many items in queue, returns nothing when empty and all the content if there is one or more
+    /// TODO: Remove this from the project
+    /// </summary>
     let (|EmptyQueue|SingleItemInQueue|MultipleItemsInQueue|) (queue: MessageQueue) =
         match queue.Count with
         | 0 -> EmptyQueue

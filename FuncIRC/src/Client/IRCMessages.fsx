@@ -17,7 +17,9 @@ open Validators
 open IRCInformation
 
 module IRCMessages =
+    /// <summary>
     /// Exception thrown when parameters to a registration message was missing
+    /// </summary>
     exception RegistrationContentException
 
 //#region Internal Message Constructs
@@ -60,7 +62,9 @@ module IRCMessages =
     let internal createChannelPrivMessage message channel = { Tags = None; Source = None; Verb = Some (Verb "PRIVMSG"); Params = Some (toParameters [|channel; ":" + message|]) }
 //#endregion
 
+    /// <summary>
     /// Active Pattern to validate and check which part of the login details that were given
+    /// </summary>
     /// <returns>
     /// <param name="UserRealNamePass">tuple (nick, user, realName, pass)</param>
     /// <param name="UserRealName">tuple (nick, user, realName)</param>
@@ -89,8 +93,10 @@ module IRCMessages =
             | _                       -> Nick (nick) // Not sure if this should be valid login data
         | false -> InvalidLoginData
 
+    /// <summary>
     /// Creates a registration message and sends it to the outbound message queue
     /// Subscribes to incoming VERBs related to the registration message
+    /// </summary>
     /// <param name="loginData"> tuple formatted as nick, user, realName, pass </param>
     let sendRegistrationMessage (clientData: IRCClient) (loginData: string * string * string * string) =
         let messages = 
@@ -122,7 +128,9 @@ module IRCMessages =
 
         clientData.AddOutMessages messages
 
+    /// <summary>
     /// Creates a JOIN message to join a channel
+    /// </summary>
     /// <returns> True if the message was added to the outbound message, false if not </returns>
     let sendJoinMessage (clientData: IRCClient) (channel: string) =
         match validateChannel clientData channel with
@@ -131,8 +139,10 @@ module IRCMessages =
             createJoinChannelMessage channel |> clientData.AddOutMessage
             true
 
+    /// </summary>
     /// Creates a PRIVMSG with channel as target using the given message
     /// TODO: Remove if branches
+    /// </summary>
     /// <returns> True if the message was added to the outbound message, false if not </returns>
     let sendChannelPrivMsg (clientData: IRCClient) (channel: string) (message: string) =
         if      message = "" then false
@@ -145,8 +155,10 @@ module IRCMessages =
             createChannelPrivMessage channel message |> clientData.AddOutMessage
             true
 
+    /// <summary>
     /// Creates a kick message and adds it to the outbound messages
     /// TODO: Remove if branches
+    /// </summary>
     /// <returns> True if the message was added to the outbound message, false if not </returns>
     let sendKickMessage (clientData: IRCClient) (kickUser: string) (message: string) =
         if validateUser clientData kickUser |> not then false
@@ -156,7 +168,9 @@ module IRCMessages =
         createKickMessage kickUser message |> clientData.AddOutMessage
         true
 
+    /// <summary>
     /// Creates a topic message and adds it to the outbound messages
+    /// </summary>
     /// <returns> True if the message was added to the outbound message, false if not </returns>
     let sendTopicMessage (clientData: IRCClient) (topic: string) =
         match validateTopic clientData topic with
@@ -165,7 +179,9 @@ module IRCMessages =
             createTopicMessage topic |> clientData.AddOutMessage
             true
 
+    /// <summary>
     /// Creates a QUIT messages and adds it to the outbound message queue
+    /// </summary>
     /// <returns> True if the message was added to outqueue, false if not </returns>
     let sendQuitMessage (clientData: IRCClient) (message: string) =
         match message.Length > 200 with
@@ -174,7 +190,9 @@ module IRCMessages =
             createQuitMessage message |> clientData.AddOutMessage
             true
 
+    /// <summary>
     /// Creates an AWAY messages and adds it to the outboid message queue if the length of the message was within bounds
+    /// </summary>
     /// <returns> True if the message was added to outqueue, false if not </returns>
     let sendAwayMessage (clientData: IRCClient) (message: string) =
         match message.Length > clientData.GetServerInfo.MaxAwayLength with

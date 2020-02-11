@@ -2,15 +2,13 @@
 #load "../Handlers/ServerFeatureHandlers.fsx"
 #load "../Parsers/MessageParserInternals.fsx"
 #load "../Types/MessageTypes.fsx"
-#load "../Types/NumericReplies.fsx"
-#load "../Utils/RegexHelpers.fsx"
+#load "../../Utils/RegexHelpers.fsx"
 
 namespace FuncIRC
 
 open MessageTypes
 open IRCClient
 open IRCInformation
-open NumericReplies
 open MessageParserInternals
 open RegexHelpers
 open ServerFeatureHandlers

@@ -1,9 +1,9 @@
 namespace FuncIRC
-#load "IrcUtils.fsx"
-#load "MessageTypes.fsx"
-#load "../Utils/RegexHelpers.fsx"
-#load "../Utils/StringHelpers.fsx"
-#load "../Utils/GeneralHelpers.fsx"
+#load "../../Utils/IrcUtils.fsx"
+#load "../Types/MessageTypes.fsx"
+#load "../../Utils/RegexHelpers.fsx"
+#load "../../Utils/StringHelpers.fsx"
+#load "../../Utils/GeneralHelpers.fsx"
 
 module internal MessageParserInternals =
     open GeneralHelpers
@@ -16,7 +16,9 @@ module internal MessageParserInternals =
     let sourceRegex  = @"^(:[\S.]+)"
     let commandRegex = @"^([a-zA-Z0-9]+.+)"
 
+    /// <summary>
     /// Parses the channel status marker of a message parameter
+    /// </summary>
     let parseChannelStatus statusString =
         match statusString with
         | "=" -> "Public"
@@ -24,26 +26,36 @@ module internal MessageParserInternals =
         | "*" -> "Private"
         | _ -> "None"
 
+    /// <summary>
     /// Trims the tags string of extranous characters and splits it with ';' character
+    /// </summary>
     let extractTags (tagsString: string) =
         ((tagsString.TrimStart('@').TrimStart(' ').Split(';')) |> Array.toList)
 
+    /// <summary>
     /// Trims the source string of extraneous characters
+    /// </summary>
     let extractSource (sourceString: string) =
         (sourceString.TrimStart(':').TrimStart(' '))
 
+    /// <summary>
     /// Trims the command string of extraneous characters
+    /// </summary>
     let extractCommand (commandString: string) =
         (commandString.TrimStart(' '))
 
+    /// <summary>
     /// Tages a string collection length to check if it's valid, contains key or key and value
+    /// </summary>
     let (|IsTagKeyOnly|IsTagKeyValue|IsTagNone|) keyLen =
         match keyLen with
         | 1 -> IsTagKeyOnly
         | 2 -> IsTagKeyValue
         | _ -> IsTagNone
 
+    /// <summary>
     /// Takes the list of tags extracted in messageSplit and creates a list of Tag Records from them
+    /// </summary>
     let parseTags (tagSplit: string list option): Tag list option =
         match tagSplit with
         | None -> None
@@ -59,8 +71,10 @@ module internal MessageParserInternals =
                             | IsTagNone     -> {Key = "FAILURE"; Value = None}
                 ]
 
+    /// <summary>
     /// Takes the nick split, host split and if the source string has 
     ///  punctiation marks to find the correct combination of nick, user and host
+    /// </summary>
     let (|IsNick|IsHost|IsNickUser|IsUserHost|IsNickHost|IsNickUserHost|) (nickSplit, hostSplit, hasPunct) =
         let nickSingle = Array.length nickSplit = 1
         let hostSingle = Array.length hostSplit = 1
@@ -73,8 +87,10 @@ module internal MessageParserInternals =
         | _ when not hostSingle && not nickSingle     -> IsNickUserHost
         | _                                           -> IsUserHost
 
+    /// <summary>
     /// Takes the source extracted in messageSplit and creates a Source record from it
     /// TODO: Look into using FParsec
+    /// </summary>
     let parseSource (sourceString: string option): Source option =
         if sourceString = None then None
         else
@@ -97,7 +113,9 @@ module internal MessageParserInternals =
                     Host = Some hostSplit.[1];
                 }
 
+    /// <summary>
     /// Checks the length of the split parameters string to find out if it has trailing parameters or not
+    /// </summary>
     let (|NoParams|HasTrailing|NoTrailing|) (paramSplit: string array) =
         match paramSplit.Length with
         | 0                           -> NoParams
@@ -105,7 +123,9 @@ module internal MessageParserInternals =
         | 1                           -> NoTrailing
         | _                           -> HasTrailing
 
+    /// <summary>
     /// Picks out the params when there were no trailing marker
+    /// </summary>
     let getParamsNoTrailing (paramsSplit: string array) =
         let subSplit = arrayRemove (paramsSplit.[0].TrimStart(' ').Split(' ')) stringIsEmpty
 
@@ -116,7 +136,9 @@ module internal MessageParserInternals =
             let primary = arrayRemove (paramsSplit.[0].Replace(subSplit.[0], "").Split(' ')) stringIsEmpty |> Array.toList
             Some (toParameters ([ subSplit.[0] ] @ primary))
 
+    /// <summary>
     /// Picks out the parameters when a trailing marker was found
+    /// </summary>
     let getParamsWithTrailing (paramsSplit: string array, parametersString: string) = 
         let primary   = arrayRemove (paramsSplit.[0].Split(' ')) stringIsEmpty |> Array.toList
         let secondary = parametersString.Replace(paramsSplit.[0], "") |> fun x -> stringTrimFirstIf (x, ':')
@@ -125,8 +147,10 @@ module internal MessageParserInternals =
         | "" -> Some (toParameters primary)
         | _  -> Some (toParameters (primary @ [secondary]))
 
+    /// <summary>
     /// Parses the parameters of a message string from just the parameters part
     /// TODO: Look into using FParsec
+    /// </summary>
     let parseParameters (parametersString: string option): Parameters option =
         if parametersString.IsNone then None
         else
@@ -139,12 +163,16 @@ module internal MessageParserInternals =
         | NoTrailing  -> getParamsNoTrailing paramsSplit
         | HasTrailing -> getParamsWithTrailing (paramsSplit, parametersString)
     
+    /// <summary>
     /// Takes the full IRC message as a string and splits it into (tags, source, verb, params)
     /// Order of execution inside this function is important
     /// returns (tags, source, verb, params) as (string * string * string * string) all as optional
+    /// </summary>
     let messageSplit (message: string) =
+        /// <summary>
         /// Takes the full string received in the IRC message 
         /// return the tags only string if they exist and the remainder of the input string
+        /// </summary>
         let extractTagsFromString (message: string) =
             let tags = matchRegexFirst message tagsRegex
             let rest = 
@@ -154,8 +182,10 @@ module internal MessageParserInternals =
 
             ( rest, tags )
 
+        /// <summary>
         /// Takes the IRC message string with tags part removed
         /// returns the source only string if it exists and the remainder of the input string
+        /// </summary>
         let extractSourceFromString (message: string) =
             let source = matchRegexFirst message sourceRegex
             let rest   = 
@@ -165,8 +195,10 @@ module internal MessageParserInternals =
 
             ( rest, source )
 
+        /// <summary>
         /// Takes the IRC message string with tags and source removed
         /// returns the verb and the parameters if there were any
+        /// </summary>
         let extractCommandFromString (message: string) =
             let command = extractString((matchRegexFirst message commandRegex), extractCommand)
 

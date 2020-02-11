@@ -22,6 +22,9 @@ module internal IRCClient =
 module IRCClient =
 #endif
 
+    /// <summary>
+    /// Handles all the information related to the IRC part of the client
+    /// </summary>
     type IRCClient (client: TCPClient) =
         // # FIELDS
         /// CancellationTokenSource for the internal tasks
@@ -105,11 +108,16 @@ module IRCClient =
 //#endregion internal members
 
 //#region external members
+        /// Returns the user info of this client
         member this.GetUserInfoSelf   = userInfoSelf
+        /// Returns the server info of the connected server
         member this.GetServerInfo     = serverInfo
+        /// Returns the MOTD of the server if there is any
         member this.GetServerMOTD     = serverMOTD.Value
+        /// Returns the server features as a (string * string) Map
         member this.GetServerFeatures = serverFeatures.Value
 
+        /// Returns the information about a channel if it exists
         member this.GetChannelInfo channel =
             if serverChannels.Channels.ContainsKey channel then
                 Some serverChannels.Channels.[channel]
