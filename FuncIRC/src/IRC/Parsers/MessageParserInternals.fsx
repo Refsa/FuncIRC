@@ -29,19 +29,19 @@ module internal MessageParserInternals =
     /// <summary>
     /// Trims the tags string of extranous characters and splits it with ';' character
     /// </summary>
-    let extractTags (tagsString: string) =
+    let trimAndSplitTagsString (tagsString: string) =
         ((tagsString.TrimStart('@').TrimStart(' ').Split(';')) |> Array.toList)
 
     /// <summary>
     /// Trims the source string of extraneous characters
     /// </summary>
-    let extractSource (sourceString: string) =
+    let trimSourceString (sourceString: string) =
         (sourceString.TrimStart(':').TrimStart(' '))
 
     /// <summary>
     /// Trims the command string of extraneous characters
     /// </summary>
-    let extractCommand (commandString: string) =
+    let trimCommandString (commandString: string) =
         (commandString.TrimStart(' '))
 
     /// <summary>
@@ -200,7 +200,7 @@ module internal MessageParserInternals =
         /// returns the verb and the parameters if there were any
         /// </summary>
         let extractCommandFromString (message: string) =
-            let command = extractString((matchRegexFirst message commandRegex), extractCommand)
+            let command = extractString((matchRegexFirst message commandRegex), trimCommandString)
 
             match command with
             | None         -> (None, None)

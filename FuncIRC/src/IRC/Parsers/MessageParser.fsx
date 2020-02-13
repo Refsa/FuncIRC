@@ -19,8 +19,8 @@ module MessageParser =
         let tags, source, verb, parameters = messageSplit message
 
         { // Construct Message Record
-            Tags   = parseTags       (extractList   (tags, extractTags));
-            Source = parseSource     (extractString (source, extractSource));
+            Tags   = parseTags       (extractList   (tags, trimAndSplitTagsString));
+            Source = parseSource     (extractString (source, trimSourceString));
             Verb   = toVerb          (verb);
             Params = parseParameters (parameters)
         }
