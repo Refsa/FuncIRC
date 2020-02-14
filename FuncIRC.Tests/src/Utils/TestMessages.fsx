@@ -1,4 +1,4 @@
-#r "../FuncIRC/bin/Debug/netstandard2.0/FuncIRC.dll"
+#r "../../../FuncIRC/bin/Debug/netstandard2.0/FuncIRC.dll"
 #load "NUnitTestHelpers.fsx"
 
 namespace FuncIRC.Tests

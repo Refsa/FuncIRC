@@ -26,14 +26,16 @@
 
         <Compile Include="src/Parsers/MessageParserTests.fsx" />
         <Compile Include="src/Parsers/ValidatorsTests.fsx" />
-
+        
         <Compile Include="src/Handlers/MessageHandlerTests.fsx" />
         <Compile Include="src/Handlers/ErrorNumericsHandlerTests.fsx" />
         <Compile Include="src/Handlers/ServerFeaturesHandlerTests.fsx" />
-
+        
         <Compile Include="src/Client/IRCMessagesTests.fsx" />
         <Compile Include="src/Client/TCPClientTests.fsx" />
-
+        
+        <Compile Include="src/Parsers/MessageParserV2.tests.fsx" />
+        
         <Compile Include="Program.fsx" />
     </ItemGroup>
 

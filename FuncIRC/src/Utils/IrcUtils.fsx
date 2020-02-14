@@ -32,4 +32,4 @@ module internal IrcUtils =
 
     let tagsDelimiter = ";"
     let clientPrefix = "+"
-    let endOfMessage = @" \r\n"
+    let endOfMessage = @"\r\n"

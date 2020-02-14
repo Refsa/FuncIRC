@@ -1,5 +1,5 @@
-#r "../FuncIRC/bin/Debug/netstandard2.0/FuncIRC.dll"
-#load "../.paket/load/netstandard2.0/NUnit.fsx"
+#r "../../../FuncIRC/bin/Debug/netstandard2.0/FuncIRC.dll"
+#load "../../../.paket/load/netstandard2.0/NUnit.fsx"
 
 namespace FuncIRC.Tests
 

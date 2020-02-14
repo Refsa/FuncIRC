@@ -1,4 +1,8 @@
+#load "StringHelpers.fsx"
+
 namespace FuncIRC
+
+open StringHelpers
 
 module GeneralHelpers =
     /// <summary>
@@ -8,20 +12,6 @@ module GeneralHelpers =
         match target with
         | Some t -> Some (method t)
         | None -> None
-
-    /// <summary>
-    /// Factory function to extract string from a <string option> type
-    /// </summary>
-    let extractString (target: string option, method: string -> string) =
-        match target with
-        | Some t -> Some (method t)
-        | None -> None
-
-    /// <summary>
-    /// Checks if a string is empty ("")
-    /// </summary>
-    /// <returns> true if string was empty </returns>
-    let stringIsEmpty (target: string) = target = ""
 
     /// <summary>
     /// Factory function to remove elements from an array
