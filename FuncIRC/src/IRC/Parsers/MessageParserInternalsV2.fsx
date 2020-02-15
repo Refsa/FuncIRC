@@ -24,6 +24,14 @@ module internal MessageParserInternalsV2 =
     type Parser<'t> = Parser<'t, UserState>
 
     // @aaa=bbb;ccc;example.com/ddd=eee :nick!ident@host.com PRIVMSG me :Hello
+    
+    let unicodeEscape: Parser<_> =
+        let hex2int c = (int c &&& 15) + (int c >>> 6)*9
+
+        pstring "u" >>. pipe4 hex hex hex hex (fun h3 h2 h1 h0 ->
+            (hex2int h3)*4096 + (hex2int h2)*256 + (hex2int h1)*16 + hex2int h0
+            |> char |> string
+        )
 
     let getParserValue r =
         match r with
@@ -35,12 +43,12 @@ module internal MessageParserInternalsV2 =
     let optionalEmptyString p = optionalEmpty "" p
 
     let tagsMarker c = c = '@'
-    let isTagsValid c = isLetter c || isDigit c || isAnyOf "/.=;\n\r\x00" c
+    let isTagsValid c = isLetter c || isDigit c || isAnyOf "/.=;" c
 
     let sourceMarker c = c = ':'
-    let isSourceValid c = isLetter c || isDigit c || isAnyOf "/!.@\n\r\x00" c || isNoneOf "\x00\x20\x0D\x0A\x08" c
+    let isSourceValid c = (isLetter c || isDigit c || isHex c || isAnyOf "/!.@" c) && isNoneOf [char "\u0000"; char "\u000d"; char "\u000a"; char "\u0008"] c
 
-    let isCommandValid c = isLetter c || isDigit c || isNoneOf "\n\r\x00" c
+    let isCommandValid c = isLetter c || isDigit c //|| isNoneOf "\n\r\x00" c
 
     // # Tags Parsers
     /// <summary> Splits the individual tags by the = character if it is there </summary>
@@ -70,7 +78,7 @@ module internal MessageParserInternalsV2 =
     /// Parses the nick part of a source segment if it exists
     let nickParser: Parser<_> = 
         //(pstring ":") >>. (manyChars <| noneOf "!@") .>> (attempt (pstring "!") <|> (pstring "@"))
-        pstring ":" >>. (manyChars <| noneOf "@!./") .>>? notFollowedBy (anyOf "./")
+        (optional <| skipString ":") >>. (manyChars <| noneOf "@!./") .>>? notFollowedBy (anyOf "./")
 
     /// Parses the user part of a source segment if it exists
     let userParser: Parser<_> = 
@@ -90,7 +98,7 @@ module internal MessageParserInternalsV2 =
 
     /// Parses source of message
     let sourceParser: Parser<_> = 
-        optional <| skipString " " >>. many1Satisfy2 sourceMarker isSourceValid |> optionalEmptyString
+        (optional <| skipString " ") >>? (pstring ":" >>. manyCharsTill (noneOf "") (pstring " ")) |> optionalEmptyString
     // / Source Parsers
 
     // # Command Parsers
@@ -109,7 +117,7 @@ module internal MessageParserInternalsV2 =
 
     /// Parses command of message
     let commandParser: Parser<_> = 
-        optional <| skipString " " >>. many1Satisfy isCommandValid .>> eof |> optionalEmptyString
+        optional <| skipString " " >>. manyChars (noneOf "") .>> eof |> optionalEmptyString //many1Satisfy isCommandValid .>> eof |> optionalEmptyString
     // / Command Parsers
 
     /// Parses whole message into its constituent parts using FParsec

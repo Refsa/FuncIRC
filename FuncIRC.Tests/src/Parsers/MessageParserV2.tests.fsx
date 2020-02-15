@@ -30,8 +30,8 @@ module MessageParserTestsV2 =
     let onlyCommandMessageString = "CAP LS * :multi-prefix extended-join sasl"
     let nickOnlyMessageString = ":coolguy foo bar baz :asdf quux"
 
-    let errorMessage1 = "@tag1=value1;tag2;vendor1/tag3=value2;vendor2/tag4 COMMAND param1 param2 :param3 param3"
-    let errorMessage2 = "@a=b;c=32;k;rt=ql7 foo"
+    let testMessage1 = "@tag1=value1;tag2;vendor1/tag3=value2;vendor2/tag4 COMMAND param1 param2 :param3 param3"
+    let testMessage2 = "@a=b;c=32;k;rt=ql7 foo"
 
     let test p str =
         match run p str with
@@ -40,16 +40,19 @@ module MessageParserTestsV2 =
 
     [<Test>]
     let testParserFunction() =
-        //test messageParser fullTestMessageString |> ignore
-        //test messageParser fullTestMessageString2 |> ignore
-        //test messageParser noTagsMessageString |> ignore
-        //test messageParser onlyCommandMessageString |> ignore
-        //test messageParser nickOnlyMessageString |> ignore
+        test messageParser fullTestMessageString |> ignore
+        test messageParser fullTestMessageString2 |> ignore
+        test messageParser noTagsMessageString |> ignore
+        test messageParser onlyCommandMessageString |> ignore
+        test messageParser nickOnlyMessageString |> ignore
+
+        test messageParser testMessage1 |> ignore
+        test messageParser testMessage2 |> ignore
 
         //parseMessageString errorMessage3
         //|> fun m -> printfn "%A" m
 
-        Assert.Pass()
+        Assert.Fail()
 
     [<Test>]
     let testMessageParserV2() =
