@@ -5,6 +5,9 @@ namespace FuncIRC
 #load "../../Utils/GeneralHelpers.fsx"
 #load "../../Utils/IrcUtils.fsx"
 
+/// <summary>
+/// FParsec implementation to parse an IRC message string into its constituent parts
+/// </summary>
 #if DEBUG
 module MessageParserInternalsV2 =
 #else
@@ -15,6 +18,7 @@ module internal MessageParserInternalsV2 =
     open FParsec.CharParsers
     open FParsec.Primitives
     open IrcUtils
+    open GeneralHelpers
 
     type UserState = unit
     type Parser<'t> = Parser<'t, UserState>
@@ -34,7 +38,7 @@ module internal MessageParserInternalsV2 =
     let isTagsValid c = isLetter c || isDigit c || isAnyOf "/.=;\n\r\x00" c
 
     let sourceMarker c = c = ':'
-    let isSourceValid c = isLetter c || isDigit c || isAnyOf "/!.@\n\r\x00" c
+    let isSourceValid c = isLetter c || isDigit c || isAnyOf "/!.@\n\r\x00" c || isNoneOf "\x00\x20\x0D\x0A\x08" c
 
     let isCommandValid c = isLetter c || isDigit c || isNoneOf "\n\r\x00" c
 
@@ -45,7 +49,10 @@ module internal MessageParserInternalsV2 =
     
     /// <summary> Runs the pSplitTags parser for every tag </summary>
     let splitTags (tags: string list) =
-        [ for tag in tags -> run pSplitTags tag |> getParserValue ]
+        match tags.Length with
+        | 0 -> []
+        | _ when tags.[0] = "" -> []
+        | _ -> [ for tag in tags -> run pSplitTags tag |> getParserValue ]
 
     /// <summary> Splits all the tags by the ; character </summary>
     let splitAllTags = 
@@ -60,39 +67,61 @@ module internal MessageParserInternalsV2 =
     // / Tags Parsers
 
     // # Source Parsers
+    /// Parses the nick part of a source segment if it exists
+    let nickParser: Parser<_> = 
+        //(pstring ":") >>. (manyChars <| noneOf "!@") .>> (attempt (pstring "!") <|> (pstring "@"))
+        pstring ":" >>. (manyChars <| noneOf "@!./") .>>? notFollowedBy (anyOf "./")
+
+    /// Parses the user part of a source segment if it exists
+    let userParser: Parser<_> = 
+        pstring "!" >>. manyCharsTill (noneOf "") (lookAhead (pstring "@"))
+
+    /// Parses the host part of a source segment if it exists
+    let hostParser: Parser<_> = 
+        (optional <| skipString "@") >>. (optional <| skipString ":") >>. (manyChars <| noneOf "" .>> eof)
+
     /// Splits the source into (nick, user, hostname)
     let splitSource: Parser<_> =
         pipe3 
-            (attempt ((pstring ":") >>. (manyChars <| noneOf "!") .>> (pstring "!")) |> optionalEmptyString)
-            (attempt ((optional <| skipString ":") >>. (manyChars <| noneOf "@") .>> (pstring "@")) |> optionalEmptyString)
-            ((optional <| skipString "@") >>. (optional <| skipString ":") >>. (manyChars <| noneOf "" .>> eof))
-            (fun a b c ->
-                (a, b, c)
-            ) 
+            ( attempt <| nickParser |> optionalEmptyString ) // Nick
+            ( attempt <| userParser |> optionalEmptyString ) // User
+            ( hostParser ) // Host
+            ( fun a b c -> (a, b, c) )
 
     /// Parses source of message
     let sourceParser: Parser<_> = 
         optional <| skipString " " >>. many1Satisfy2 sourceMarker isSourceValid |> optionalEmptyString
     // / Source Parsers
 
+    // # Command Parsers
+    let getParameters: Parser<_> =
+        (optional <| skipString " ") >>. sepBy (manyChars <| noneOf " :") (pstring " ") .>>. ((optional <| skipString ":") >>. (manyChars <| noneOf ""))
+
+    let splitCommand: Parser<_> =
+        pipe2
+            ( manyChars <| noneOf " " ) // Verb
+            ( getParameters ) // Params
+            ( fun a b -> 
+                let b, p = b
+                let b = (b @+ p) @! ""
+                (a, b)
+            )
+
     /// Parses command of message
     let commandParser: Parser<_> = 
         optional <| skipString " " >>. many1Satisfy isCommandValid .>> eof |> optionalEmptyString
-    
-    /// Parses whole message into its constituent parts
+    // / Command Parsers
+
+    /// Parses whole message into its constituent parts using FParsec
     let messageParser: Parser<_> = 
         pipe3 tagsParser sourceParser commandParser 
             (fun a b c -> 
                 (
                     a |> run tagParser |> getParserValue,
                     b |> run splitSource |> getParserValue, 
-                    c
+                    c |> run splitCommand |> getParserValue
                 )
             )
 
-    // For reference, another way to do it but returns tuple combined with tuple and not a single tuple with all results
-    //let messageParser: Parser<_> = (optionalEmpty tagsParser) .>>.
-    //                               (optional (skipString " ") >>. optionalEmpty sourceParser) .>>.
-    //                               (optional (skipString " ") >>. optionalEmpty commandParser)
-
-    //let someParser: Parser<_> = regex @"^(@\S+)"
+    let runMessageParser s =
+        run messageParser s |> getParserValue

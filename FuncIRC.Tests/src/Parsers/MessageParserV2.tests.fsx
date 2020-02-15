@@ -18,6 +18,7 @@ module MessageParserTestsV2 =
 
     open FuncIRC
     open FuncIRC.MessageParserInternalsV2
+    open FuncIRC.MessageParserV2
     open FuncIRC.MessageTypes
     open FuncIRC.Validators
     open FuncIRC.StringHelpers
@@ -27,6 +28,10 @@ module MessageParserTestsV2 =
     let fullTestMessageString2 = "@aaa=bbb;ccc;example.com/ddd=eee :ident@host.com PRIVMSG me :Hello"
     let noTagsMessageString = ":irc.example.com CAP LS * :multi-prefix extended-join sasl"
     let onlyCommandMessageString = "CAP LS * :multi-prefix extended-join sasl"
+    let nickOnlyMessageString = ":coolguy foo bar baz :asdf quux"
+
+    let errorMessage1 = "@tag1=value1;tag2;vendor1/tag3=value2;vendor2/tag4 COMMAND param1 param2 :param3 param3"
+    let errorMessage2 = "@a=b;c=32;k;rt=ql7 foo"
 
     let test p str =
         match run p str with
@@ -35,12 +40,32 @@ module MessageParserTestsV2 =
 
     [<Test>]
     let testParserFunction() =
-        //test tagsPart fullTestMessageString
-        //test tagsParser fullTestMessageString
-        //test tagsParser noTagsMessageString
-        test messageParser fullTestMessageString |> ignore
-        test messageParser fullTestMessageString2 |> ignore
-        test messageParser noTagsMessageString |> ignore
-        test messageParser onlyCommandMessageString |> ignore
+        //test messageParser fullTestMessageString |> ignore
+        //test messageParser fullTestMessageString2 |> ignore
+        //test messageParser noTagsMessageString |> ignore
+        //test messageParser onlyCommandMessageString |> ignore
+        //test messageParser nickOnlyMessageString |> ignore
 
-        Assert.True(false)
+        //parseMessageString errorMessage3
+        //|> fun m -> printfn "%A" m
+
+        Assert.Pass()
+
+    [<Test>]
+    let testMessageParserV2() =
+        let mutable threwExceptions = []
+
+        testMessages
+        |> List.iter 
+            (fun x ->
+                try
+                    parseMessageString x.Input 
+                    |> fun result -> Assert.AreEqual (x.Output, result, x.Input)
+                with
+                | e -> threwExceptions <- (x.Input, e.Message) :: threwExceptions
+            )
+
+        match threwExceptions.Length with
+        | 0 -> Assert.True(true)
+        | _ ->
+            Assert.True(false, "Test OK, but Exception was thrown on messages:\n " + sprintf "%A" threwExceptions)

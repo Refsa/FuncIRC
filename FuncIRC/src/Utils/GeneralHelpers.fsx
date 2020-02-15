@@ -47,3 +47,13 @@ module GeneralHelpers =
         match parsed with
         | Some parsed -> IntParsed parsed
         | None -> InvalidParse
+
+    /// <summary> Adds item to end of listG. Inverse of the default @ operator </summary>
+    let (@+) listG item =
+        listG @ [item]
+
+    let (@!) listG item =
+        listG |> List.where ((<>) item)
+
+    let (@=) listG item =
+        listG |> List.where ((=) item)
