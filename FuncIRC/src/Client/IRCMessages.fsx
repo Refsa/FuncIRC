@@ -1,5 +1,5 @@
 #load "IRCClient.fsx"
-#load "../Utils/MessageQueue.fsx"
+#load "../Utils/StringHelpers.fsx"
 #load "../IRC/Types/MessageTypes.fsx"
 #load "../IRC/Types/NumericReplies.fsx"
 #load "../IRC/Types/IRCInformation.fsx"
@@ -11,10 +11,10 @@ namespace FuncIRC
 open IRCClient
 open MessageTypes
 open MessageHandlers
-open MessageQueue
 open NumericReplies
 open Validators
 open IRCInformation
+open StringHelpers
 
 module IRCMessages =
     /// <summary>
@@ -93,14 +93,13 @@ module IRCMessages =
             | _                       -> Nick (nick) // Not sure if this should be valid login data
         | false -> InvalidLoginData
 
-    let internal addUserInfoSelf (clientData: IRCClient) (nick: string option) (user: string option) =
-        let currentUserInfo: IRCUserInfo option = clientData.GetUserInfoSelf
-        let newUserInfo: IRCUserInfo =
-            match currentUserInfo with
-            | Some ui -> 
-                { ui with Source = {ui.Source with Nick = nick; User = user} }
-            | None -> 
-                { Source = {Nick = nick; User = user; Host = None} }
+    /// <summary>
+    /// Updates userInfoSelf on IRCClient with the supplied nick and user
+    /// </summary>
+    let internal addUserInfoSelf (clientData: IRCClient) (nick: string, user: string) =
+        let currentUserInfo: IRCUserInfo = clientData.GetUserInfoSelf
+        let newUserInfo: IRCUserInfo = 
+            { currentUserInfo with Nick = nick; User = user; }
         clientData.SetUserInfoSelf newUserInfo
 
     /// <summary>
@@ -113,20 +112,18 @@ module IRCMessages =
             match loginData with
             | InvalidLoginData -> raise RegistrationContentException
             | UserRealNamePass (nick, user, realName, pass) -> 
-                addUserInfoSelf clientData (Some nick) (Some user)
                 [ capMessage; passMessage pass; nickMessage nick; userMessage user realName ]
             | UserPass (nick, user, pass)                   -> 
-                addUserInfoSelf clientData (Some nick) (Some user)
                 [ capMessage; passMessage pass; nickMessage nick; userMessage user user ]
             | UserRealName (nick, user, realName)           -> 
-                addUserInfoSelf clientData (Some nick) (Some user)
                 [ capMessage; nickMessage nick; userMessage user realName ]
             | User (nick, user)                             -> 
-                addUserInfoSelf clientData (Some nick) (Some user)
                 [ capMessage; nickMessage nick; userMessage user user ]
             | Nick (nick)                                   -> 
-                addUserInfoSelf clientData (Some nick) None
                 [ capMessage; nickMessage nick; userMessage nick nick ]
+
+        let nick, user, _, _ = loginData
+        addUserInfoSelf clientData (nick, user)
 
         clientData.MessageSubscriptionEvent
         |> Event.add (
