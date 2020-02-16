@@ -73,6 +73,7 @@ module IRCStreamReader =
                         (processorAgent :> IDisposable).Dispose()
                     | false ->
                         if receivedNext.EndsWith ("\r\n") then
+                            // printfn "%s" receivedNext
                             processorAgent.Post receivedNext
 
                             return! readLoop("")

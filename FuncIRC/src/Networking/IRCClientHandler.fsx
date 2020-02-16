@@ -55,7 +55,7 @@ module IRCClientHandler =
 
         match connected with
         | true -> 
-            let clientData = new IRCClient (client)
+            let clientData = new IRCClient (client, true)
 
             // TcpClient
             let tcpClient = (ircClientHandler clientData client)

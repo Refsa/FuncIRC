@@ -1,14 +1,12 @@
 namespace FuncIRC
 #load "../../Utils/IrcUtils.fsx"
 #load "../Types/MessageTypes.fsx"
-#load "../Parsers/MessageParserInternalsV2.fsx"
-#load "../../Utils/GeneralHelpers.fsx"
+#load "MessageParserInternalsV2.fsx"
 #load "../../Utils/StringHelpers.fsx"
 
 module MessageParserV2 =
     open MessageParserInternalsV2
     open MessageTypes
-    open GeneralHelpers
     open StringHelpers
 
     /// <summary>

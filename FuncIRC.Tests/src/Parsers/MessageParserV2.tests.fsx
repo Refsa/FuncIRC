@@ -32,6 +32,7 @@ module MessageParserTestsV2 =
 
     let testMessage1 = "@tag1=value1;tag2;vendor1/tag3=value2;vendor2/tag4 COMMAND param1 param2 :param3 param3"
     let testMessage2 = "@a=b;c=32;k;rt=ql7 foo"
+    let testMessage3 = ":127.0.0.1 001 testnick :Welcome to the Refsa IRC Network testnick!testuser@127.0.0.1"
 
     let test p str =
         match run p str with
@@ -53,6 +54,8 @@ module MessageParserTestsV2 =
 
         //parseMessageString errorMessage3
         //|> fun m -> printfn "%A" m
+
+        //test messageParser testMessage3 |> ignore
 
         Assert.Pass()
 

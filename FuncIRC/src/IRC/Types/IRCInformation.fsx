@@ -1,4 +1,4 @@
-#load "../IRC/MessageTypes.fsx"
+#load "MessageTypes.fsx"
 
 namespace FuncIRC
 
@@ -21,7 +21,9 @@ module IRCInformation =
     /// </summary>
     type IRCUserInfo =
         {
-            Source: Source
+            Nick: string
+            User: string            
+            Source: Source option
         }
 
     /// <summary>
@@ -119,6 +121,13 @@ module IRCInformation =
         member x.Value = let (Features features) = x in features
 
 //#region Defaults
+    let default_IRCUserInfo =
+        {
+            Nick   = "";
+            User   = "";
+            Source = None;
+        }
+
     let default_IRCChannelModes =
         {
             TypeA = "A";

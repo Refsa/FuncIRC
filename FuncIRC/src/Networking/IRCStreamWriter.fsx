@@ -35,7 +35,7 @@ module IRCStreamWriter =
             (fun outbox ->
                 let rec loop() = async {
                     let! msg = outbox.Receive()
-                    
+
                     client |> sendIrcMessage <| msg.ToMessageString
                     return! loop()
                 }

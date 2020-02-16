@@ -1,10 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp2.0</TargetFramework>
     <DebugType>portable</DebugType>
   </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FuncIRC\FuncIRC.fsproj" />
+  </ItemGroup>
+
   <ItemGroup>
     <Compile Include="IRCTestInfo.fsx" />
 
@@ -24,10 +29,6 @@
     <Compile Include="Update/ButtonFunctions.fsx" />
     <Compile Include="Update/Application.fsx" />
     <Compile Include="Update/Navigation.fsx" />
-
-    <Reference Include="FuncIRC">
-      <HintPath>..\FuncIRC\bin\Debug\netcoreapp2.0\FuncIRC.dll</HintPath>
-    </Reference>
 
     <Compile Include="FuncIRC_CLI.fsx" />
   </ItemGroup>

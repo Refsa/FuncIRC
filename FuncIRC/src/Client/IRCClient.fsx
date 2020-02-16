@@ -1,5 +1,6 @@
 #load "../Networking/TCPClient.fsx"
 #load "../Networking/IRCStreamWriter.fsx"
+#load "../Networking/ExternalIPAddress.fsx"
 #load "../Utils/MailboxProcessorHelpers.fsx"
 #load "../IRC/Types/IRCInformation.fsx"
 #load "../IRC/Types/MessageTypes.fsx"
@@ -14,6 +15,7 @@ open IRCStreamWriter
 open MailboxProcessorHelpers
 open MessageTypes
 open TCPClient
+open ExternalIPAddress
 
 // TODO: Remove recursive dependency in module
 #if !DEBUG
@@ -25,12 +27,24 @@ module IRCClient =
     /// <summary>
     /// Handles all the information related to the IRC part of the client
     /// </summary>
-    type IRCClient (client: TCPClient) =
+    type IRCClient (client: TCPClient, ?getClientIPExternally: bool) as this =
+        // # MUTABLES
+        let mutable userInfoSelf:   IRCUserInfo        = default_IRCUserInfo
+        let mutable serverInfo:     IRCServerInfo      = default_IRCServerInfo
+        let mutable serverMOTD:     IRCServerMOTD      = MOTD []
+        let mutable serverFeatures: IRCServerFeatures  = Features Map.empty
+        let mutable serverChannels: IRCServerChannels  = {Channels = Map.empty}
+        /// Set to true when a successful registration is made with server
+        let mutable registeredWithServer: bool = false
+
         // # FIELDS
         /// CancellationTokenSource for the internal tasks
         let tokenSource: CancellationTokenSource = new CancellationTokenSource()
         /// MailboxProcessor to handle outbound messages
         let outQueue: MailboxProcessor<Message> = streamWriter (client)
+        /// Concurrent way to update serverInfo using MailboxProcessor
+        let serverInfoUpdateQueue: MailboxProcessor<IRCServerInfo> =
+            (fun newInfo -> serverInfo <- newInfo) |> mailboxProcessorFactory<IRCServerInfo>
 
         // # EVENTS
         /// Event when the client was disconnected from server
@@ -42,16 +56,23 @@ module IRCClient =
         /// Error numeric from server
         let errorNumericReceived: Event<_> = new Event<_>()
 
-        // # MUTABLES
-        let mutable userInfoSelf:   IRCUserInfo option = None
-        let mutable serverInfo:     IRCServerInfo      = default_IRCServerInfo
-        let mutable serverMOTD:     IRCServerMOTD      = MOTD []
-        let mutable serverFeatures: IRCServerFeatures  = Features Map.empty
-        let mutable serverChannels: IRCServerChannels  = {Channels = Map.empty}
+        /// Sets the Source part of userInfoSelf with the Nick and User of userInfoSelf
+        let prepareUserInfoSelfSource() =
+            this.SetUserInfoSelf <|
+            match userInfoSelf.Source with
+            | Some source -> 
+                { userInfoSelf with 
+                    Source = Some { source with Nick = Some userInfoSelf.Nick;
+                                                User = Some userInfoSelf.User } }
+            | None -> userInfoSelf
 
-        /// Concurrent way to update serverInfo using MailboxProcessor
-        let serverInfoUpdateQueue: MailboxProcessor<IRCServerInfo> =
-            (fun newInfo -> serverInfo <- newInfo) |> mailboxProcessorFactory<IRCServerInfo> 
+        do
+            let externalIP = getExternalIPAddress(match getClientIPExternally with | Some v -> v | None -> false)
+            if externalIP <> "" then
+                userInfoSelf <- 
+                    { Nick = ""; 
+                      User = ""; 
+                      Source = Some { Nick = None; User = None; Host = Some externalIP } }
 
         #if DEBUG
         new () = new IRCClient (new TCPClient ("", 0, false))
@@ -73,7 +94,11 @@ module IRCClient =
         /// CancellationToken from this.TokenSource
         member internal this.Token = tokenSource.Token
         /// User info of the connected client
-        member internal this.SetUserInfoSelf userInfo = userInfoSelf <- Some userInfo
+        member internal this.SetUserInfoSelf (userInfo: IRCUserInfo) = userInfoSelf <- userInfo
+        /// Set after successfully connected with server
+        member internal this.SetRegisteredWithServer value = 
+            registeredWithServer <- value
+            prepareUserInfoSelfSource()
         /// Server info
         member internal this.ServerInfo 
             with get()     = serverInfo
@@ -109,26 +134,31 @@ module IRCClient =
 
 //#region external members
         /// Returns the user info of this client
-        member this.GetUserInfoSelf   = userInfoSelf
+        member this.GetUserInfoSelf: IRCUserInfo = userInfoSelf
         /// Returns the server info of the connected server
         member this.GetServerInfo     = serverInfo
         /// Returns the MOTD of the server if there is any
         member this.GetServerMOTD     = serverMOTD.Value
         /// Returns the server features as a (string * string) Map
         member this.GetServerFeatures = serverFeatures.Value
+        /// Checks if the client is already registered with server
+        member this.IsAlreadRegistered = registeredWithServer
 
-        /// Returns the information about a channel if it exists
-        member this.GetChannelInfo channel =
+        /// <summary> Returns the information about a channel if it exists </summary>
+        /// <returns> Some of IRCChannelInfo if it exists, None if not </returns>
+        member this.GetChannelInfo (channel: string) =
             if serverChannels.Channels.ContainsKey channel then
                 Some serverChannels.Channels.[channel]
             else
                 None
 
-        // TODO: Add outboud message validation
+        /// TODO: Add outboud message validation
         /// Adds one message to the outbound mailbox processor
-        member this.AddOutMessage message   = outQueue.Post message
+        member this.AddOutMessage (message: Message) = 
+            outQueue.Post { message with Source = userInfoSelf.Source }
+            
         /// Adds multiple messages to the outbound mailbox processor
-        member this.AddOutMessages messages = messages |> List.iter this.AddOutMessage
+        member this.AddOutMessages (messages: Message list) = messages |> List.iter this.AddOutMessage
 //#endregion external members
 
 //#region External Events
