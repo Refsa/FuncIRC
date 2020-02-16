@@ -48,12 +48,13 @@ module MessageParserTestsV2 =
         test messageParser testMessage1 |> ignore
         test messageParser testMessage2  |> ignore *)
 
-        test splitAllTags "tag1=value1;tag2;vendor1/tag3=value2;vendor2/tag4" |> ignore
+        // ["tag1=value1"; "tag2"; "vendor1/tag3=value2"; "vendor2/tag4"]
+        // test splitAllTags2 "tag1=value1;tag2;vendor1/tag3=value2;vendor2/tag4" |> ignore
 
         //parseMessageString errorMessage3
         //|> fun m -> printfn "%A" m
 
-        Assert.Pass()
+        Assert.Fail()
 
     [<Test>]
     let testMessageParserV2() =

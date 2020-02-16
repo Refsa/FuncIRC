@@ -61,16 +61,12 @@ module internal MessageParserInternalsV2 =
     // # Tags Parsers
     /// <summary> Splits the individual tags by the = character if it is there </summary>
     let pSplitTags: Parser<_> = 
-        (manyChars (noneOf "=") .>> optional (skipString "=")) .>>. manyChars (noneOf ";")
+        let keyParser =  manyChars (noneOf "=;")
+        let valueParser = pstring "=" >>. manyChars (noneOf ";") <|>% ""
+        optional (skipString ";") >>. (keyParser .>>. valueParser)
     
-    /// <summary> Runs the pSplitTags parser for every tag </summary>
-    let splitTags (tags: string list) =
-        if tags.Length = 0 then []
-        else [ for tag in tags @! "" -> run pSplitTags tag |> getParserValue ]
-
-    /// <summary> Splits all the tags by the ; character </summary>
-    let splitAllTags: Parser<_> = 
-        sepBy (manyChars (noneOf ";")) (pstring ";") |>> splitTags .>> eof |> optionalEmptyList
+    let splitAllTags: Parser<_> =
+        many1 (notEmpty pSplitTags) <|> (pstring "" >>. preturn [])
 
     /// <summary> Find the whole tags string if it exists </summary>
     let tagsParser: Parser<_> = 
@@ -80,7 +76,7 @@ module internal MessageParserInternalsV2 =
     // # Source Parsers
     /// <summary> Parses the nick part of a source segment if it exists </summary>
     let nickParser: Parser<_> = 
-        optional (skipString ":") >>. (manyChars <| noneOf "@!./") .>>? notFollowedBy (anyOf "./")
+        optional (skipString ":") >>. (manyChars (noneOf "@!./")) .>>? notFollowedBy (anyOf "./")
 
     /// <summary> Parses the user part of a source segment if it exists </summary>
     let userParser: Parser<_> = 
