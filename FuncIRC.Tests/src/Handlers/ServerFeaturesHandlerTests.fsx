@@ -17,7 +17,7 @@ module ServerFeaturesHandlerTests =
         let feature = [| ("NETWORK", "SomeNetwork") |]
 
         serverFeaturesHandler (feature, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
         let networkName = clientData.GetServerInfo.Name
 
         Assert.AreNotEqual ("DEFAULT", networkName)
@@ -32,12 +32,12 @@ module ServerFeaturesHandlerTests =
         let clientData = new IRCClient()
         let feature = [| ("CASEMAPPING", "ascii") |]
         serverFeaturesHandler (feature, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
         Assert.True (checkCasemappingInClientData Casemapping.ASCII clientData, "Casemapping was not set correctly for ascii")
 
         let feature = [| ("CASEMAPPING", "rfc1459") |]
         serverFeaturesHandler (feature, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
         Assert.True (checkCasemappingInClientData Casemapping.RFC1459 clientData, "Casemapping was not set correctly for rfc1459")
 
     // CHANTYPES tests
@@ -47,7 +47,7 @@ module ServerFeaturesHandlerTests =
         let feature = [| ("CHANTYPES", "#%@") |]
 
         serverFeaturesHandler (feature, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
 
         [| '#'; '%'; '@' |]
         |> Array.iter
@@ -60,7 +60,7 @@ module ServerFeaturesHandlerTests =
         let limitsFeature = [| ("CHANLIMIT", "#:20;%:10;@:5") |]
 
         serverFeaturesHandler (limitsFeature, clientData)
-        System.Threading.Thread.Sleep(10)
+        System.Threading.Thread.Sleep(1000)
 
         [| ('#', 20); ('%', 10); ('@', 5) |]
         |> Array.iter
@@ -76,7 +76,7 @@ module ServerFeaturesHandlerTests =
 
         serverFeaturesHandler (typesFeature, clientData)
         serverFeaturesHandler (limitsFeature, clientData)
-        System.Threading.Thread.Sleep(10)
+        System.Threading.Thread.Sleep(1000)
 
         clientData.GetServerInfo.ChannelPrefixes
         |> Map.toList
@@ -103,7 +103,7 @@ module ServerFeaturesHandlerTests =
         let chanmodesFeature = [| ("CHANMODES", "b,k,l,imnpst") |]
 
         serverFeaturesHandler (chanmodesFeature, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
 
         let chanModes = clientData.GetServerInfo.ChannelModes
 
@@ -130,7 +130,7 @@ module ServerFeaturesHandlerTests =
         // validFeature1
         let clientData = new IRCClient()
         serverFeaturesHandler (validFeature1, clientData)
-        System.Threading.Thread.Sleep(10)
+        System.Threading.Thread.Sleep(1000)
 
         let userModes = clientData.GetServerInfo.UserModes
         (wantedFeature1, userModes) |> Assert.AreEqual
@@ -138,7 +138,7 @@ module ServerFeaturesHandlerTests =
         // validFeature2
         let clientData = new IRCClient()
         serverFeaturesHandler (validFeature2, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
 
         let userModes = clientData.GetServerInfo.UserModes
         (wantedFeature2, userModes) |> Assert.AreEqual
@@ -146,7 +146,7 @@ module ServerFeaturesHandlerTests =
         // validFeature3
         let clientData = new IRCClient()
         serverFeaturesHandler (validFeature3, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
 
         let userModes = clientData.GetServerInfo.UserModes
         (wantedFeature3, userModes) |> Assert.AreEqual
@@ -157,7 +157,7 @@ module ServerFeaturesHandlerTests =
         let clientData = new IRCClient()
 
         serverFeaturesHandler (invalidFeature1, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
         let userModes = clientData.GetServerInfo.UserModes
 
         (default_IRCUserModes, userModes) |> Assert.AreEqual
@@ -174,13 +174,13 @@ module ServerFeaturesHandlerTests =
 
         let clientData = new IRCClient()
         serverFeaturesHandler (validFeature1, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
         let statusMessageModes = clientData.GetServerInfo.StatusMessageModes
         (wantedFeature1, statusMessageModes) |> Assert.AreEqual
 
         let clientData = new IRCClient()
         serverFeaturesHandler (validFeature2, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
         let statusMessageModes = clientData.GetServerInfo.StatusMessageModes
         (wantedFeature2, statusMessageModes) |> Assert.AreEqual
 
@@ -191,7 +191,7 @@ module ServerFeaturesHandlerTests =
 
         let clientData = new IRCClient()
         serverFeaturesHandler (invalidFeature, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
         let statusMessageModes = clientData.GetServerInfo.StatusMessageModes
         Assert.AreEqual (wantedFeature, statusMessageModes)
     // / STATUSMSG tests
@@ -207,13 +207,13 @@ module ServerFeaturesHandlerTests =
 
         let clientData = new IRCClient()
         serverFeaturesHandler (validFeature1, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
         let maxTypeAModes = clientData.GetServerInfo.MaxTypeAModes
         (wantedResult1, maxTypeAModes) |> Assert.AreEqual
 
         let clientData = new IRCClient()
         serverFeaturesHandler (validFeature2, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
         let maxTypeAModes = clientData.GetServerInfo.MaxTypeAModes
         (wantedResult2, maxTypeAModes) |> Assert.AreEqual
 
@@ -222,7 +222,7 @@ module ServerFeaturesHandlerTests =
         let validFeature1 = [| ("MAXLIST", "") |]
         let clientData = new IRCClient()
         serverFeaturesHandler (validFeature1, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
 
         (Map.empty, clientData.GetServerInfo.MaxTypeAModes) |> Assert.AreEqual
     // / MAXLIST tests
@@ -233,7 +233,7 @@ module ServerFeaturesHandlerTests =
         let validFeature = [| ("SAFELIST", "") |]
         let clientData = new IRCClient()
         serverFeaturesHandler (validFeature, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
 
         clientData.GetServerInfo.Safelist |> Assert.True 
 
@@ -246,7 +246,7 @@ module ServerFeaturesHandlerTests =
         let clientData = new IRCClient()
 
         serverFeaturesHandler (validFeature, clientData)
-        System.Threading.Thread.Sleep(10)
+        System.Threading.Thread.Sleep(1000)
         (wantedResult, clientData.GetServerInfo.SearchExtensions) |> Assert.AreEqual
 
 //#region int parsing tests
@@ -257,7 +257,7 @@ module IntParsingTests =
         let clientData = new IRCClient()
         let feature = [| ("LINELEN", "abcd") |]
         serverFeaturesHandler (feature, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
         Assert.AreEqual (512, clientData.GetServerInfo.LineLength, "Line length set an undefined value")
 
     [<Test>]
@@ -265,7 +265,7 @@ module IntParsingTests =
         let clientData = new IRCClient()
         let feature = [| ("LINELEN", "1024") |]
         serverFeaturesHandler (feature, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
         Assert.AreEqual (1024, clientData.GetServerInfo.LineLength, "LineLength was not set correctly")
     // / LINELEN tests
 
@@ -275,7 +275,7 @@ module IntParsingTests =
         let clientData = new IRCClient()
         let feature = [| ("CHANNELLEN", "1000") |]
         serverFeaturesHandler (feature, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
         Assert.AreEqual (1000, clientData.GetServerInfo.MaxChannelLength, "CHANNELLEN was not set correctly")
 
     [<Test>]
@@ -285,11 +285,11 @@ module IntParsingTests =
         let invalidFeature = [| ("CHANNELLEN", "abcd") |]
 
         serverFeaturesHandler (validFeature, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
         Assert.AreEqual (64, clientData.GetServerInfo.MaxChannelLength)
 
         serverFeaturesHandler (invalidFeature, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
         Assert.AreEqual (64, clientData.GetServerInfo.MaxChannelLength)
     // / CHANNELLEN tests
 
@@ -299,7 +299,7 @@ module IntParsingTests =
         let clientData = new IRCClient()
         let feature = [| ("AWAYLEN", "1000") |]
         serverFeaturesHandler (feature, clientData)
-        System.Threading.Thread.Sleep(10)
+        System.Threading.Thread.Sleep(1000)
         Assert.AreEqual (1000, clientData.GetServerInfo.MaxAwayLength, "AWAYLEN was not set correctly")
 
     // KICKLEN tests
@@ -308,7 +308,7 @@ module IntParsingTests =
         let clientData = new IRCClient()
         let feature = [| ("KICKLEN", "1000") |]
         serverFeaturesHandler (feature, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
         Assert.AreEqual (1000, clientData.GetServerInfo.MaxKickLength, "KICKLEN was not set correctly")
 
     // TOPICLEN tests
@@ -317,7 +317,7 @@ module IntParsingTests =
         let clientData = new IRCClient()
         let feature = [| ("TOPICLEN", "1000") |]
         serverFeaturesHandler (feature, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
         Assert.AreEqual (1000, clientData.GetServerInfo.MaxTopicLength, "TOPICLEN was not set correctly")
 
     // USERLEN tests
@@ -326,7 +326,7 @@ module IntParsingTests =
         let clientData = new IRCClient()
         let feature = [| ("USERLEN", "1000") |]
         serverFeaturesHandler (feature, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
         Assert.AreEqual (1000, clientData.GetServerInfo.MaxUserLength, "USERLEN was not set correctly")
 
     // NICKLEN tests
@@ -335,7 +335,7 @@ module IntParsingTests =
         let clientData = new IRCClient()
         let feature = [| ("NICKLEN", "1000") |]
         serverFeaturesHandler (feature, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
         Assert.AreEqual (1000, clientData.GetServerInfo.MaxNickLength, "NICKLEN was not set correctly")
 
     // MODES tests
@@ -344,7 +344,7 @@ module IntParsingTests =
         let clientData = new IRCClient()
         let feature = [| ("MODES", "1000") |]
         serverFeaturesHandler (feature, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
         Assert.AreEqual (1000, clientData.GetServerInfo.MaxModes, "MODES was not set correctly")
 
     // KEYLEN tests
@@ -353,7 +353,7 @@ module IntParsingTests =
         let clientData = new IRCClient()
         let feature = [| ("KEYLEN", "1000") |]
         serverFeaturesHandler (feature, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
         Assert.AreEqual (1000, clientData.GetServerInfo.MaxKeyLength, "KEYLEN was not set correctly")
 
     // HOSTLEN tests
@@ -362,7 +362,7 @@ module IntParsingTests =
         let clientData = new IRCClient()
         let feature = [| ("HOSTLEN", "1000") |]
         serverFeaturesHandler (feature, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
         Assert.AreEqual (1000, clientData.GetServerInfo.MaxHostLength, "HOSTLEN was not set correctly")
 
     // MAXTARGETS tests
@@ -371,6 +371,6 @@ module IntParsingTests =
         let clientData = new IRCClient()
         let feature = [| ("MAXTARGETS", "1000") |]
         serverFeaturesHandler (feature, clientData)
-        System.Threading.Thread.Sleep(1)
+        System.Threading.Thread.Sleep(100)
         Assert.AreEqual (1000, clientData.GetServerInfo.MaxTargets, "MAXTARGETS was not set correctly")
 //#endregion int parsing tests

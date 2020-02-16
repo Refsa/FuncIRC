@@ -92,7 +92,7 @@ module IRCMessages =
             | _ when hasUser          -> User (nick, user)
             | _                       -> Nick (nick) // Not sure if this should be valid login data
         | false -> InvalidLoginData
-
+    
     /// <summary>
     /// Updates userInfoSelf on IRCClient with the supplied nick and user
     /// </summary>
@@ -164,11 +164,11 @@ module IRCMessages =
     /// General feedback messages when using send{*}Message constructs
     /// </summary>
     type MessageFeedback =
-        | InvalidChannel
-        | InvalidMessage
-        | InvalidUser
-        | InvalidTopic
-        | Sent
+        | InvalidChannel = 0
+        | InvalidMessage = 1
+        | InvalidUser = 2
+        | InvalidTopic = 3
+        | Sent = 4
 
     /// <summary>
     /// Creates a JOIN message to join a channel
@@ -189,7 +189,7 @@ module IRCMessages =
     let sendChannelPrivMsg (clientData: IRCClient) (channel: string) (message: string) =
         let maxMessageLength = (clientData.GetServerInfo.LineLength - clientData.GetServerInfo.MaxHostLength)
         if  message = "" ||
-            message.Length > maxMessageLength 
+            message.Length > maxMessageLength
             then MessageFeedback.InvalidMessage
         else
 

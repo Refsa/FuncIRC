@@ -15,7 +15,11 @@ module NUnitTestHelpers =
         Assert.False (statement, message)
 
     /// Functional wrapper for Assert.AreEqual
-    let AssertAreEqual (object1: obj) (object2: obj) (message: string) =
+    let AssertAreEqual (object1: obj) (object2: obj) =
+        Assert.AreEqual (object1, object2)
+
+    /// Functional wrapper for Assert.AreEqual
+    let AssertAreEqualM (object1: obj) (object2: obj) (message: string) =
         Assert.AreEqual (object1, object2, message)
 
     // Constructs a string of given length

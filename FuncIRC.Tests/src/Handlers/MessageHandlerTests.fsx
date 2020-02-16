@@ -1,5 +1,5 @@
-#r "../FuncIRC/bin/Debug/netstandard2.0/FuncIRC.dll"
-#load "../.paket/load/netstandard2.0/NUnit.fsx"
+#r "../../../FuncIRC/bin/Debug/netstandard2.0/FuncIRC.dll"
+#load "../../../.paket/load/netstandard2.0/NUnit.fsx"
 
 namespace FuncIRC.Tests
 namespace NUnit
@@ -25,7 +25,7 @@ module MessageHandlerTests =
 
         pongMessageHandler (message, clientData)
 
-        Threading.Thread.Sleep (1)
+        Threading.Thread.Sleep (100)
 
         ////let outboundMessages = clientData.GetOutboundMessages.Replace("\n", "").Split('\r') |> arrayRemove <| stringIsEmpty
         //Assert.AreEqual (outboundMessages.Length, 1)
@@ -43,10 +43,10 @@ module MessageHandlerTests =
 
         rplWelcomeHandler (message, clientData)
 
-        Threading.Thread.Sleep (1)
+        Threading.Thread.Sleep (100)
 
         //Assert.AreEqual (clientData.GetOutboundMessages, "")
-        Assert.AreEqual (clientData.GetUserInfoSelf, None)
+        Assert.AreEqual (clientData.GetUserInfoSelf, default_IRCUserInfo)
 
     /// RPL_YOURHOST tests
     [<Test>]
@@ -58,10 +58,10 @@ module MessageHandlerTests =
 
         rplYourHostHandler (message, clientData)
 
-        Threading.Thread.Sleep (1)
+        Threading.Thread.Sleep (100)
 
         //Assert.AreEqual (clientData.GetOutboundMessages, "")
-        Assert.AreEqual (clientData.GetUserInfoSelf, None)
+        Assert.AreEqual (clientData.GetUserInfoSelf, default_IRCUserInfo)
 
     /// RPL_CREATED tests
     [<Test>]
@@ -74,7 +74,7 @@ module MessageHandlerTests =
 
         rplCreatedHandler (message, clientData)
 
-        Threading.Thread.Sleep (1)
+        Threading.Thread.Sleep (100)
 
         let serverInfo = clientData.GetServerInfo
         Assert.AreNotEqual (serverInfo, default_IRCServerInfo)
@@ -90,16 +90,16 @@ module MessageHandlerTests =
 
         rplMyInfoHandler (message, clientData)
 
-        Threading.Thread.Sleep (1)
+        Threading.Thread.Sleep (100)
 
         //Assert.AreEqual (clientData.GetOutboundMessages, "")
-        Assert.AreEqual (clientData.GetUserInfoSelf, None)
+        Assert.AreEqual (clientData.GetUserInfoSelf, default_IRCUserInfo)
 
 //#region RPL_ISUPPORT
     let addISupportFeaturesAndVerify (wantedFeatures: IRCServerFeatures, message, clientData) =
         rplISupportHandler (message, clientData)
 
-        Threading.Thread.Sleep (1)
+        Threading.Thread.Sleep (100)
 
         Assert.AreEqual (wantedFeatures.Value.Count, clientData.GetServerFeatures.Count)
         let serverFeatureContentEquals = Array.forall2 (fun a b -> a=b) (wantedFeatures.Value |> Map.toArray) (clientData.GetServerFeatures |> Map.toArray)
@@ -159,11 +159,11 @@ module MessageHandlerTests =
 
         rplLUserClientHandler (message, clientData)
 
-        Threading.Thread.Sleep (1)
+        Threading.Thread.Sleep (100)
 
         Assert.Warn ("Uncertain about how RPL_LUSERCLIENT should be handled")
         //Assert.AreEqual (clientData.GetOutboundMessages, "")
-        Assert.AreEqual (clientData.GetUserInfoSelf, None)
+        Assert.AreEqual (clientData.GetUserInfoSelf, default_IRCUserInfo)
 
     /// RPL_LUSERUNKNOWN tests
     [<Test>]
@@ -175,11 +175,11 @@ module MessageHandlerTests =
 
         rplLUserUnknownHandler (message, clientData)
 
-        Threading.Thread.Sleep (1)
+        Threading.Thread.Sleep (100)
 
         Assert.Warn ("Uncertain about how RPL_LUSERUNKNOWN should be handled")
         //Assert.AreEqual (clientData.GetOutboundMessages, "")
-        Assert.AreEqual (clientData.GetUserInfoSelf, None)
+        Assert.AreEqual (clientData.GetUserInfoSelf, default_IRCUserInfo)
 
     /// RPL_LUSERCHANNELS tests
     [<Test>]
@@ -191,11 +191,11 @@ module MessageHandlerTests =
 
         rplLUserChannelsHandler (message, clientData)
 
-        Threading.Thread.Sleep (1)
+        Threading.Thread.Sleep (100)
 
         Assert.Warn ("Uncertain about how RPL_LUSERCHANNELS should be handled")
         //Assert.AreEqual (clientData.GetOutboundMessages, "")
-        Assert.AreEqual (clientData.GetUserInfoSelf, None)
+        Assert.AreEqual (clientData.GetUserInfoSelf, default_IRCUserInfo)
 
     /// RPL_LUSERME tests
     [<Test>]
@@ -207,11 +207,11 @@ module MessageHandlerTests =
 
         rplLUserMeHandler (message, clientData)
 
-        Threading.Thread.Sleep (1)
+        Threading.Thread.Sleep (100)
 
         Assert.Warn ("Uncertain about how RPL_LUSERME should be handled")
         //Assert.AreEqual (clientData.GetOutboundMessages, "")
-        Assert.AreEqual (clientData.GetUserInfoSelf, None)
+        Assert.AreEqual (clientData.GetUserInfoSelf, default_IRCUserInfo)
 
     /// RPL_LOCALUSERS tests
     [<Test>]
@@ -223,11 +223,11 @@ module MessageHandlerTests =
 
         rplLocalUsersHandler (message, clientData)
 
-        Threading.Thread.Sleep (1)
+        Threading.Thread.Sleep (100)
 
         let wantedServerInfo = { default_IRCServerInfo with LocalUserInfo = (1, 10) }
 
-        Threading.Thread.Sleep (1)
+        Threading.Thread.Sleep (100)
 
         Assert.AreNotEqual (clientData.GetServerInfo, default_IRCServerInfo)
         Assert.AreEqual (clientData.GetServerInfo, wantedServerInfo)
@@ -242,7 +242,7 @@ module MessageHandlerTests =
 
         rplGlobalUsersHandler (message, clientData)
 
-        Threading.Thread.Sleep (1)
+        Threading.Thread.Sleep (100)
 
         let wantedServerInfo = { default_IRCServerInfo with GlobalUserInfo = (1, 10) }
 
@@ -272,10 +272,10 @@ module MessageHandlerTests =
 
         rplMotdStartHandler (message, clientData)
 
-        Threading.Thread.Sleep (1)
+        Threading.Thread.Sleep (100)
 
         //Assert.AreEqual (clientData.GetOutboundMessages, "")
-        Assert.AreEqual (clientData.GetUserInfoSelf, None)
+        Assert.AreEqual (clientData.GetUserInfoSelf, default_IRCUserInfo)
 
     [<Test>]
     let ``RPL_MOTD handler should update MOTD content of IRCClient with all the received MOTD message lines``() =
@@ -290,7 +290,7 @@ module MessageHandlerTests =
                 rplMotdHandler (message, clientData)
         )
 
-        Threading.Thread.Sleep (1)
+        Threading.Thread.Sleep (100)
 
         Assert.AreEqual (motdContents.Length, clientData.GetServerMOTD.Length)
         let motdContentEqual = List.forall2 (fun a b -> a=b) clientData.GetServerMOTD motdContents
@@ -310,9 +310,9 @@ module MessageHandlerTests =
 
         rplEndOfMotdHandler (message, clientData)
 
-        Threading.Thread.Sleep (1)
+        Threading.Thread.Sleep (100)
 
-        Assert.AreEqual (clientData.GetUserInfoSelf, None)
+        Assert.AreEqual (clientData.GetUserInfoSelf, default_IRCUserInfo)
 //#endregion MOTD handler tests
 
 //#region Channel messages
@@ -323,7 +323,7 @@ module MessageHandlerTests =
 
         rplEndOfNamesHandler (message, clientData)
 
-        Threading.Thread.Sleep (1)
+        Threading.Thread.Sleep (100)
 
         let channelInfo = clientData.GetChannelInfo "#channel"
         Assert.True (channelInfo.IsSome)
@@ -347,7 +347,7 @@ module MessageHandlerTests =
         let message = Message.NewSimpleMessage verb parameters
         rplNamReplyHandler (message, clientData)
 
-        Threading.Thread.Sleep (1)
+        Threading.Thread.Sleep (100)
 
         ``RPL_ENDOFNAMES`` (clientData, usersInChannel1)
 
@@ -356,7 +356,7 @@ module MessageHandlerTests =
         let message = Message.NewSimpleMessage verb parameters
         rplNamReplyHandler (message, clientData)
 
-        Threading.Thread.Sleep (1)
+        Threading.Thread.Sleep (100)
 
         ``RPL_ENDOFNAMES`` (clientData, usersInChannel1 |> Array.append usersInChannel2)
 
@@ -368,7 +368,7 @@ module MessageHandlerTests =
 
         rplTopicHandler (message, clientData)
 
-        Threading.Thread.Sleep (1)
+        Threading.Thread.Sleep (100)
 
         let channelInfo = clientData.GetChannelInfo "#channel"
         Assert.True (channelInfo.IsSome, "channelInfo of clientData was None, it's supposed to be set to a value")
