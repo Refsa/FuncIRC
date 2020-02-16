@@ -1,9 +1,7 @@
-namespace FuncIRC
 #load "../../../../.paket/load/netstandard2.0/FParsec.fsx"
-#load "../../Utils/RegexHelpers.fsx"
-#load "../../Utils/StringHelpers.fsx"
 #load "../../Utils/GeneralHelpers.fsx"
-#load "../../Utils/IrcUtils.fsx"
+
+namespace FuncIRC
 
 /// <summary>
 /// FParsec implementation to parse an IRC message string into its constituent parts
@@ -15,9 +13,6 @@ module internal MessageParserInternalsV2 =
 #endif
 
     open FParsec
-    open FParsec.CharParsers
-    open FParsec.Primitives
-    open IrcUtils
     open GeneralHelpers
 
     type UserState = unit
@@ -25,6 +20,10 @@ module internal MessageParserInternalsV2 =
 
     // @aaa=bbb;ccc;example.com/ddd=eee :nick!ident@host.com PRIVMSG me :Hello
     
+    /// <summary> 
+    /// Parser to handle and convert unicode hex to string 
+    /// Direct excerpt from FParsec tutorial
+    /// </summary>
     let unicodeEscape: Parser<_> =
         let hex2int c = (int c &&& 15) + (int c >>> 6)*9
 
@@ -46,17 +45,6 @@ module internal MessageParserInternalsV2 =
     let optionalEmptyList p = optionalEmpty [] p
     let optionalEmptyString p = optionalEmpty "" p
     // / Helpers for default value
-
-    let tagsMarker c = c = '@'
-    let isTagsValid c = isLetter c || isDigit c || isAnyOf "/.=;" c
-
-    let sourceMarker c = c = ':'
-    let isSourceValid c = 
-        (isLetter c || isDigit c || isHex c || isAnyOf "/!.@" c)
-        &&
-        isNoneOf [char "\u0000"; char "\u000d"; char "\u000a"; char "\u0008"] <| c
-
-    let isCommandValid c = isLetter c || isDigit c //|| isNoneOf "\n\r\x00" c
 
     // # Tags Parsers
     /// <summary> Splits the individual tags by the = character if it is there </summary>
