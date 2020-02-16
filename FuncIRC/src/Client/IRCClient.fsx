@@ -35,6 +35,8 @@ module IRCClient =
         let mutable serverFeatures: IRCServerFeatures  = Features Map.empty
         let mutable serverChannels: IRCServerChannels  = {Channels = Map.empty}
 
+        let mutable registeredWithServer: bool = false
+
         // # FIELDS
         /// CancellationTokenSource for the internal tasks
         let tokenSource: CancellationTokenSource = new CancellationTokenSource()
@@ -77,7 +79,9 @@ module IRCClient =
         /// CancellationToken from this.TokenSource
         member internal this.Token = tokenSource.Token
         /// User info of the connected client
-        member internal this.SetUserInfoSelf userInfo = userInfoSelf <- Some userInfo
+        member internal this.SetUserInfoSelf (userInfo: IRCUserInfo) = userInfoSelf <- Some userInfo
+        /// Set after successfully connected with server
+        member internal this.SetRegisteredWithServer value = registeredWithServer <- value
         /// Server info
         member internal this.ServerInfo 
             with get()     = serverInfo
@@ -113,7 +117,7 @@ module IRCClient =
 
 //#region external members
         /// Returns the user info of this client
-        member this.GetUserInfoSelf   = userInfoSelf
+        member this.GetUserInfoSelf: IRCUserInfo option = userInfoSelf
         /// Returns the server info of the connected server
         member this.GetServerInfo     = serverInfo
         /// Returns the MOTD of the server if there is any
@@ -132,7 +136,9 @@ module IRCClient =
         /// Adds one message to the outbound mailbox processor
         member this.AddOutMessage message   = 
             match this.GetUserInfoSelf with
-            | Some ui -> outQueue.Post ({ message with Source = Some ui.Source } )
+            | Some ui -> 
+                if registeredWithServer then outQueue.Post ({ message with Source = Some ui.Source } )
+                else outQueue.Post ({ message with Source = Some { ui.Source with Nick = None; User = None } } )
             | None -> outQueue.Post message
         /// Adds multiple messages to the outbound mailbox processor
         member this.AddOutMessages messages = messages |> List.iter this.AddOutMessage

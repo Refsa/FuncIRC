@@ -95,6 +95,7 @@ module MessageTypes =
 
     /// <summary>
     /// Creates a string from a Source record
+    /// Formatted as :{nick}{!user}[{@host} or {host}]
     /// </summary>
     type Source with
         member this.ToString =
@@ -103,8 +104,9 @@ module MessageTypes =
             +
             match this.User with Some user -> "!" + user | None -> ""
             |> fun (m: string) ->
-                if m.EndsWith ":" then m + "@" + match this.Host with Some host -> host | None -> ""
-                else m
+                let host = match this.Host with Some host -> host | None -> ""
+                if m.EndsWith ":" then m + host
+                else m + "@" + host
 
     /// <summary>
     /// Creates a string from a Message record
@@ -116,7 +118,7 @@ module MessageTypes =
             match this.Source with | Some source -> source.ToString | None -> ""
             + " " +
             match this.Verb with | Some verb -> verb.ToString | None -> ""
-            + " " +
+            +
             match this.Params with | Some parameters -> parameters.ToString | None -> ""
 
     /// <summary>

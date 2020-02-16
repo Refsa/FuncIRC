@@ -93,7 +93,7 @@ module CLI =
 
         let rec messageLoop() =
             async {
-                sendChannelPrivMsg clientData (message + "_" + counter.ToString()) |> ignore
+                sendChannelPrivMsg clientData channel (message + "_" + counter.ToString()) |> ignore
                 Thread.Sleep (timeout)
 
                 counter <- counter + 1
@@ -110,7 +110,7 @@ module CLI =
 
     let joinChannelOnConnect (message: Message, clientData: IRCClient) =
         sendJoinMessage clientData "#testchannel" |> ignore
-        //Async.StartAsTask ((sendPrivMsgTask ("spam", "#testchannel", 2000, clientData))) |> ignore
+        Async.StartAsTask ((sendPrivMsgTask ("spam", "#testchannel", 2000, clientData))) |> ignore
         None
 
     let spammerLoginDetail = ("spammernick", "spammeruser", "spammer name", "")

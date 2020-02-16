@@ -30,7 +30,7 @@ module MessageHandlers =
 
     /// RPL_WELCOME handler
     let rplWelcomeHandler (message: Message, clientData: IRCClient) =
-        ()
+        clientData.SetRegisteredWithServer true
         //printfn "RPL_WELCOME: %s" message.Params.Value.Value.[1].Value
 
     /// RPL_YOURHOST handler
