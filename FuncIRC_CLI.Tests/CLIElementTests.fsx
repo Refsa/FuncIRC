@@ -1,6 +1,7 @@
-namespace FuncIRC_CLI.Tests
+#r "../FuncIRC_CLI/bin/Debug/netcoreapp2.0/FuncIRC_CLI.dll"
+#load "../.paket/load/netcoreapp2.0/NUnit.fsx"
 
-#r "../FuncIRC_CLI/bin/Debug/netcoreapp2.1/FuncIRC_CLI.dll"
+namespace FuncIRC_CLI.Tests
 
 open NUnit.Framework
 open System

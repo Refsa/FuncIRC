@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
     <DebugType>portable</DebugType>
   </PropertyGroup>
   <ItemGroup>
@@ -26,7 +26,7 @@
     <Compile Include="Update/Navigation.fsx" />
 
     <Reference Include="FuncIRC">
-      <HintPath>..\FuncIRC\bin\Debug\netstandard2.0\FuncIRC.dll</HintPath>
+      <HintPath>..\FuncIRC\bin\Debug\netcoreapp2.0\FuncIRC.dll</HintPath>
     </Reference>
 
     <Compile Include="FuncIRC_CLI.fsx" />
