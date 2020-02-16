@@ -54,7 +54,7 @@ module internal MessageParserInternalsV2 =
     let isSourceValid c = 
         (isLetter c || isDigit c || isHex c || isAnyOf "/!.@" c)
         &&
-        isNoneOf [char "\u0000"; char "\u000d"; char "\u000a"; char "\u0008"] c
+        isNoneOf [char "\u0000"; char "\u000d"; char "\u000a"; char "\u0008"] <| c
 
     let isCommandValid c = isLetter c || isDigit c //|| isNoneOf "\n\r\x00" c
 
@@ -65,6 +65,7 @@ module internal MessageParserInternalsV2 =
         let valueParser = pstring "=" >>. manyChars (noneOf ";") <|>% ""
         optional (skipString ";") >>. (keyParser .>>. valueParser)
     
+    /// <summary> parses the tags only string into (key, value) list </summary>
     let splitAllTags: Parser<_> =
         many1 (notEmpty pSplitTags) <|> (pstring "" >>. preturn [])
 
@@ -84,13 +85,13 @@ module internal MessageParserInternalsV2 =
 
     /// <summary> Parses the host part of a source segment if it exists </summary>
     let hostParser: Parser<_> = 
-        optional (skipString "@" <|> skipString ":") >>. (manyChars <| noneOf "" .>> eof)
+        optional (skipString "@" <|> skipString ":") >>. manyChars (noneOf "") .>> eof
 
     /// <summary> Splits the source into (nick, user, hostname) </summary>
     let splitSource: Parser<_> =
         pipe3 
-            ( attempt <| nickParser |> optionalEmptyString ) // Nick
-            ( attempt <| userParser |> optionalEmptyString ) // User
+            ( attempt nickParser |> optionalEmptyString ) // Nick
+            ( attempt userParser |> optionalEmptyString ) // User
             ( hostParser ) // Host
             ( fun a b c -> (a, b, c) )
 
@@ -117,17 +118,17 @@ module internal MessageParserInternalsV2 =
 
     /// <summary> Parses command of message </summary>
     let commandParser: Parser<_> = 
-        optional <| skipString " " >>. manyChars (noneOf "") .>> eof |> optionalEmptyString //many1Satisfy isCommandValid .>> eof |> optionalEmptyString
+        optional (skipString " ") >>. manyChars (noneOf "") .>> eof |> optionalEmptyString //many1Satisfy isCommandValid .>> eof |> optionalEmptyString
     // / Command Parsers
 
     /// <summary> Parses whole message into its constituent parts using FParsec </summary>
     let messageParser: Parser<_> = 
         pipe3 tagsParser sourceParser commandParser 
-            (fun a b c -> 
+            (fun tags source command -> 
                 (
-                    a |> run splitAllTags |> getParserValue,
-                    b |> run splitSource |> getParserValue, 
-                    c |> run splitCommand |> getParserValue
+                    tags    |> run splitAllTags |> getParserValue,
+                    source  |> run splitSource  |> getParserValue, 
+                    command |> run splitCommand |> getParserValue
                 )
             )
 
