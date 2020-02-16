@@ -34,7 +34,7 @@ module IRCClient =
         let mutable serverMOTD:     IRCServerMOTD      = MOTD []
         let mutable serverFeatures: IRCServerFeatures  = Features Map.empty
         let mutable serverChannels: IRCServerChannels  = {Channels = Map.empty}
-
+        /// Set to true when a successful registration is made with server
         let mutable registeredWithServer: bool = false
 
         // # FIELDS

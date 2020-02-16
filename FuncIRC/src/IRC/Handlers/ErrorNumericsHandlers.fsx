@@ -26,21 +26,25 @@ module ErrorNumericsHandlers =
     /// Related to NICK verb
     let errNoNicknameGivenHandler (message: Message, clientData: IRCClient) =
         let errorResponse = "No Nickname was supplied to the NICK command"
+        clientData.SetUserInfoSelf {clientData.GetUserInfoSelf with Nick = ""}
         clientData.ErrorNumericReceivedTrigger (errorResponse)
 
     /// Related to NICK verb
     let errErroneusNicknameHandler (message: Message, clientData: IRCClient) =
         let errorResponse = "Nickname [" + message.Params.Value.Value.[1].Value + "] was not accepted by server: Erroneus Nickname"
+        clientData.SetUserInfoSelf {clientData.GetUserInfoSelf with Nick = ""}
         clientData.ErrorNumericReceivedTrigger (errorResponse)
 
     /// Related to NICK verb
     let errNicknameInUseHandler (message: Message, clientData: IRCClient) =
         let errorResponse = "Nickname [" + message.Params.Value.Value.[1].Value + "] is already in use on server"
+        clientData.SetUserInfoSelf {clientData.GetUserInfoSelf with Nick = ""}
         clientData.ErrorNumericReceivedTrigger (errorResponse)
 
     /// Related to NICK verb
     let errNickCollisionHandler (message: Message, clientData: IRCClient) =
         let errorResponse = "Nickname [" + message.Params.Value.Value.[1].Value + "] threw a nick collision response from server"
+        clientData.SetUserInfoSelf {clientData.GetUserInfoSelf with Nick = ""}
         clientData.ErrorNumericReceivedTrigger (errorResponse)
 
     /// Related to JOIN verb

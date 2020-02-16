@@ -29,6 +29,7 @@ module MessageHandlers =
 //#endregion PING message handler
 
     /// RPL_WELCOME handler
+    /// Sets the registeredWithUser flag on clientData
     let rplWelcomeHandler (message: Message, clientData: IRCClient) =
         clientData.SetRegisteredWithServer true
 
@@ -39,7 +40,7 @@ module MessageHandlers =
 //#region RPL_CREATED handler
     /// Regex to capture DateTimes in the format of: 23:25:21 Jan 24 2020
     /// TODO: Add capturing of different DateTime formats
-    let dateTimeRegex = @"(\d{2}:\d{2}:\d{2}.+)"
+    let private dateTimeRegex = @"(\d{2}:\d{2}:\d{2}.+)"
     /// RPL_CREATED handler
     let rplCreatedHandler (message: Message, clientData: IRCClient) =
         let wantedParam = message.Params.Value.Value.[1].Value
