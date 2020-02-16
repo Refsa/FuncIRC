@@ -102,7 +102,9 @@ module internal MessageParserInternalsV2 =
     // # Command Parsers
     /// <summary> Separates the leading parameters by space and the trailing parameter by : if it exists </summary>
     let getParameters: Parser<_> =
-        (optional <| skipString " ") >>. sepBy (manyChars <| noneOf " :") (pstring " ") .>>. ((optional <| skipString ":") >>. (manyChars <| noneOf ""))
+        let leadingParams  = optional (skipString " ") >>. sepBy (manyChars (noneOf " :")) (pstring " ")
+        let trailingParams = optional (skipString ":") >>. manyChars (noneOf "")
+        leadingParams .>>. trailingParams
 
     /// <summary> Takes the whole command string and splits it into verb and parameters </summary>
     let splitCommand: Parser<_> =
