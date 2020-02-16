@@ -2,8 +2,7 @@ generate_load_scripts: true
 source https://api.nuget.org/v3/index.json
 
 storage: none
-framework: net48
-framework: auto-detect
+frameworks: netstandard2.0, netcoreapp2.0
 
 nuget FSharp.Core
 nuget FSharp.Compiler.Service
@@ -13,7 +12,9 @@ nuget NUnit
 nuget NBench
 
 group Build
-source https://www.nuget.org/api/v2
+source https://api.nuget.org/v3/index.json
+storage: none
+frameworks: netstandard2.0, netcoreapp2.0
 
 nuget FAKE
 nuget FParsec
