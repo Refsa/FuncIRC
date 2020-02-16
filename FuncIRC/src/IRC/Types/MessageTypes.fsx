@@ -58,6 +58,7 @@ module MessageTypes =
         static member NewSimpleMessage verb parameters        = {Tags = None; Source = None; Verb = verb; Params = parameters}
         static member NewSourceMessage source verb parameters = {Tags = None; Source = source; Verb = verb; Params = parameters}
         static member NewMessage tags source verb parameters  = {Tags = tags; Source = source; Verb = verb; Params = parameters}
+        static member EmptyMessage = {Tags = None; Source = None; Verb = None; Params = None}
 
 //#region ToString methods
     /// <summary>

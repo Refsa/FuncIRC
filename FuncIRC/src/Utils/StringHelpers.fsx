@@ -53,6 +53,14 @@ module StringHelpers =
             target
 
     /// <summary>
+    /// Factory function to extract string from a <string option> type
+    /// </summary>
+    let extractStringOption (target: string option) (method: string -> string) =
+        match target with
+        | Some t -> Some (method t)
+        | None -> None
+
+    /// <summary>
     /// Takes the value from a string option if it is some
     /// </summary>
     /// <returns> the string value if it is Some, empty string if None </returns>
@@ -62,6 +70,15 @@ module StringHelpers =
         | None -> ""
 
     /// <summary>
+    /// Takes a string and gives a string option
+    /// </summary>
+    /// <returns> None if string is empty, Some of string if not </returns>
+    let stringOptionFromString (target: string) =
+        match target with
+        | "" -> None
+        | _ -> Some target
+
+    /// <summary>
     /// Checks if the given string is only alphanumeric
     /// </summary>
     /// <params name="string"> string to look through </params>
@@ -69,10 +86,7 @@ module StringHelpers =
     let stringIsOnlyAlphaNumeric (target: string) =
         target 
         |> Seq.toList
-        |> List.forall
-            (fun c ->
-                Char.IsLetterOrDigit c
-            ) 
+        |> List.forall Char.IsLetterOrDigit
 
     /// <summary>
     /// Checks that the given string is alphanumeric and doesn't contain any of the given characters
@@ -106,3 +120,16 @@ module StringHelpers =
                 | c when Array.contains c characters -> false
                 | _ -> true
             )
+
+    /// <summary>
+    /// Checks if a string is empty ("")
+    /// </summary>
+    /// <returns> true if string was empty </returns>
+    let stringIsEmpty (target: string) = target = ""
+
+    /// <summary>
+    /// </summary>
+    let stringRemoveOptionAndTrimStart (target: string) (remove: string option) (trimChar: char) =
+        match remove with
+        | Some remove -> target.Replace(remove, "").TrimStart (trimChar)
+        | None -> target

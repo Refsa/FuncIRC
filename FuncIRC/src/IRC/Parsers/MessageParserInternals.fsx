@@ -29,19 +29,19 @@ module internal MessageParserInternals =
     /// <summary>
     /// Trims the tags string of extranous characters and splits it with ';' character
     /// </summary>
-    let extractTags (tagsString: string) =
+    let trimAndSplitTagsString (tagsString: string) =
         ((tagsString.TrimStart('@').TrimStart(' ').Split(';')) |> Array.toList)
 
     /// <summary>
     /// Trims the source string of extraneous characters
     /// </summary>
-    let extractSource (sourceString: string) =
+    let trimSourceString (sourceString: string) =
         (sourceString.TrimStart(':').TrimStart(' '))
 
     /// <summary>
     /// Trims the command string of extraneous characters
     /// </summary>
-    let extractCommand (commandString: string) =
+    let trimCommandString (commandString: string) =
         (commandString.TrimStart(' '))
 
     /// <summary>
@@ -139,7 +139,7 @@ module internal MessageParserInternals =
     /// <summary>
     /// Picks out the parameters when a trailing marker was found
     /// </summary>
-    let getParamsWithTrailing (paramsSplit: string array, parametersString: string) = 
+    let getParamsWithTrailing (paramsSplit: string array) (parametersString: string) = 
         let primary   = arrayRemove (paramsSplit.[0].Split(' ')) stringIsEmpty |> Array.toList
         let secondary = parametersString.Replace(paramsSplit.[0], "") |> fun x -> stringTrimFirstIf (x, ':')
 
@@ -161,7 +161,7 @@ module internal MessageParserInternals =
         match paramsSplit with // Check how many trailing params it has
         | NoParams    -> None
         | NoTrailing  -> getParamsNoTrailing paramsSplit
-        | HasTrailing -> getParamsWithTrailing (paramsSplit, parametersString)
+        | HasTrailing -> getParamsWithTrailing paramsSplit parametersString
     
     /// <summary>
     /// Takes the full IRC message as a string and splits it into (tags, source, verb, params)
@@ -175,10 +175,7 @@ module internal MessageParserInternals =
         /// </summary>
         let extractTagsFromString (message: string) =
             let tags = matchRegexFirst message tagsRegex
-            let rest = 
-                match tags with
-                | Some tags -> message.Replace(tags, "").TrimStart(' ')
-                | None      -> message
+            let rest = stringRemoveOptionAndTrimStart message tags ' '
 
             ( rest, tags )
 
@@ -188,10 +185,7 @@ module internal MessageParserInternals =
         /// </summary>
         let extractSourceFromString (message: string) =
             let source = matchRegexFirst message sourceRegex
-            let rest   = 
-                match source with
-                | Some source -> message.Replace(source, "").TrimStart(' ')
-                | None        -> message
+            let rest   = stringRemoveOptionAndTrimStart message source ' '
 
             ( rest, source )
 
@@ -200,13 +194,13 @@ module internal MessageParserInternals =
         /// returns the verb and the parameters if there were any
         /// </summary>
         let extractCommandFromString (message: string) =
-            let command = extractString((matchRegexFirst message commandRegex), extractCommand)
+            let command = extractStringOption (matchRegexFirst message commandRegex) trimCommandString
 
             match command with
             | None         -> (None, None)
             | Some command -> 
                 let verb       = command.Split(' ').[0].TrimStart(' ')
-                let parameters = 
+                let parameters =
                     match verb with
                     | "" -> None
                     | _  -> Some (command.Replace(verb, "").TrimStart(' '))

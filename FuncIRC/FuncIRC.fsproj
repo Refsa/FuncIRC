@@ -4,30 +4,30 @@
     <OutputType>Library</OutputType>
     <TargetFrameworks>netcoreapp2.0;netstandard2.0</TargetFrameworks>
     <DebugType>portable</DebugType>
+    <DefineConstants>USE_FPARSEC</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="src/IRC/Types/Modes.fsx" />
     <Compile Include="src/IRC/Types/NumericReplies.fsx" />
     <Compile Include="src/IRC/Types/MessageTypes.fsx" />
+    <Compile Include="src/IRC/Types/IRCInformation.fsx" />
 
     <Compile Include="src/Utils/StringHelpers.fsx" />
     <Compile Include="src/Utils/RegexHelpers.fsx" />
     <Compile Include="src/Utils/GeneralHelpers.fsx" />
     <Compile Include="src/Utils/IrcUtils.fsx" />
+    <Compile Include="src/Utils/TcpClientHelpers.fsx" />
 
     <Compile Include="src/IRC/Parsers/Validators.fsx" />
+    <Compile Include="src/IRC/Parsers/MessageParserInternals.fsx" />
     <Compile Include="src/IRC/Parsers/MessageParser.fsx" />
+    <Compile Include="src/IRC/Parsers/MessageParserInternalsV2.fsx" />
+    <Compile Include="src/IRC/Parsers/MessageParserV2.fsx" />
 
-    <Compile Include="src/Utils/TcpClientHelpers.fsx" />
     <Compile Include="src/Networking/TCPClient.fsx" />
-
-    <Compile Include="src/IRC/Types/IRCInformation.fsx" />
-    <Compile Include="src/Utils/MessageQueue.fsx" />
-
     <Compile Include="src/Networking/IRCStreamWriter.fsx" />
 
     <Compile Include="src/Client/IRCClient.fsx" />
-
     <Compile Include="src/Client/IRCMessages.fsx" />
     
     <Compile Include="src/IRC/Handlers/ServerFeatureHandlers.fsx" />
@@ -35,8 +35,8 @@
     <Compile Include="src/IRC/Handlers/ErrorNumericsHandlers.fsx" />
     
     <Compile Include="src/Networking/IRCStreamReader.fsx" />
-    
     <Compile Include="src/Networking/IRCClientHandler.fsx" />
+    
     <Compile Include="src/Client/ClientSetup.fsx" />
 
     <None Include="FuncIRC.fsx" />

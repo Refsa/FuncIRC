@@ -3,11 +3,13 @@ namespace FuncIRC
 #load "../Types/MessageTypes.fsx"
 #load "../Parsers/MessageParserInternals.fsx"
 #load "../../Utils/GeneralHelpers.fsx"
+#load "../../Utils/StringHelpers.fsx"
 
 module MessageParser =
     open MessageParserInternals
     open MessageTypes
     open GeneralHelpers
+    open StringHelpers
 
     /// <summary>
     /// Uses regex to find the different groups of the IRC string message
@@ -19,8 +21,8 @@ module MessageParser =
         let tags, source, verb, parameters = messageSplit message
 
         { // Construct Message Record
-            Tags   = parseTags       (extractList   (tags, extractTags));
-            Source = parseSource     (extractString (source, extractSource));
+            Tags   = parseTags       (extractList   (tags, trimAndSplitTagsString));
+            Source = parseSource     (extractStringOption source trimSourceString);
             Verb   = toVerb          (verb);
             Params = parseParameters (parameters)
         }

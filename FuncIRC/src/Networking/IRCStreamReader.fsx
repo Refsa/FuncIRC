@@ -1,7 +1,7 @@
 #load "TCPClient.fsx"
 #load "IRCClient.fsx"
 #load "../IRC/Parsers/MessageParser.fsx"
-#load "../IRC/Parsers/MessageParserInternals.fsx"
+#load "../IRC/Parsers/MessageParserV2.fsx"
 #load "../IRC/Types/MessageTypes.fsx"
 #load "../IRC/Types/NumericReplies.fsx"
 #load "../IRC/Handlers/MessageHandlers.fsx"
@@ -14,8 +14,13 @@ open System
 
 open IRCClient
 open MailboxProcessorHelpers
+
+#if !USE_FPARSEC
 open MessageParser
-open MessageParserInternals
+#else
+open MessageParserV2
+#endif
+
 open MessageTypes
 open NumericReplies
 open StringHelpers

@@ -93,7 +93,7 @@
 
 # MessageParserInternals.fsx:
     - Move the regex values to IrcUtils.fsx or make them private
-    - names of extractTags, extractSource and extractCommand does not reflect their use-case
+    - names of trimAndSplitTagString, extractSource and extractCommand does not reflect their use-case
     - parseTags could probably be split up into two functions to avoid indendation hell
     - parseSource is a bit unreadable
         - Active Pattern to parse the source parts could also handle returning the values
