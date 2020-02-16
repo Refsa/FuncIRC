@@ -52,8 +52,10 @@ module GeneralHelpers =
     let (@+) listG item =
         listG @ [item]
 
+    /// <summary> Removes items from list that is euqal to item </summary>
     let (@!) listG item =
         listG |> List.where ((<>) item)
 
+    /// <summary> Keeps items in list that is equal to item </summary>
     let (@=) listG item =
         listG |> List.where ((=) item)
