@@ -144,11 +144,17 @@ module CLI =
                 | _ -> ()
         )
 
-        clientData |> sendRegistrationMessage <| testUserLoginDetail
-
-        printfn "### CLI LOOP ###\n\n"
-        while Console.ReadKey().Key <> ConsoleKey.Q do
-            ()
+        (clientData |> sendRegistrationMessage <| testUserLoginDetail)
+        |> function
+        | RegistrationFeedback.Sent ->
+            printfn "### CLI LOOP ###\n\n"
+            while Console.ReadKey().Key <> ConsoleKey.Q do
+                ()
+        | RegistrationFeedback.NoUserName ->
+            printfn "Login data [%A] contains no nick name" testUserLoginDetail
+        | RegistrationFeedback.AlreadyRegistered ->
+            printfn "You are already registered with server"
+        | _ -> printfn "Unknown error when sending registration message"
 
         clientData |> sendQuitMessage <| "Bye everyone!" |> ignore
         clientData.DisconnectClient()

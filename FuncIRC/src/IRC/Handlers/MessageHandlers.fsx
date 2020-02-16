@@ -31,12 +31,10 @@ module MessageHandlers =
     /// RPL_WELCOME handler
     let rplWelcomeHandler (message: Message, clientData: IRCClient) =
         clientData.SetRegisteredWithServer true
-        //printfn "RPL_WELCOME: %s" message.Params.Value.Value.[1].Value
 
     /// RPL_YOURHOST handler
     let rplYourHostHandler (message: Message, clientData: IRCClient) =
         ()
-        //printfn "RPL_YOURHOST: %s" message.Params.Value.Value.[1].Value
 
 //#region RPL_CREATED handler
     /// Regex to capture DateTimes in the format of: 23:25:21 Jan 24 2020

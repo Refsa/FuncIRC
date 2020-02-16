@@ -62,7 +62,7 @@ module IRCClient =
             match userInfoSelf.Source with
             | Some source -> 
                 { userInfoSelf with 
-                    Source = Some { source with Nick = Some userInfoSelf.Nick; 
+                    Source = Some { source with Nick = Some userInfoSelf.Nick;
                                                 User = Some userInfoSelf.User } }
             | None -> userInfoSelf
 
@@ -136,6 +136,8 @@ module IRCClient =
         member this.GetServerMOTD     = serverMOTD.Value
         /// Returns the server features as a (string * string) Map
         member this.GetServerFeatures = serverFeatures.Value
+        /// Checks if the client is already registered with server
+        member this.IsAlreadRegistered = registeredWithServer
 
         /// <summary> Returns the information about a channel if it exists </summary>
         /// <returns> Some of IRCChannelInfo if it exists, None if not </returns>
@@ -148,7 +150,7 @@ module IRCClient =
         /// TODO: Add outboud message validation
         /// Adds one message to the outbound mailbox processor
         member this.AddOutMessage (message: Message) = 
-            outQueue.Post {message with Source = userInfoSelf.Source}
+            outQueue.Post { message with Source = userInfoSelf.Source }
             
         /// Adds multiple messages to the outbound mailbox processor
         member this.AddOutMessages (messages: Message list) = messages |> List.iter this.AddOutMessage
