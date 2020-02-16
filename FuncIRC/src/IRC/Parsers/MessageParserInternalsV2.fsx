@@ -111,7 +111,7 @@ module internal MessageParserInternalsV2 =
 
     /// <summary> Parses whole message into its constituent parts using FParsec </summary>
     let messageParser: Parser<_> = 
-        pipe3 tagsParser sourceParser commandParser 
+        pipe3 tagsParser sourceParser commandParser
             (fun tags source command -> 
                 (
                     tags    |> run splitAllTags |> getParserValue,

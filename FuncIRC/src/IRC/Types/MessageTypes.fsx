@@ -98,30 +98,26 @@ module MessageTypes =
     /// </summary>
     type Source with
         member this.ToString =
-            ":" + stringFromStringOption this.Nick + 
-            "!" + stringFromStringOption this.User + 
-            "@" + stringFromStringOption this.Host
+            ":" + 
+            match this.Nick with Some nick -> nick | None -> ""
+            +
+            match this.User with Some user -> "!" + user | None -> ""
+            |> fun (m: string) ->
+                if m.EndsWith ":" then m + "@" + match this.Host with Some host -> host | None -> ""
+                else m
 
     /// <summary>
     /// Creates a string from a Message record
     /// </summary>
     type Message with
         member this.ToMessageString =
-            match this.Tags with
-            | Some tags -> tags.ToString()
-            | None -> ""
-            +
-            match this.Source with
-            | Some source -> source.ToString
-            | None -> ""
-            +
-            match this.Verb with
-            | Some verb -> verb.ToString
-            | None -> ""
-            +
-            match this.Params with
-            | Some parameters -> parameters.ToString
-            | None -> ""
+            match this.Tags with | Some tags -> tags.ToString() | None -> ""
+            + " " +
+            match this.Source with | Some source -> source.ToString | None -> ""
+            + " " +
+            match this.Verb with | Some verb -> verb.ToString | None -> ""
+            + " " +
+            match this.Params with | Some parameters -> parameters.ToString | None -> ""
 
     /// <summary>
     /// Construct a single outboud IRC message from a list of messages

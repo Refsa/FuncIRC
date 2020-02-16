@@ -102,11 +102,16 @@ module IRCMessages =
         let messages = 
             match loginData with
             | InvalidLoginData -> raise RegistrationContentException
-            | UserRealNamePass (nick, user, realName, pass) -> [ capMessage; passMessage pass; nickMessage nick; userMessage user realName ]
-            | UserPass (nick, user, pass)                   -> [ capMessage; passMessage pass; nickMessage nick; userMessage user user ]
-            | UserRealName (nick, user, realName)           -> [ capMessage; nickMessage nick; userMessage user realName ]
-            | User (nick, user)                             -> [ capMessage; nickMessage nick; userMessage user user ]
-            | Nick (nick)                                   -> [ capMessage; nickMessage nick; userMessage nick nick ]
+            | UserRealNamePass (nick, user, realName, pass) -> 
+                [ capMessage; passMessage pass; nickMessage nick; userMessage user realName ]
+            | UserPass (nick, user, pass)                   -> 
+                [ capMessage; passMessage pass; nickMessage nick; userMessage user user ]
+            | UserRealName (nick, user, realName)           -> 
+                [ capMessage; nickMessage nick; userMessage user realName ]
+            | User (nick, user)                             -> 
+                [ capMessage; nickMessage nick; userMessage user user ]
+            | Nick (nick)                                   -> 
+                [ capMessage; nickMessage nick; userMessage nick nick ]
 
         clientData.MessageSubscriptionEvent
         |> Event.add (

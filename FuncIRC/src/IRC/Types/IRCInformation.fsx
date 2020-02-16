@@ -1,4 +1,4 @@
-#load "../IRC/MessageTypes.fsx"
+#load "MessageTypes.fsx"
 
 namespace FuncIRC
 

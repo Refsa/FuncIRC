@@ -1,5 +1,6 @@
 #load "../Networking/TCPClient.fsx"
 #load "../Networking/IRCStreamWriter.fsx"
+#load "../Networking/ExternalIPAddress.fsx"
 #load "../Utils/MailboxProcessorHelpers.fsx"
 #load "../IRC/Types/IRCInformation.fsx"
 #load "../IRC/Types/MessageTypes.fsx"
@@ -14,6 +15,7 @@ open IRCStreamWriter
 open MailboxProcessorHelpers
 open MessageTypes
 open TCPClient
+open ExternalIPAddress
 
 // TODO: Remove recursive dependency in module
 #if !DEBUG
@@ -26,11 +28,21 @@ module IRCClient =
     /// Handles all the information related to the IRC part of the client
     /// </summary>
     type IRCClient (client: TCPClient) =
+        // # MUTABLES
+        let mutable userInfoSelf:   IRCUserInfo option = None
+        let mutable serverInfo:     IRCServerInfo      = default_IRCServerInfo
+        let mutable serverMOTD:     IRCServerMOTD      = MOTD []
+        let mutable serverFeatures: IRCServerFeatures  = Features Map.empty
+        let mutable serverChannels: IRCServerChannels  = {Channels = Map.empty}
+
         // # FIELDS
         /// CancellationTokenSource for the internal tasks
         let tokenSource: CancellationTokenSource = new CancellationTokenSource()
         /// MailboxProcessor to handle outbound messages
         let outQueue: MailboxProcessor<Message> = streamWriter (client)
+        /// Concurrent way to update serverInfo using MailboxProcessor
+        let serverInfoUpdateQueue: MailboxProcessor<IRCServerInfo> =
+            (fun newInfo -> serverInfo <- newInfo) |> mailboxProcessorFactory<IRCServerInfo>
 
         // # EVENTS
         /// Event when the client was disconnected from server
@@ -42,16 +54,8 @@ module IRCClient =
         /// Error numeric from server
         let errorNumericReceived: Event<_> = new Event<_>()
 
-        // # MUTABLES
-        let mutable userInfoSelf:   IRCUserInfo option = None
-        let mutable serverInfo:     IRCServerInfo      = default_IRCServerInfo
-        let mutable serverMOTD:     IRCServerMOTD      = MOTD []
-        let mutable serverFeatures: IRCServerFeatures  = Features Map.empty
-        let mutable serverChannels: IRCServerChannels  = {Channels = Map.empty}
-
-        /// Concurrent way to update serverInfo using MailboxProcessor
-        let serverInfoUpdateQueue: MailboxProcessor<IRCServerInfo> =
-            (fun newInfo -> serverInfo <- newInfo) |> mailboxProcessorFactory<IRCServerInfo> 
+        do 
+            userInfoSelf <- Some { Source = { Nick = None; User = None; Host = Some (getExternalIPAddress()) } }
 
         #if DEBUG
         new () = new IRCClient (new TCPClient ("", 0, false))
@@ -126,7 +130,10 @@ module IRCClient =
 
         // TODO: Add outboud message validation
         /// Adds one message to the outbound mailbox processor
-        member this.AddOutMessage message   = outQueue.Post message
+        member this.AddOutMessage message   = 
+            match this.GetUserInfoSelf with
+            | Some ui -> outQueue.Post ({ message with Source = Some ui.Source } )
+            | None -> outQueue.Post message
         /// Adds multiple messages to the outbound mailbox processor
         member this.AddOutMessages messages = messages |> List.iter this.AddOutMessage
 //#endregion external members
