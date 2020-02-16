@@ -5,14 +5,14 @@ open System.Net
 module internal ExternalIPAddress =
 
     /// <summary> polls an external server to get the external IP of this device </summary>
-    let getExternalIPAddressRemote() = 
+    let private getExternalIPAddressRemote() = 
         try
             use webc = new WebClient()
             webc.DownloadString("http://bot.whatismyipaddress.com")
         with
         | _ -> ""
 
-    let isPrivateIP (ip: IPAddress) =
+    let private isPrivateIP (ip: IPAddress) =
         if ip.AddressFamily = Sockets.AddressFamily.InterNetwork then
             let ipBytes = ip.GetAddressBytes()
 
@@ -25,7 +25,7 @@ module internal ExternalIPAddress =
         else
             false
 
-    let getExternalIPAddressLocal() =
+    let private getExternalIPAddressLocal() =
         let hostEntries = Dns.GetHostEntry (Dns.GetHostName())
         hostEntries.AddressList
         |> Array.tryFind (
@@ -35,9 +35,11 @@ module internal ExternalIPAddress =
                 else false
         )
 
-    let getExternalIPAddress() = 
+    let getExternalIPAddress(tryExternal: bool) = 
         try 
             let eip = getExternalIPAddressLocal()
             eip.ToString()
         with
-        | _ -> getExternalIPAddressRemote()
+        | _ -> 
+            if tryExternal then getExternalIPAddressRemote()
+            else ""

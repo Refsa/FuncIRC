@@ -27,7 +27,7 @@ module IRCClient =
     /// <summary>
     /// Handles all the information related to the IRC part of the client
     /// </summary>
-    type IRCClient (client: TCPClient) as this =
+    type IRCClient (client: TCPClient, ?getClientIPExternally: bool) as this =
         // # MUTABLES
         let mutable userInfoSelf:   IRCUserInfo        = default_IRCUserInfo
         let mutable serverInfo:     IRCServerInfo      = default_IRCServerInfo
@@ -67,7 +67,12 @@ module IRCClient =
             | None -> userInfoSelf
 
         do
-            userInfoSelf <- { Nick = ""; User = ""; Source = Some { Nick = None; User = None; Host = Some (getExternalIPAddress()) } }
+            let externalIP = getExternalIPAddress(match getClientIPExternally with | Some v -> v | None -> false)
+            if externalIP <> "" then
+                userInfoSelf <- 
+                    { Nick = ""; 
+                      User = ""; 
+                      Source = Some { Nick = None; User = None; Host = Some externalIP } }
 
         #if DEBUG
         new () = new IRCClient (new TCPClient ("", 0, false))
